@@ -4,7 +4,7 @@ main:
 	pdflatex main.tex
 
 clean:
-	rm *.bcf *.log *.run.xml *.toc *.aux *.tex.blg *.pdf.blg *.bbl *.blg
+	rm *.bcf *.log *.run.xml *.toc *.aux *.tex.blg *.pdf.blg *.bbl *.blg *.pdf
 
 all:
 	pdflatex *.tex
