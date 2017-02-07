@@ -1,0 +1,27 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+
+\begin{document}
+
+%%%%%%% FORSIDE STUFF %%%%%%%%%%
+\AddToShipoutPicture*{\put(0,0){\includegraphics*[viewport=0 0 700 600]{\ColourPDF}}}
+\AddToShipoutPicture*{\put(0,602){\includegraphics*[viewport=0 600 700 1600]{\ColourPDF}}}
+
+\AddToShipoutPicture*{\put(0,0){\includegraphics*{\TitlePDF}}}
+
+\clearpage\maketitle
+\thispagestyle{empty}
+\newpage
+%%%%%%%%% FORSIDE STUFF SLUT <-- hæhæ luder %%%%%%%%%%%%
+
+%\input{abstract}  
+\tableofcontents
+\newpage
+\pagenumbering{arabic}
+\input{Introduction}
+%\printbibliography
+\newpage
+%\bibliography{citations}
+%\bibliographystyle{plain}
+%\input{appendix}
+\end{document}

@@ -1,0 +1,120 @@
+%\documentclass[11pt]{article}
+\usepackage[a4paper, hmargin={2.8cm, 2.8cm}, vmargin={2.5cm, 2.5cm}]{geometry}
+\usepackage{eso-pic} % \AddToShipoutPicture
+\usepackage{graphicx}
+\usepackage[toc,page]{appendix}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{stmaryrd}
+\usepackage[english]{babel}
+\usepackage[all]{xy}
+\usepackage{float}
+\usepackage{tabularx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+\usepackage{enumerate}
+\usepackage{tabu}
+\usepackage{tabularx}
+\usepackage{wrapfig}
+\usepackage{dsfont}
+\usepackage{pgf}
+\usepackage{tikz}
+\usepackage{fancyhdr}
+\usepackage{lastpage}
+\usepackage{booktabs}
+\usepackage{lmodern}
+\usepackage[normalem]{ulem}
+\usepackage{url}
+\usepackage[font={small,md},justification=centering]{caption}
+\usepackage{subcaption} % til subfigure
+\usepackage{subfig}
+%\usepackage[final]{graphicx}
+\usepackage{enumitem} % til \begin{description}[labelindent=1cm]
+\usepackage{mathtools}
+\usepackage{xcolor}
+\usepackage{listings}
+\definecolor{red}{RGB}{255, 0, 0}
+\definecolor{green}{RGB}{0, 255, 0}
+\definecolor{mygreen}{rgb}{0,0.6,0}
+\definecolor{mygray}{rgb}{0.5,0.5,0.5}
+\definecolor{mymauve}{rgb}{0.58,0,0.82}
+
+\lstset{ %
+  backgroundcolor=\color{white},   % choose the background color; you must add \usepackage{color} or \usepackage{xcolor}
+  basicstyle=\footnotesize,        % the size of the fonts that are used for the code
+  breakatwhitespace=false,         % sets if automatic breaks should only happen at whitespace
+  breaklines=true,                 % sets automatic line breaking
+  captionpos=b,                    % sets the caption-position to bottom
+  commentstyle=\color{mygreen},    % comment style
+  deletekeywords={...},            % if you want to delete keywords from the given language
+  escapeinside={\%*}{*)},          % if you want to add LaTeX within your code
+  extendedchars=true,              % lets you use non-ASCII characters; for 8-bits encodings only, does not work with UTF-8
+  frame=single,	                   % adds a frame around the code
+  keepspaces=true,                 % keeps spaces in text, useful for keeping indentation of code (possibly needs columns=flexible)
+  keywordstyle=\color{blue},       % keyword style
+  language=Octave,                 % the language of the code
+  otherkeywords={*,...},           % if you want to add more keywords to the set
+  numbers=left,                    % where to put the line-numbers; possible values are (none, left, right)
+  numbersep=5pt,                   % how far the line-numbers are from the code
+  numberstyle=\tiny\color{mygray}, % the style that is used for the line-numbers
+  rulecolor=\color{black},         % if not set, the frame-color may be changed on line-breaks within not-black text (e.g. comments (green here))
+  showspaces=false,                % show spaces everywhere adding particular underscores; it overrides 'showstringspaces'
+  showstringspaces=false,          % underline spaces within strings only
+  showtabs=false,                  % show tabs within strings adding particular underscores
+  stepnumber=2,                    % the step between two line-numbers. If it's 1, each line will be numbered
+  stringstyle=\color{mymauve},     % string literal style
+  tabsize=2,	                   % sets default tabsize to 2 spaces
+  title=\lstname                   % show the filename of files included with \lstinputlisting; also try caption instead of title
+}
+
+\usepackage{array}
+\newcolumntype{L}[1]{>{\raggedright\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{C}[1]{>{\centering\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+\newcolumntype{R}[1]{>{\raggedleft\let\newline\\\arraybackslash\hspace{0pt}}m{#1}}
+
+\DeclarePairedDelimiter\abs{\lvert}{\rvert}
+\let\oldabs\abs
+\def\abs{\@ifstar{\oldabs}{\oldabs*}}
+\newcommand{\mybox}[2]{{\color{#1}\fbox{\normalcolor#2}}}
+\newcommand{\R}{\mathbb{R}}
+\renewcommand{\L}{\mathcal{L}}
+\usepackage{color, colortbl}
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+%%%%% Bibliography %%%%%%
+\usepackage[
+    backend=biber,
+    style=alphabetic]{biblatex}
+\addbibresource{citations.bib}
+%%%%% Remember to run 'biber' on the texfile (without .tex) %%%%
+
+%\usepackage{cite} % SKAL være udkommenteret, ellers virker bibtex ikke!!!! XXXX
+\usepackage{standalone}% Need standalone package
+\DeclareMathSymbol{*}{\mathbin}{symbols}{"01} % laver * til \cdot i mathmode
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% FORSIDE!! XXXXX
+
+%% Change `ku-farve` to `nat-farve` to use SCIENCE's old colors or
+%% `natbio-farve` to use SCIENCE's new colors and logo.
+\def \ColourPDF {include/natbio-farve}
+
+%% Change `ku-en` to `nat-en` to use the `Faculty of Science` header
+\def \TitlePDF   {include/ku-en}  % University of Copenhagen
+
+\title{
+  \vspace{3cm}
+  \Huge{INDSÆT TITEL HER!!!!}
+}
+
+\author{
+  \Large{Max Kragballe Nielsen \quad Rasmus Skov Johannesson}
+  %\\ \texttt{andre vigtige informationer} \\
+}
+
+\pagenumbering{gobble}
+\date{
+    \today
+}
+% FORSIDE SLUT!! XXXXXX
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
