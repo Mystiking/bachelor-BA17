@@ -1,4 +1,10 @@
-## What does the articles contain
+## Notes
+
+All notes are presented as markdown files (.md), following the standard
+of the github markdown "cheatsheet" found at 
+_https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet_.
+
+## What the articles contains
 
 ### dgn-article.pdf
 
