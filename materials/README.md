@@ -23,3 +23,7 @@ in particular why A3C is the "best" at learning.
 
 Article that uses a training and evaluation protocol used other articles
 (i.e. __mniha16.pdf__)
+
+### SuttonBook.pdf
+
+Reinforcement Learning : An introduction.
