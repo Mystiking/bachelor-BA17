@@ -1,4 +1,4 @@
-NAME=problemformulering
+NAME=plan
 TEMP=template.html
 
 all:

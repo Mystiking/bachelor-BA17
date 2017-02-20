@@ -11,3 +11,27 @@ S. 1 - 42
 #### SuttonBook
 
 s. 43 - 73
+
+### Chapter 4
+
+s. 79 - 95 til d. 23/2-17
+
+### Chapter 6
+
+s. 127 - 146 til d. 23/2-17
+
+### Chapter 7
+
+s. 151 - 165 til d. 27/2-17
+
+### Chapter 12
+
+s. 251 - 263 til d. 27/2-17
+
+### Chapter 13
+
+TBD
+
+### Chapter 9
+
+TBD
