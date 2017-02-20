@@ -12,6 +12,18 @@ The effect of different amounts of threads in asynchronous methods for deep rein
 
 ### Bachelor projektets fokus
 
+#### Second iteration
+
+In this project we will investigate the effect of having multiple threads in deep reinforcement learning.
+We want to examine the trade-off between stability and exploration in Reinforcement Learning methods, and in
+particular the A3C algorithm, and if different amounts of paralellesation influences the stability as well.
+We will implement an Actor-Critic method to solve a simple Reinforcement Learning problem, to show
+the basics of Deep Reinforcement Learning and introduce the problem of stability.
+We will then use a modified version of an already implemented A3C algorithm, as well as other methods,
+to investigate the problem in a more advanced setting - learning to play Atari 2600 games.
+
+#### First iteration
+
 In this project we will investigate the effect of having multiple threads in deep reinforcement learning.
 We will familiarise ourselves with the principles of Reinforcement Learning and use this to implement
 an Actor-Critic algorithm, which we will use for solving a simple problem.
