@@ -27,3 +27,7 @@ Article that uses a training and evaluation protocol used other articles
 ### SuttonBook.pdf
 
 Reinforcement Learning : An introduction.
+
+### SuttonBook - Solution1
+
+Solution for some exercises in the Reinforcement Learning book
