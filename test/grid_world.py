@@ -1,4 +1,5 @@
 import numpy as np
+import draw
 
 world = np.zeros((4,4))
 actions = ['l', 'r', 'u', 'd']
@@ -31,32 +32,9 @@ def move(s, a):
             return s
         else:
             return s + 4
-def arrow(p, i):
-    res = ""
-    if p[i][0] != 0:
-        res += "<"
-    if p[i][2] != 0:
-        res += "^"
-    if p[i][3] != 0:
-        res += "v"
-    if p[i][1] != 0:
-        res += ">"
-    if i == 0 or i == 15:
-        return "    "
-    if len(res) == 4:
-        return res
-    if len(res) == 3:
-        return res + ' '
-    if len(res) == 2:
-        return " " + res + " "
-    if len(res) == 1:
-        return " " + res + "  "
-    return "   "
-
-
-
 
 def policy_evaluation(S, pi, actions, world):
+    draw_policy(pi)
     theta = 0.001
     gamma = 1
     new_world = np.copy(world)
@@ -84,16 +62,6 @@ def reward(s, a, world):
     next_state = move(s, a)
     return -1 + world[next_state // 4, next_state % 4]
 
-def print_policy(p):
-    s = "________________________\n"
-    for i in range(1, 17):
-        s += "|" + arrow(p, i - 1) + "|"
-        if i % 4 == 0:
-            s += '\n'
-            s += "________________________\n"
-    print(s)
-
-
 def policy_improvement(S, pi, actions, world, k):
     while k > 0:
         k -= 1
@@ -114,14 +82,27 @@ def policy_improvement(S, pi, actions, world, k):
                     pi[s][i] = 0
             if old_action != pi[s]:
                 stable = False
-            print_policy(pi)
         if stable:
             return world, pi
 
+def draw_policy(p):
+    d = draw.Draw(512, 512, 'example.png')
+    d.draw_grid(4)
+    for item in range(1, len(p) - 1):
+        print(p[item])
+        if p[item][0] != 0:
+            d.draw_left_arrow(item % 4, item // 4, 4)
+        if p[item][1] != 0:
+            d.draw_right_arrow(item % 4, item // 4, 4)
+        if p[item][2] != 0:
+            d.draw_up_arrow(item % 4, item // 4, 4)
+        if p[item][3] != 0:
+            d.draw_down_arrow(item % 4, item // 4, 4)
+    d.write()
+
 w, p = policy_improvement(states, policy, actions, world, 9)
 
-print_policy(p)
-
+draw_policy(p)
 for x in range(len(p)):
     print('State {}: policy {}'.format(x, p[x]))
 
