@@ -5,6 +5,7 @@ world = np.zeros((4,4))
 actions = ['l', 'r', 'u', 'd']
 states = [i for i in range(0, 16)]
 policy = [[0.25, 0.25, 0.25, 0.25] for i in range(0, 16)]
+counter = 0
 
 print(world)
 print(actions)
@@ -34,7 +35,6 @@ def move(s, a):
             return s + 4
 
 def policy_evaluation(S, pi, actions, world):
-    draw_policy(pi)
     theta = 0.001
     gamma = 1
     new_world = np.copy(world)
@@ -63,6 +63,7 @@ def reward(s, a, world):
     return -1 + world[next_state // 4, next_state % 4]
 
 def policy_improvement(S, pi, actions, world, k):
+    global counter
     while k > 0:
         k -= 1
         world = policy_evaluation(S, pi, actions, world)
@@ -82,11 +83,13 @@ def policy_improvement(S, pi, actions, world, k):
                     pi[s][i] = 0
             if old_action != pi[s]:
                 stable = False
+            draw_policy(pi, "policy" + str(counter) + ".png")
+            counter += 1
         if stable:
             return world, pi
 
-def draw_policy(p):
-    d = draw.Draw(512, 512, 'example.png')
+def draw_policy(p, name):
+    d = draw.Draw(512, 512)
     d.draw_grid(4)
     for item in range(1, len(p) - 1):
         print(p[item])
@@ -98,11 +101,11 @@ def draw_policy(p):
             d.draw_up_arrow(item % 4, item // 4, 4)
         if p[item][3] != 0:
             d.draw_down_arrow(item % 4, item // 4, 4)
-    d.write()
+    d.write(name)
 
 w, p = policy_improvement(states, policy, actions, world, 9)
 
-draw_policy(p)
+draw_policy(p, 'final.png')
 for x in range(len(p)):
     print('State {}: policy {}'.format(x, p[x]))
 

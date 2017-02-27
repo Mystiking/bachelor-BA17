@@ -2,8 +2,7 @@ import math
 import cairo
  
 class Draw(object):
-    def __init__(self, w, h, name):
-        self.title = name
+    def __init__(self, w, h):
         self.WIDTH = w
         self.HEIGHT = h
         self.surface = cairo.ImageSurface (cairo.FORMAT_ARGB32, self.WIDTH, self.HEIGHT)
@@ -75,5 +74,5 @@ class Draw(object):
         self.ctx.line_to(i*s + s/2 + length / 3, j*s + s/2 + (length / 3))
         self.ctx.stroke()
  
-    def write(self):
-        self.surface.write_to_png(self.title)
+    def write(self, name):
+        self.surface.write_to_png(name)
