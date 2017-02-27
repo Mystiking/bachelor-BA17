@@ -74,11 +74,11 @@ def policy_improvement(S, pi, actions, world, k):
             for a in actions:
                 r = reward(s, a, world)
                 rewards.append(r)
-            new_action = np.argwhere(rewards == np.amax(rewards))
-            new_action.reshape((new_action.shape[0], ))
+            best_actions = np.argwhere(rewards == np.amax(rewards))
+            best_actions.reshape((best_actions.shape[0], ))
             for i in range(4):
-                if i in new_action:
-                    pi[s][i] = 1 / len(new_action)
+                if i in best_actions:
+                    pi[s][i] = 1 / len(best_actions)
                 else:
                     pi[s][i] = 0
             if old_action != pi[s]:
