@@ -9,17 +9,29 @@ class Draw(object):
         self.ctx = cairo.Context(self.surface)
         self.ctx.scale(self.WIDTH, self.HEIGHT)
         self.ctx.set_line_width(0.01)
+        self.ctx.set_source_rgb(255, 255, 255)
+        self.ctx.rectangle(0, 0, 1, 1)
+        self.ctx.fill()
         self.ctx.set_source_rgb(0, 0, 0)
- 
-    def draw_grid(self, n):
-        s = 1./n
-        for i in range(n):
+
+    def draw_grid(self, n, m):
+        s = 1./(max(n, m))
+        for i in range(m):
             for j in range(n):
                 self.ctx.rectangle(i*s, j*s, s, s)
         self.ctx.stroke()
- 
-    def draw_right_arrow(self, i, j, n):
-        s = 1./n
+
+    def fill_rectangle(self, j, i, n, m, r, g, b):
+        s = 1./max(n, m)
+        length = 2*s/5
+        self.ctx.set_source_rgb(r, g, b)
+        self.ctx.rectangle(i*s, j*s, s, s)
+        self.ctx.fill()
+        self.ctx.set_source_rgb(0, 0, 0)
+        self.ctx.stroke()
+
+    def draw_right_arrow(self, j, i, n, m):
+        s = 1./max(n, m)
         length = 2*s/5
         # Main line
         self.ctx.move_to(i*s + s/2, j*s + s/2)
@@ -32,8 +44,8 @@ class Draw(object):
         self.ctx.line_to(i*s + s/2 + length / 3, j*s + s/2 + length / 2)
         self.ctx.stroke()
  
-    def draw_left_arrow(self, i, j, n):
-        s = 1./n
+    def draw_left_arrow(self, j, i, n, m):
+        s = 1./max(n, m)
         length = 2*s/5
         # Main line
         self.ctx.move_to(i*s + s/2, j*s + s/2)
@@ -46,8 +58,8 @@ class Draw(object):
         self.ctx.line_to(i*s + s/2 - length / 3, j*s + s/2 + length / 2)
         self.ctx.stroke()
  
-    def draw_up_arrow(self, i, j, n):
-        s = 1./n
+    def draw_up_arrow(self, j, i, n, m):
+        s = 1./max(n, m)
         length = 2*s/5
         # Main line
         self.ctx.move_to(i*s + s/2, j*s + s/2)
@@ -60,8 +72,8 @@ class Draw(object):
         self.ctx.line_to(i*s + s/2 - length / 3, j*s + s/2 - length / 3)
         self.ctx.stroke()
  
-    def draw_down_arrow(self, i, j, n):
-        s = 1./n
+    def draw_down_arrow(self, j, i, n, m):
+        s = 1./max(n, m)
         length = 2*s/5
         # Main line
         self.ctx.move_to(i*s + s/2, j*s + s/2)
