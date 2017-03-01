@@ -8,6 +8,7 @@
 2. Actions
 3. Rewards
 4. Policies
+
 #### Value funtion (state value) V_pi(s)
 #### Action-value function q_pi(s, a)
 #### Markov Properties/Processes
