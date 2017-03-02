@@ -1,5 +1,8 @@
 import math
-import cairo
+try:
+    import cairo
+except:
+    import cairocffi as cairo
  
 class Draw(object):
     def __init__(self, w, h):
