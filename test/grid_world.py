@@ -7,10 +7,10 @@ states = [i for i in range(0, 16)]
 policy = [[0.25, 0.25, 0.25, 0.25] for i in range(0, 16)]
 counter = 0
 
-print(world)
-print(actions)
-print(states)
-print(policy)
+#print(world)
+#print(actions)
+#print(states)
+#print(policy)
 
 def move(s, a):
     if a == 'l':
@@ -90,22 +90,22 @@ def policy_improvement(S, pi, actions, world, k):
 
 def draw_policy(p, name):
     d = draw.Draw(512, 512)
-    d.draw_grid(4)
+    d.draw_grid(4, 4)
     for item in range(1, len(p) - 1):
-        print(p[item])
+        #print(p[item])
         if p[item][0] != 0:
-            d.draw_left_arrow(item % 4, item // 4, 4)
+            d.draw_left_arrow(item % 4, item // 4, 4, 4)
         if p[item][1] != 0:
-            d.draw_right_arrow(item % 4, item // 4, 4)
+            d.draw_right_arrow(item % 4, item // 4, 4, 4)
         if p[item][2] != 0:
-            d.draw_up_arrow(item % 4, item // 4, 4)
+            d.draw_up_arrow(item % 4, item // 4, 4, 4)
         if p[item][3] != 0:
-            d.draw_down_arrow(item % 4, item // 4, 4)
+            d.draw_down_arrow(item % 4, item // 4, 4, 4)
     d.write(name)
 
 w, p = policy_improvement(states, policy, actions, world, 9)
 
 draw_policy(p, 'final.png')
-for x in range(len(p)):
-    print('State {}: policy {}'.format(x, p[x]))
+#for x in range(len(p)):
+    #print('State {}: policy {}'.format(x, p[x]))
 

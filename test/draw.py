@@ -91,5 +91,61 @@ class Draw(object):
         self.ctx.line_to(i * s + s / 2 + length / 3, j * s + s / 2 + (length / 3))
         self.ctx.stroke()
 
+    def draw_right_down_arrow(self, j, i, n, m):
+        s = 1. / max(n, m)
+        length = 2 * s / 5
+        # Main line
+        self.ctx.move_to(i * s + s / 2, j * s + s / 2)
+        self.ctx.line_to(i * s + s / 2 + length, j * s + s / 2 + length)
+        # "Upper" line
+        self.ctx.move_to(i * s + s / 2 + length, j * s + s / 2 + length)
+        self.ctx.line_to(i * s + s / 2 + length, j * s + s / 2 + length / 3)
+        # "Lower" line
+        self.ctx.move_to(i * s + s / 2 + length, j * s + s / 2 + length)
+        self.ctx.line_to(i * s + s / 2 + length / 3, j * s + s / 2 + length)
+        self.ctx.stroke()
+
+    def draw_left_down_arrow(self, j, i, n, m):
+        s = 1. / max(n, m)
+        length = 2 * s / 5
+        # Main line
+        self.ctx.move_to(i * s + s / 2, j * s + s / 2)
+        self.ctx.line_to(i * s + s / 2 - length, j * s + s / 2 + length)
+        # "Upper" line
+        self.ctx.move_to(i * s + s / 2 - length, j * s + s / 2 + length)
+        self.ctx.line_to(i * s + s / 2 - length, j * s + s / 2 + length / 3)
+        # "Lower" line
+        self.ctx.move_to(i * s + s / 2 - length, j * s + s / 2 + length)
+        self.ctx.line_to(i * s + s / 2 - length / 3, j * s + s / 2 + length)
+        self.ctx.stroke()
+
+    def draw_right_up_arrow(self, j, i, n, m):
+        s = 1. / max(n, m)
+        length = 2 * s / 5
+        # Main line
+        self.ctx.move_to(i * s + s / 2, j * s + s / 2)
+        self.ctx.line_to(i * s + s / 2 + length, j * s + s / 2 - length)
+        # "Upper" line
+        self.ctx.move_to(i * s + s / 2 + length, j * s + s / 2 - length)
+        self.ctx.line_to(i * s + s / 2 + length / 3, j * s + s / 2 - length)
+        # "Lower" line
+        self.ctx.move_to(i * s + s / 2 + length, j * s + s / 2 - length)
+        self.ctx.line_to(i * s + s / 2 + length, j * s + s / 2 - length / 3)
+        self.ctx.stroke()
+
+    def draw_left_up_arrow(self, j, i, n, m):
+        s = 1. / max(n, m)
+        length = 2 * s / 5
+        # Main line
+        self.ctx.move_to(i * s + s / 2, j * s + s / 2)
+        self.ctx.line_to(i * s + s / 2 - length, j * s + s / 2 - length)
+        # "Upper" line
+        self.ctx.move_to(i * s + s / 2 - length, j * s + s / 2 - length)
+        self.ctx.line_to(i * s + s / 2 - length / 3, j * s + s / 2 - length)
+        # "Lower" line
+        self.ctx.move_to(i * s + s / 2 - length, j * s + s / 2 - length)
+        self.ctx.line_to(i * s + s / 2 - length, j * s + s / 2 - length / 3)
+        self.ctx.stroke()
+
     def write(self, name):
         self.surface.write_to_png(name)
