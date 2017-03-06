@@ -1,0 +1,14 @@
+Tidsplan for bachelor:
+	d. 10/03 - Udkast til RL afsnittet (Ramo: action-value, Max: state-value)
+	d. 13/03 - (noget af) Q-learning / SARSA implementation af Pole-balancing
+	d. 16/03 - RL afsnit "færdigt"
+	d. 20/03 - (færdigt)  Q-learning / SARSA implementation af Pole-balancing
+	d. 27/03 - (udkast)   Intro og OpenAI - Begge kommer med udkast/ideer/tanker
+	d. 09/04 - Implementation af Actor-Critic på Pole-balancing
+	d. 16/04 - (udkast)   Actor-critic metoden - rapport
+	d. 30/04 - Asynchronous actor-critic (delvis implementation)
+	d. 02/05 - Resultater, Resultater, Resultater
+	d. 09/05 - (udkast)   Resultat-afsnit, Diskussion, Konklusion
+	d. 16/05 - Gennemgang af alt der er skrevet indtil videre
+	d. 10/06 - Færdig med rapporten
+	d. 16/06 - DOOMSDAY!!!!
