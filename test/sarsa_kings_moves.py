@@ -90,7 +90,7 @@ def move(s, a, wind):
 
 episodes = 300 
 epsilon = 0.1
-alpha = 1.0
+alpha = 0.5
 gamma = 0.9
 # Moves list
 ms = []
@@ -114,16 +114,20 @@ while(episodes > 0):
     d.fill_rectangle(3, 0, 7, 10, 0, 0, 255)
     moves = 0
     while True:
+        #rand = random.random()
+        #if rand <= epsilon:
+        #    a = actions[math.floor(rand*8)]
+        #else:
+        #    rewards = []
+        #    best_actions = get_max_keys(states[state])
+        #    a = np.random.choice(best_actions)
+        new_state = int(move(state, a, wind))
         rand = random.random()
         if rand <= epsilon:
-            a = actions[math.floor(rand*8)]
+            a_new = actions[math.floor(rand*8)]
         else:
-            rewards = []
-            best_actions = get_max_keys(states[state])
-            a = np.random.choice(best_actions)
-        new_state = int(move(state, a, wind))
-        a_new  = np.random.choice(get_max_keys(states[new_state]))
-        reward = -1 + states[new_state][a_new]
+            a_new  = np.random.choice(get_max_keys(states[new_state]))
+        reward = -1
 
         states[state][a] += alpha * (reward + gamma * states[new_state][a_new] - states[state][a])
         
@@ -145,6 +149,7 @@ while(episodes > 0):
         elif a == 'lu':
             d.draw_left_up_arrow(state // 10, state % 10, 7, 10)
         state = new_state
+        a = a_new
         moves += 1
         if state == 37:
             d.write("sarsa/sarsa_" + str(episodes) + ".png")
