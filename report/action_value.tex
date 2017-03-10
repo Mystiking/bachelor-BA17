@@ -18,7 +18,9 @@ The action value function calculating the expected reward for taking action $a$ 
     q_{\pi}(s, a) = \mathbb{E}\Big[G_{t} \Big| S_{t} = s, A_{t} = a\Big] \\
     = \mathbb{E}\Bigg[\sum_{k = 0}^{\infty}\gamma^{k}R_{t + k + 1} \Bigg| S_{t} = s, A_{t} = a \Bigg]
 \end{equation}
-Where $\gamma$ is the discount rate $0 \leq \gamma \leq 1$, and $\gamma^{k}R_{t + k + 1}$ is the discounted reward at time $t$, after being in state $s$. The discount rate describes the impact of how future rewards influence the return value of the action value function, since $\gamma^{k} \rightarrow 0$, when $k \rightarrow \infty$, unless $\gamma = 1$
+Where $\gamma$ is the discount rate $0 \leq \gamma \leq 1$, and
+$\gamma^{k}R_{t + k + 1}$ is the discounted reward at time $t + 1$,
+after being in state $s$ at time $t$. The discount rate describes the impact of how future rewards influence the return value of the action value function, since $\gamma^{k} \rightarrow 0$, when $k \rightarrow \infty$, unless $\gamma = 1$
 \\ \\
 By using equation \ref{eq:Action Value Function} we can compute the expected sum of discounted rewards, by taking action $a$ in state $s$ with policy $\pi$. Generally in reinforcement learning we want to maximizing the return value, for the value action function, we want to take action $a$ in state $s$ which maximizing the future discounted reward. We can rewrite equation \ref{eq:Action Value Function}, to a optimal action value function
 \begin{equation}
