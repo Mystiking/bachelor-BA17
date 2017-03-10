@@ -6,6 +6,59 @@
 
 \subsection{State-value functions}
 
+One way to find an optimal policy is to maximise the \textit{state-value} function.
+This function is used to estimate the reward that can be expected given a state $s$.
+As described in Section \ref{policy} a policy is a mapping from each state $s \in \mathcal{S}$, and
+action $a \in \mathcal{A}(s)$ to the probaility $\pi(a|s)$ of taking action $a$ in state $s$.
+The value of the state $s$ is thus defined as the expected return when the policy
+$\pi$ is followed from state $s$.
+We denote the value function for a state $s$ as
+\begin{equation}\label{eqstatevalue}
+    v_\pi(s) \doteq \mathds{E}[G_t | S_t = s] =
+    \mathds{E}
+    \left [
+        \sum\limits_{k=0}^\infty \gamma^k R_{t + k + 1} | S_t = s
+    \right ]
+\end{equation}
+over the policy $\pi$ where $G_t$ is the sum of discounted rewards following time $t$.
+
+In order to estimate the value function $v_\pi$ the agent has to experience
+the environment.
+Since state-value functions depend on maintaining and evaluating the values of all states
+it becomes infeasable to keep track when the amount of states is high or the
+environment is continous.
+Therefore the state-value function is often approximated by a parameterized function
+with less parameters than states\cite{RLbook}.
+In deep reinforcement learning the approximator can be a neural network
+and this approach will be discussed in detail in a later chapter.
+
+Learning from experience can be expressed as a recursive relationship where the
+value of the current state is based on the value of possible future states.
+The relationship is shown in equation \ref{eq312}.
+\begin{equation}\label{eq312}
+    \begin{split}
+        v_\pi(s) & \doteq \sum\limits_a \pi(a|s) \sum\limits_{s',r}p(s',r|s, a)\left [r + \gamma v_\pi(s') \right ]
+    \end{split}
+\end{equation}
+ 
+The value of a state is given by the reward of entering the state, $r$, and the discounted value of the successor state
+$\gamma v_\pi(s')$.
+This value depends on the probability of entering state $s'$ and recieveing reward $r$ given
+the starting state and an action $a$ - $p(s', r | s, a)$.
+Since the action $a$ is taken with probability $\pi(a|s)$ the probability of taking an action and ending in state $s'$ with reward $r$
+can be expressed as $\pi(a|s) p(s', r | s, a)$.
+The value of taking action $a$ given state $s$ can be estimated as $\sum\limits_{s',r} p(s',r|s,a)\left [r + \gamma v_\pi(s') \right ]$.
+To estimate the value of the entire state we need to take all actions into account, or more specifically,
+the probability of taking the actions.
+This means we can describe the estimation of a state as
+$
+v_\pi(s)  \doteq \sum\limits_a \pi(a|s) \sum\limits_{s',r}p(s',r|s, a)\left [r + \gamma v_\pi(s') \right ]
+$.
+
+The equation given above and in equation \ref{eq312} describes the same as equation \ref{eqstatevalue} since
+
+%%% Equation from 63 RL book
+
 - The notion of "how good is it to be in this state"
 - Defined with respects to policies
 - MDP $\rightarrow$ $v_\pi(s)$
