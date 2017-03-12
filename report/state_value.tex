@@ -4,15 +4,21 @@
 
 \maketitle
 
-\subsection{State-value functions}
+\subsection{State-value function}
 
-One way to find an optimal policy is to maximise the \textit{state-value} function.
-This function is used to estimate the reward that can be expected given a state $s$.
+% Brief explanation of a state value function
+A state-value function tries to estimate how 'good' it is to be in a certain state.
+In order to do so, it tries to estimate the expected reward following the current state
+for all actions under a policy $\pi$.
+
+
 As described in Section \ref{policy} a policy is a mapping from each state $s \in \mathcal{S}$, and
 action $a \in \mathcal{A}(s)$ to the probaility $\pi(a|s)$ of taking action $a$ in state $s$.
 The value of the state $s$ is thus defined as the expected return when the policy
 $\pi$ is followed from state $s$.
-We denote the value function for a state $s$ as
+We denote the value function for a state $s$ over the policy $\pi$,
+assuming the environment has the Markov property described in section \ref{Markov},
+as
 \begin{equation}\label{eqstatevalue}
     v_\pi(s) \doteq \mathds{E}[G_t | S_t = s] =
     \mathds{E}
@@ -20,7 +26,7 @@ We denote the value function for a state $s$ as
         \sum\limits_{k=0}^\infty \gamma^k R_{t + k + 1} | S_t = s
     \right ]
 \end{equation}
-over the policy $\pi$ where $G_t$ is the sum of discounted rewards following time $t$.
+where $G_t$ is the sum of discounted rewards following time $t$.
 
 In order to estimate the value function $v_\pi$ the agent has to experience
 the environment.
@@ -34,37 +40,29 @@ and this approach will be discussed in detail in a later chapter.
 
 Learning from experience can be expressed as a recursive relationship where the
 value of the current state is based on the value of possible future states.
-The relationship is shown in equation \ref{eq312}.
-\begin{equation}\label{eq312}
-    \begin{split}
-        v_\pi(s) & \doteq \sum\limits_a \pi(a|s) \sum\limits_{s',r}p(s',r|s, a)\left [r + \gamma v_\pi(s') \right ]
-    \end{split}
-\end{equation}
- 
+
 The value of a state is given by the reward of entering the state, $r$, and the discounted value of the successor state
 $\gamma v_\pi(s')$.
 This value depends on the probability of entering state $s'$ and recieveing reward $r$ given
-the starting state and an action $a$ - $p(s', r | s, a)$.
+the starting state and an action $a$, $p(s', r | s, a)$.
 Since the action $a$ is taken with probability $\pi(a|s)$ the probability of taking an action and ending in state $s'$ with reward $r$
 can be expressed as $\pi(a|s) p(s', r | s, a)$.
 The value of taking action $a$ given state $s$ can be estimated as $\sum\limits_{s',r} p(s',r|s,a)\left [r + \gamma v_\pi(s') \right ]$.
 To estimate the value of the entire state we need to take all actions into account, or more specifically,
 the probability of taking the actions.
-This means we can describe the estimation of a state as
-$
-v_\pi(s)  \doteq \sum\limits_a \pi(a|s) \sum\limits_{s',r}p(s',r|s, a)\left [r + \gamma v_\pi(s') \right ]
-$.
+The relationship is shown below in equation \ref{eq312}:
+\begin{equation}\label{eq312}
+    \begin{split}
+    v_\pi(s) & = \mathds{E}[G_t | S_t = s]\\
+             & = \mathds{E} \left [\sum\limits_{k=0}^\infty \gamma^k R_{t + k + 1} | S_t = s\right ]\\
+             & = \mathds{E} \left [R_{t+1} + \sum\limits_{k=0}^\infty \gamma^k R_{t + k + 2} | S_t = s\right ]\\
+             & =  \sum\limits_a \pi(a|s) \sum\limits_{s',r}p(s',r|s, a)\left [r + \mathds{E} \left [\sum\limits_{k=0}^\infty \gamma^k R_{t + k + 2} | S_{t+1} = s'\right ]\right ]\\
+             & =  \sum\limits_a \pi(a|s) \sum\limits_{s',r}p(s',r|s, a)\left [r + v_\pi(s')\right ]\\
+    \end{split}
+\end{equation}
 
-The equation given above and in equation \ref{eq312} describes the same as equation \ref{eqstatevalue} since
-
-%%% Equation from 63 RL book
-
-- The notion of "how good is it to be in this state"
-- Defined with respects to policies
-- MDP $\rightarrow$ $v_\pi(s)$
-- Satisfies a recursive relatonship between current state and "all" successor states
-- Optimal value functions?
-
+One way to find an optimal policy is to maximise the state-value function.
+% Write some more about optimal value functions
 
 %\printbibliography
 %\bibliography{citations}
