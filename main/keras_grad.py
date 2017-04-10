@@ -10,6 +10,7 @@ from keras.optimizers import sgd, RMSprop
 from keras import backend as K
 import tensorflow as tf
 import random
+import time
 
 def train_critic(td_error):
     weights = critic_model.layers[1].weights
@@ -20,7 +21,7 @@ def train_critic(td_error):
 
 def train_actor(td_error):
     weights = actor_model.layers[1].weights
-    gradients = actor_model.optimizer.get_gradients(actor_model.total_loss, weights) 
+    gradients = actor_model.optimizer.get_gradients(actor_model.total_loss, weights)
     theta = weights
     theta = theta + alpha * I * td_error * gradients
     actor_model.layers[1].W = theta
@@ -30,10 +31,10 @@ def train_actor(td_error):
 input = Input(shape=[4])
 value = Dense(1, activation='linear')(input)
 probs = Dense(2, activation='softmax')(input)
-critic_model = Model(input=input, output=value)
+critic_model = Model(inputs=input, outputs=value)
 critic_model.compile(optimizer='sgd', loss='mse')
 
-actor_model = Model(input=input, output=probs)
+actor_model = Model(inputs=input, outputs=probs)
 actor_model.compile(optimizer='sgd', loss='mse')
 
 # Contants
@@ -51,7 +52,11 @@ for i in range(episodes):
     state = state.reshape([1, 4])
     done = False
     while (not done):
+        before = (time.time())
         probabilities = actor_model.predict(state)
+        after = (time.time())
+
+        print("Time to pred {}".format(after - before))
         action = np.random.choice(2, p=probabilities[0])
         _state, reward, done, info = env.step(action)
         _state = _state.reshape([1, 4])
@@ -63,5 +68,7 @@ for i in range(episodes):
         train_actor(td_error)
         I = I * gamma
         state = _state
-    print(total_reward)
+
+
+    print("Episode", i, " - reward :",total_reward)
 
