@@ -6,7 +6,7 @@ _https://github.com/adam-p/markdown-here/wiki/Markdown-Cheatsheet_.
 
 ## What the articles contains
 
-### dgn-article.pdf
+### dqn-article.pdf
 
 Description of the DQN algorithm and its results
 
