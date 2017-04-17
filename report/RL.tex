@@ -41,6 +41,16 @@ Usually it serves the program well to start with a high probability of taking ra
 and then reducing it later on, when exploratory moves will most probably only harm the
 performance of the algorithm.
 
+\section{Value Functions}
+
+Most reinforcement learning algorithms estimates a value function,
+that compute how profitable it is to be in a specific state,
+or take a specific action given the state.
+The term \textit{"profitable"} means what the expected future reward will become.
+Generally in reinforcement learning we have two value function
+\textit{state value function} and \textit{action value function}.
+
+
 \input{state_value}
 \input{action_value}
 
