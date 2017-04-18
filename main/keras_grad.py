@@ -13,20 +13,21 @@ import random
 import time
 
 def train_critic(td_error):
-    weights = critic_model.layers[1].weights
+#    weights = critic_model.layers[1].weights
+    weights = critic_model.optimizer.weights
     gradients = critic_model.optimizer.get_gradients(critic_model.total_loss, weights) 
     w = weights
     w = w + beta * td_error * gradients
-    critic_model.layers[1].W = w
+#    critic_model.layers[1].W = w
+    critic_model.optimizer.set_weights(w)
 
 def train_actor(td_error):
-    weights = actor_model.layers[1].weights
+    #weights = actor_model.layers[1].weights
+    weights = actor_model.optimizer.weights
     gradients = actor_model.optimizer.get_gradients(actor_model.total_loss, weights)
     theta = weights
     theta = theta + alpha * I * td_error * gradients
-    actor_model.layers[1].W = theta
-    
-
+    actor_model.optimizer.set_weights(theta)
 
 input = Input(shape=[4])
 value = Dense(1, activation='linear')(input)
@@ -56,7 +57,7 @@ for i in range(episodes):
         probabilities = actor_model.predict(state)
         after = (time.time())
 
-        print("Time to pred {}".format(after - before))
+#        print("Time to pred {}".format(after - before))
         action = np.random.choice(2, p=probabilities[0])
         _state, reward, done, info = env.step(action)
         _state = _state.reshape([1, 4])
@@ -68,7 +69,6 @@ for i in range(episodes):
         train_actor(td_error)
         I = I * gamma
         state = _state
-
 
     print("Episode", i, " - reward :",total_reward)
 
