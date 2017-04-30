@@ -3,3 +3,10 @@
 *.html
 test/*.png
 __pycache__
+*.aux
+*.bbl
+*.log
+*.run.xml
+*.toc
+*.bcf
+*.blg
