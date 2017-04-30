@@ -31,3 +31,16 @@ Reinforcement Learning : An introduction.
 ### SuttonBook - Solution1
 
 Solution for some exercises in the Reinforcement Learning book
+
+### gpu article.pdf
+
+Article describing advanced gpu stuff
+
+### the-gpu-computing-era.pdf
+
+An introduction to GPUs
+
+### td-gammon.pdf
+
+The original article presenting TD-Gammon - a deep reinforcement learning
+approach to playing backgammon.
