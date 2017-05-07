@@ -7,55 +7,55 @@
 \section{Reinforcement Learning}
 
 Reinforcement Learning is a machine learning technique that attempts 
-to map situations to actions by learning from interaction.
-Learning from interaction can be described as trying to solve a task, without knowing
-how, and then learning what to do from past experience.
+to map situations to actions.
+%%%% Er det her en god formulering?
+It does so by learning from interaction, a process which can be described as trying to solve a problem,
+without knowing the “rules” of the problem beforehand,
+and then using the experience gained by trying different moves to learn to solve it.
 In other words when actions are found that yield a good outcome in a given situation,
-this action needs to be reinforced so that it is more likely to be repeated in the
-future.
+the probability of taking this action needs to be reinforced so that it is more likely to be
+repeated in the future in a similar situation.
 
 The first task of learning to solve a problem with reinforcement learning is to define
-the \textit{states} and \textit{actions} the problem environment.
-A state contains all information related to the problem environment that is available.
+the \textit{states} and \textit{actions} of the problem environment.
+A state contains all available information related to the environment.
 I.e. in a game of chess a state could contain the position of every piece on the board.
 
 An action describes a transition from one state to another.
 In the chess example an action would be to move a piece, following the rules of the
 environment.
-When a reinforcement learning algorithm is “learning” to play a game, it is
-interacting with the environment through a learning agent.
-The agent decides which action should be performed in a state by using a \textit{policy}.
-A policy is a mapping from states in the environment to actions to be taken\cite{RLBook}.
+
+When a reinforcement learning algorithm is learning to play a game for example, it is
+interacting with the environment through a \textit{learning agent}.
+The agent decides which action should be performed in each state by creating and maintaining a \textit{policy}.
+The policy is a mapping from states in the environment to actions available to the learning agent\cite{RLBook}.
 Policies can take many forms, such as simple look-up tables where each state map to an
-action, but in this project we will be treating policies as probability distributions.
-This means that a policy $\pi$ given an action $A_t$ and a state $S_t$ describes the
-probability of taking action $A_t$ in state $S_t$ under policy $\pi$
-\begin{equation}\label{pi}
-    \pi(A_t|S_t)
-\end{equation}
+action, but in this project we will be treating policies solely as probability distributions.
+This means that a policy $\pi(A_t|S_t)$ given an action $A_t$ and a state $S_t$ describes the
+probability of taking action $A_t$ in state $S_t$ under policy $\pi$ at time $t$.
 
 This means that every problem can be described as a set of states that can be reached
 through a set of actions describing how to interact with the environment.
-Now, the difficult part of reinforcement learning is choosing which action to take
-in a state.
-The algorithm needs to be rewarded for good decisions and likewise punished for making
-poor decisions.
-This means that taking an action in a state should return a numerical value
-- a \textit{reward} - from the environment that describes the benefit of taking an
-action.
+Now, the difficult part of reinforcement learning is choosing the best action in a
+state.
+To do so the algorithm is rewarded for making good decisions and likewise punished for making
+bad decisions.
+This means that taking an action should be given a numerical value
+- a \textit{reward} - that describes if the action was good or bad.
 
-The essence of reinforcement learning is that a learning agent should be able to learn
-to solve a task without any prior knowledge to the rules of the environemnt.
+The essence of a good reinforcement learning algorithm is thus that it should be able to learn
+to solve a task satisfactory without any prior knowledge to the rules of the environemnt.
 To do so the agent uses a combination of \textit{exploration} and \textit{exploitation}.
-The learning agent wishes to learn a good policy, but in order to do so it must explore
-some of the options that seem suboptimal at first.
+The goal of the learning agent is to learn a policy that maximises the total reward, but in order to do
+so it must explore some of the options that seem suboptimal at first.
 The reason for this is that while the immediate reward might be lower, taking a
-suboptimal action may lead to a higher total reward.
-Of course the learning agent shouldn't be exploring too much since it then wouldn't
-be using the knowledge gathered in previous iterations - in other words it needs to
-exploit the fact that it has been in a similar situation before.
-Therefore there needs to be a balance between the exploration and exploitation, since
-the learning agent will need both to learn a good policy.
+suboptimal action may lead to a higher total reward in the end.
+The learning agent shouldn't be exploring too much though, since it then wouldn't
+be using the previously gathered knowledge - in other words it needs to
+exploit the fact that it “knows” the result of taking an action beacuse it has been in
+a similar situation before.
+There needs to be a balance between exploration and exploitation in order for the the
+learning agent will need both to learn a good policy.
 
 \subsection{Estimating the value of actions}
 
