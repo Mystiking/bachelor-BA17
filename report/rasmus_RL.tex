@@ -1,0 +1,96 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\newtcbox{\mymath}[1][]{%
+    nobeforeafter, math upper, tcbox raise base,
+    enhanced, colframe=blue!30!black,
+    colback=blue!30, boxrule=1pt,
+    #1}
+
+\begin{document}
+
+\maketitle
+
+\section{Reinforcement Learning}
+
+
+\subsection{What is RL?}
+
+Reinforcement Learning is a machine learning technique that attempts to map situations to actions by learning from interaction. Learning from interaction can be described as trying to solve a task, without knowing how, and then learning what to do from past experience.  In other words when actions are found that yield a good outcome in a given situation, this action needs to be reinforced so that it is more likely to be repeated in the future.
+
+
+\subsection{Fundamentals in reinforcement learning}
+
+The basis of reinforcement learning is that you are given an \textit{environment}, the interaction with the environment going through an \textit{agent}. The environment consists of an \textit{action space}, which include the set of actions the agent is able to take. For example the action space for the Atrai game CartPole (REFERENCE TIL DATA AFSNIT), consists of a set with two elements, the action for moving right and the action for moving left.
+\\ \\
+When taking a action the environment respond with an \textit{observation space} and a \textit{reward}. The observation space contains information related to the environment, every element in the observation space is called a \textit{state} and mathematical noted as $s$. For example in the CartPole game the observation space contain information about:
+\begin{verbatim}
+[position of cart; 
+ velocity of cart; 
+ angle of pole; 
+ rotation rate of pole]
+\end{verbatim}
+In a game like tic tac toe the observation space contain information about every field on the game board. The action space for tic tac toe contains a list of allowed places to place a piece following the rules of the environment.
+\\ \\
+After every action the environment also respond with a reward, in a game like CartPole the agent gain +1 after every action there don't end the game. In tic tac toe, you only gain a reward for winning, and not for the action along the game.
+\\ \\
+When using the environment and agent for solving reinforcement learning problems, we are using the agent-environment model. Here is an illustration of how the data are distributed in the model for a given time $t$
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale = 0.5]{include/RLdiagram.png}
+    \caption{agent-environment model}
+    \label{fig:agent_enviroment}
+\end{figure}
+We have introduced some fundamentals for reinforcement learning here is a notation list, for the terms introduced:
+\begin{tcolorbox}
+\begin{align*}
+& s, s'  & \text{states} \\
+& a & \text{action} \\
+& r & \text{reward} \\
+& \mathcal{S} & \text{set of all nonterminal states} \\
+& \mathcal{S}^{+} & \text{set of all states} \\
+& \mathcal{A}(s) & \text{set of actions possible in state } s \\
+& \mathcal{R} & \text{set of all possible rewards} \\
+\end{align*}
+\end{tcolorbox}
+
+
+\subsection{Rewards}
+
+The agent's goal is to maximize the reward over time. The reward given to the agent for an episode, is the sequence of rewards for each time step $t$,
+\begin{equation}
+    G_{t} = R_{t + 1} + R_{t + 2} + R_{t + 3} + ... + R_{T} = \sum_{k = 1}^{\infty} R_{t + k}
+\end{equation}
+where $G_{t}$ is the overall reward for an episode, $R_{t}$ is the reward given in time step $t$ and $T$ is the final time step in the episode.
+\\ \\
+Here we meet the problem that the sum can take extremely highly values, theoretical it can be infinite high in non ending tasks. So we have to limited the total reward. Here we introduce the concept \textit{discounting}, the idea of discounting is that you have a parameter $\gamma$ where $0 \leq \gamma \leq 1$, and its called the \textit{discount rate}. The discount rate tells how much furtue rewards count, because a reward received k time step in the future only counts as $\gamma^{k - 1}$. So we can describe the discounted return as,
+
+\begin{equation}
+    G_{t} = R_{t + 1} + \gamma R_{t + 2} + \gamma^{2} R_{t + 3} + ... = \sum_{k = 0}^{\infty} \gamma^{k}R_{t + k + 1}
+\end{equation}
+
+
+\subsection{Markov decision processes}
+
+At figure \ref{fig:agent_enviroment} we saw a model of how the data are distributed in a reinforcement learning model. The model using the environment and agent is called \textit{Markov decision processes (MDP)}, which is a mathematical framework for modeling decision making. 
+\\ \\
+The goal for the agent in a MDP model is to maximize the reward over time. How can we maximize the reward? At each time step, when the agent have to select an action we use some kind of strategy, in the MDP framework we call the strategy for \textit{policy} and is denoted $\pi_{t}$. The policy for taking action $a$ given a state $s$ is denoted as $\pi_{t}(a|s)$. So the agent's policy give a mapping from states to actions.
+So given a state, the agent's policy respond with probabilities for every possible action, but which action should the agent then take? There exists different ways for selecting an actions given these probabilities, but lets start with introduce the problem of \textit{exploration} and \textit{exploitation}.
+The learning agent wishes to learn a good policy, but in order to do so it must explore
+some of the options that seem suboptimal at first.
+The reason for this is that while the immediate reward might be lower, taking a
+suboptimal action may lead to a higher total reward.
+Of course the learning agent shouldn't be exploring too much since it then wouldn't
+be using the knowledge gathered in previous iterations - in other words it needs to
+exploit the fact that it has been in a similar situation before.
+Therefore there needs to be a balance between the exploration and exploitation, since
+the learning agent will need both to learn a good policy.
+\\ \\
+The two most well-known policy strategies is the \textit{$\epsilon$-greedy} and \textit{selecting from the policy's probability distribution}. When selecting an actions using the agents policy probability distribution, we simply taking an action given the probability distribution so for example in the cartpole problem, we can move right and left, lets say the agents policy respond with the following the probability distribution for moving respectively right or left \texttt{[0.32; 0.68]}, then there are $32\%$ probability for moving right and $0.68\%$ probability for moving left.
+When using the $\epsilon$-greedy strategy, we selecting the constant $\epsilon$ to have an value between $0 - 1$, often the $\epsilon$ value will be a small value like $0.1$.
+In the $\epsilon$-greedy strategy we always selected the action with highest probability for maximize the overall reward, with the exception of there in every action will be $epsilon$ probability for taking a random action from the entire action space. Using the same example for before we have the following probability distribution for moving respectively right or left \texttt{[0.32; 0.68]}, and we set $\epsilon = 0.1$, so there are $10\%$ probability for taking a random action, the actions space only consist of two elements, so we have $5\%$ chance for moving right. In all other cases we will move left so the probability for moving left is $90\%$.
+
+
+%\printbibliography
+%\bibliography{citations}
+%\bibliographystyle{plain}
+\end{document}
