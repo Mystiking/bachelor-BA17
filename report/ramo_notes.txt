@@ -1,0 +1,15 @@
+
+Introduction.tex
+
+Godt skrevet
+1.1 Inspiration
+	- Er åresagen til at A3C kører på CPU, ikke at det er svært at anvende GPU'er
+	til problem man ønsker at løse asynchronous 
+1.2 Methods
+	- Udemærket syntes genralt afsnittet er godt, men den første
+	blok virker lidt kluntet.
+
+
+--------------------------------------------------------
+
+
