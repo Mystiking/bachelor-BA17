@@ -90,6 +90,15 @@ When using the $\epsilon$-greedy strategy, we selecting the constant $\epsilon$ 
 In the $\epsilon$-greedy strategy we always selected the action with highest probability for maximize the overall reward, with the exception of there in every action will be $epsilon$ probability for taking a random action from the entire action space. Using the same example for before we have the following probability distribution for moving respectively right or left \texttt{[0.32; 0.68]}, and we set $\epsilon = 0.1$, so there are $10\%$ probability for taking a random action, the actions space only consist of two elements, so we have $5\%$ chance for moving right. In all other cases we will move left so the probability for moving left is $90\%$.
 
 
+\subsection{How to you estimate the value of being in a state?}
+
+In reinforcement learning algorithms we want to estimate how good a given state are to be in for the agent, and estimate how good it's to take a given action in a state. The definition of what a good state is, are defined of what the expected future reward will be given the current state. The expected future reward depends on the actions the agent perform over time, as mentioned in section (REF TIL POLICY) a policy $\pi$ is a function which mapping a state $s$ and a action $a$ to the probability $\pi(a|s)$.
+The value of how good a state $s$ is to be in using policy $\pi$ is denoted $v_{\pi}(s)$, which desribe the expected total reward when starting in $s$ and using policy $\pi$. Mathematical we can define $v_{\pi}(s)$ as,
+\begin{equation}
+    v_{\pi}(s) = \mathds{E}[G_{t} | S_{t} = s] = \mathds{E}\bigg[\sum_{k = 0}^{\infty} \gamma^{k} R_{t + k + 1} \bigg| S_{t} = s \bigg]
+\end{equation}
+
+
 %\printbibliography
 %\bibliography{citations}
 %\bibliographystyle{plain}
