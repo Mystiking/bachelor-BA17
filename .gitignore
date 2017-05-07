@@ -10,3 +10,11 @@ __pycache__
 *.toc
 *.bcf
 *.blg
+*.pyc
+polebalancing/*
+q_cart_pole.png
+test/actor_critic/*
+test/*.gif
+test/q_learning/*
+test/sarsa/*
+report/*.pdf
