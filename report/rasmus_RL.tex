@@ -92,11 +92,23 @@ In the $\epsilon$-greedy strategy we always selected the action with highest pro
 
 \subsection{How to you estimate the value of being in a state?}
 
-In reinforcement learning algorithms we want to estimate how good a given state are to be in for the agent, and estimate how good it's to take a given action in a state. The definition of what a good state is, are defined of what the expected future reward will be given the current state. The expected future reward depends on the actions the agent perform over time, as mentioned in section (REF TIL POLICY) a policy $\pi$ is a function which mapping a state $s$ and a action $a$ to the probability $\pi(a|s)$.
-The value of how good a state $s$ is to be in using policy $\pi$ is denoted $v_{\pi}(s)$, which desribe the expected total reward when starting in $s$ and using policy $\pi$. Mathematical we can define $v_{\pi}(s)$ as,
+In reinforcement learning algorithms we want to estimate how good a given state are to be in for the agent. The definition of what a good state is, are defined of what the expected future reward will be given the current state. The expected future reward depends on the actions the agent perform over time, as mentioned in section (REF TIL POLICY) a policy $\pi$ is a function which mapping a state $s$ and a action $a$ to the probability $\pi(a|s)$.
+The value of how good a state $s$ is to be in using policy $\pi$ is denoted $v_{\pi}(s)$, which describe the expected total reward when starting in $s$ and using policy $\pi$. Mathematical we can define $v_{\pi}(s)$ as,
 \begin{equation}
     v_{\pi}(s) = \mathds{E}[G_{t} | S_{t} = s] = \mathds{E}\bigg[\sum_{k = 0}^{\infty} \gamma^{k} R_{t + k + 1} \bigg| S_{t} = s \bigg]
 \end{equation}
+where $\mathds{E}_{\pi}$ is the expected return of the random variable $s$ by following policy $\pi$ in every time step $t$. The function $v_{\pi}$ is called the \textit{state-value function}.
+
+\subsection{How do you estimate the value of taking an action? (action-value)}
+
+We can formally estimate how good a given state are to be in, now we going to estimate how good it's to take a given action in a state. The value of how good it is to taking action $a$ in state $s$ following policy $\pi$ is denoted $q_{\pi}(s, a)$, which describe the expected total reward when starting in state $s$, then taking action $a$ and then following policy $\pi$ in all future step. Mathematical we can define $p_{\pi}(s, a)$ as,
+\begin{equation}
+    q_{\pi}(s, a) = \mathds{E}[G_{t} | S_{t} = s, A_{t} = a] = \mathds{E}\bigg[\sum_{k = 0}^{\infty} \gamma^{k} R_{t + k + 1} \bigg| S_{t} = s, A_{t} = a \bigg]
+\end{equation}
+where $\mathds{E}_{\pi}$ is the expected return of the random variable $s$ and $a$ by following policy $\pi$ in every future time step $t$. We call $q_{\pi}$ the \textit{action value function}.
+
+\subsection{Looking into the future (TD)}
+
 
 
 %\printbibliography
