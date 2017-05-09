@@ -1,0 +1,30 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+\maketitle
+
+
+\subsection{Estimating the value of actions}
+
+We have already introduced the goal of the learning agent as being the
+task of maximising the total reward.
+This we can formally define as maximizing the \textit{return}, $G_t$, as
+a function of the sequence of rewards following time step $t$, $R_{t+1}$,
+$R_{t+2}$, $R_{t+3}$, $\hdots$.
+In its simplest form the return could be expressed as the sum of the
+rewards
+\begin{equation}
+    G_t \coleq R_{t+1} + R_{t+2} + \hdots + R_{T}
+\end{equation}
+where $T$ is the time when the \textit{terminal state} is reached
+\cite{RLBook}.
+
+This definition makes sense in tasks that have a natural ending.
+In this case the terminal state is simply the last state from where no
+other states can be reached.
+
+%\printbibliography
+%\bibliography{citations}
+%\bibliographystyle{plain}
+\end{document}

@@ -4,53 +4,8 @@
 
 \maketitle
 
-\section{Reinforcement Learning}
 
-Reinforcement Learning (RL) is a machine learning method that focus on learning from interaction.
-The basis of reinforcement learning is that given a set of states $S$, that describes the environment,
-and a set of actions $A$, that describes how we can interact with the environment,
-a \textit{policy} is derived.
-A policy is a ruleset that describes which action to take in a state.
-The goal of a RL algorithm is to find the policy that
-maximizes the \textit{return} of the program.
-The return is a reward obtained by a RL algorithm that is usually a number indicating
-wether the program performed well or poorly.
-Hence the expected return is given by
-\begin{equation}
-    G_t = \sum\limits_{k=0} \gamma * R_{t}
-\end{equation}
-where $0 \leq \gamma < 1$ serves as a discount.
-The reason for using the discounted return is that the program won't be influenced
-too much by events far into the future with big rewards tied to them.
-
-Some problems only award the program for each completed \textit{episode},
-while others may choose to asign rewards to every taken action.
-
-An episode starts when the environment is initialised and ends when a terminal state is reached.
-For some problems it is difficult to determine if there is a terminal state, since there
-is no natural end.
-
-In order to develop a good policy RL methods make use of \textit{exploration} and \textit{exploitation}.
-Exploitation is taking the best action based on the expected future return of all available actions.
-This means that the program will resort to actions that have previously proved to be profitable.
-The problem with only using the greedy approach of exploitation is that the program won't be able
-to discover new, and maybe even better, solutions.
-Therefore RL algorithms make use of exploration as well by taking a random action based
-on a probability distribution.
-Usually it serves the program well to start with a high probability of taking random actions
-and then reducing it later on, when exploratory moves will most probably only harm the
-performance of the algorithm.
-
-\subsection{Value Functions}
-
-Most reinforcement learning algorithms estimates a value function,
-that compute how profitable it is to be in a specific state,
-or take a specific action given the state.
-The term \textit{"profitable"} means what the expected future reward will become.
-Generally in reinforcement learning we have two value function
-\textit{state value function} and \textit{action value function}.
-
-
+\input{intro_to_rl}
 \input{state_value}
 \input{action_value}
 
