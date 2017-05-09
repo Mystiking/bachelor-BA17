@@ -109,6 +109,17 @@ where $\mathds{E}_{\pi}$ is the expected return of the random variable $s$ and $
 
 \subsection{Looking into the future (TD)}
 
+Temporal difference (TD) learning is a technique in (RL OR REINFORCMENT LEARNING) algorithms used for predicting the total reward expected over the future for updating the value function after each time step. In Monte Carlo methods we updating the value function after each \texttt{episode}, and episode is one run though the task to be solved (DETTE BURDE LIGGES I ANDET AFSNIT). For example updating the state vale function for a state $s$ at time $t$ using a Monte Carlo would look something like this,
+\begin{equation}
+    V(S_{t}) \leftarrow V(S_{t}) + \alpha \big[G_{t} - V(S_{t} \big]
+\end{equation}
+where $\alpha$ is a constant and $G_{t}$ is the return value for the episode $t$, so we have to wait until the end of the episode before updating all state value function for state visited though that episode. Which can lead to the agent making the same bad actions again and again in the same episode. By using TD learning, we replace $G_{t}$ in the state value function update so it is possible to update the state value function after each time step,
+\begin{equation}
+    V(S_{t}) \leftarrow V(S_{t}) + \alpha \big[R_{t + 1} + \gamma V(S_{t + 1}) - V(S_{t}) \big]
+\end{equation}
+So by using the information we know at time $t$ we can update the state value function.
+
+
 
 
 %\printbibliography
