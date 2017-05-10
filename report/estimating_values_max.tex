@@ -29,7 +29,7 @@ becomes problematic as the final timestep $T$ is $\infty$ which means $G_t = \in
 To address this problem we introduce a way to weigh the rewards by how far into the
 future they lie - a concept called \textit{discounting}.
 The basic idea behind discounting is that rewards recieved $k$ steps into the future
-is worth $\gamma^k$ less than a reward recieved at present time, where
+is worth $\gamma^k$ times less than a reward recieved at present time, where
 $\gamma$ is the \textit{discount rate} and $0 \leq \gamma \leq 1$.
 
 Using the discount we can redefine the return $G_t$ as the sum of the discounted
@@ -40,7 +40,7 @@ rewards given by
 \end{equation}
 with $\gamma$ close to 1 weighting future rewards strongly and $\gamma$ close to 0
 putting more emphasis on immediate rewards.
-
+\cite{}
 
 Now that the return has been defined, consider the response from the environment at time $t + 1$
 to the action taken at time $t$.
@@ -81,7 +81,34 @@ For MDPs we are thus able to define the value of state $s$ as
     v_\pi = \mathds{E}[G_t | S_t = s] = \mathds{E}[\sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1} | S_t = s]
 \end{equation}
 because the state $s$ contains all relevant information of the states leading up to it.
+We call the function $v_\pi$ a \textit{state-value function}.
+Similarly we are also able to describe the value of taking action $a$ in state $s$ - an \textit{action-value} function - as
+\begin{equation}
+    q_\pi(a, s) = \mathds{E}[G_t | S_t = s, A_t = a] = \mathds{E}[\sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1} | S_t = s]
+\end{equation}
 
+Generally the state-value and action-value functions aren't known and must therefor be
+estimated.
+This can be done from experience by maintaining an average of the actual return of each
+state and each state-action pair for the state-value function and action-value
+function, respectively.
+These estimates will converge towards the true function values as the number of times
+the states are encountered approach infinity since the average actual returns approach
+the expectations.
+
+A problem with this kind of estimation is that it needs to keep track of all the states, and state-action
+pairs, to be able to actually approach the true functions.
+This is not feasible if the amount of states is very high or the state space is continous.
+Therefore the agent can instead maintain the state-value and action-value functions as
+parameterized functions and adjust the parameters to better match the observed actual returns\cite{RLBook}.
+These function then work as approximators of the true functions and in this project we will
+be using \textit{deep neural networks} as function estimators.
+
+%%% ENTER DEEP LEARNING SECTION
+
+% Should probably be moved to its own document
+
+\subsection{Evaluating a policy}
 
 %\printbibliography
 %\bibliography{citations}
