@@ -1,0 +1,33 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+\maketitle
+
+\subsection{Using deep learning for approximating functions}
+
+In the last section we claimed that a neural network could be used to approximate the
+state-value and action-value functions.
+When we refer to a neural network, what we mean is an artificial neural network -
+a computational model that emulates connections between neurons in the human brain.
+Formally this means that we wish to find the functions $v_\pi^{\sim}(s)$ and $q_\pi^{\sim}(s,a)$ that
+satisfies $v_\pi^{\sim}(s) \approx v_\pi(s)$ and $q_\pi^{\sim}(s,a) \approx q_\pi(s, a)$.
+In general this means that for a function $f(x)$, the neural network tries to approximate
+$f^{\sim}(x)$ such that $f^{\sim}(x)$ varies the least from $f(x)$ for all $x$ in the input
+space\cite{DeepLearningBook}.
+It does so by adjusting its parameters based on experience - data for which $f(x)$ is already known -
+that it can use to compute how well the current approximation is performing.
+
+This data is exactly what is available to us in the agent-environtment model, when there is a natural terminal state,
+since we can then use the experienced actual returns to update the weights of the models.
+
+\subsubsection{Layers, neurons}
+
+Now, to understand how the  
+
+The idea in an Artificial Neural Network is that we building a network of \textit{neurons} which is connected to each other,
+and the learning is done by adjusting the connection between these neurons,
+the connection parameter between two neurons is called \textit{weights} and by adjusting these weights
+we can optimize the network for solving a problem.
+
+\end{document}
