@@ -16,8 +16,8 @@ import time
 import threading
 
 # Constants
-ALPHA = 0.0005
-BETA = 0.0005
+ALPHA = 0.3
+BETA = 0.2
 GAMMA = 0.9
 lock = threading.Lock()
 GAME_NAME = 'CartPole-v0'
@@ -56,6 +56,8 @@ graph = tf.get_default_graph()
 class Agent(threading.Thread):
     def __init__(self, state_input_shape, action_output_shape):
         threading.Thread.__init__(self)
+        self.m_theta = 0
+        self.m_w = 0
         # Init layers of the model
         input_layer = Input(shape=[state_input_shape])
         first_critic = Dense(8,activation='relu',kernel_initializer='uniform')(input_layer)
@@ -110,10 +112,10 @@ class Agent(threading.Thread):
             i += 1
             # Initialize weights of local networks
             with graph.as_default():
-                weights = global_actor_model.get_weights()
-                self.local_actor_model.set_weights(weights)
-                weights = global_critic_model.get_weights()
-                self.local_critic_model.set_weights(weights)
+                start_weights_actor = global_actor_model.get_weights()
+                self.local_actor_model.set_weights(start_weights_actor)
+                start_weights_critic = global_critic_model.get_weights()
+                self.local_critic_model.set_weights(start_weights_critic)
             total_reward = 0
             I = 1.
             memory = []
@@ -131,13 +133,48 @@ class Agent(threading.Thread):
                 total_reward += reward
                 td_error = reward + GAMMA * _value - value
                 memory.append([state, value, probabilities, action, td_error])
+                # Critic grads for this state and value
+
+                critic_inputs = [state, [1], value, 0]
+                critic_grads = self.get_critic_gradients(critic_inputs)
+                # Actor grads for this state and log probabilty
+                log_prob = np.array([np.array([np.log(probabilities[0][action] + 1e-7)])])
+                actor_inputs = [state, [1], log_prob, 0]
+                actor_grads = self.get_actor_gradients(actor_inputs)
+                # Updating gradients
+                #if first:
+                #    total_actor_grads = ALPHA * I * td * actor_grads
+                #    total_critic_grads = BETA * td * critic_grads
+                #    first = False
+                #else:
+                #    total_actor_grads += ALPHA * I * td * actor_grads
+                #    total_critic_grads += BETA * td * critic_grads
+                j = 0
+                while j < len(actor_grads):
+                    # Critic
+                    update_critic = self.local_critic_model.layers[j+1].get_weights()[0] + BETA * td_error * critic_grads[j]
+                    bias_critic = self.local_critic_model.layers[j+1].get_weights()[1]
+                    self.local_critic_model.layers[j+1].set_weights((update_critic, bias_critic))
+                    # Actor
+                    update_actor = self.local_actor_model.layers[j+1].get_weights()[0] + ALPHA * I * td_error * actor_grads[j]
+                    bias_actor = self.local_actor_model.layers[j+1].get_weights()[1]
+                    self.local_actor_model.layers[j+1].set_weights((update_actor, bias_actor))
+                    j += 1
+                I = I * GAMMA
                 state = _state
                 value = _value
             print("Episode {} : Reward = {}".format(i, total_reward))
             reward_list.append(total_reward)
+            lock.acquire()
+            with graph.as_default():
+                delta_w = np.array(self.local_critic_model.get_weights()) -  np.array(start_weights_critic)
+                delta_theta = np.array(self.local_actor_model.get_weights()) - np.array(start_weights_actor)
+                global_critic_model.set_weights(global_critic_model.get_weights() + delta_w)
+                global_actor_model.set_weights(global_actor_model.get_weights() + delta_theta)
+            lock.release()
             # Computing gradients
             # "hack" to get correct shape of grads
-            first = True
+            '''
             for s, v, p, a, td in memory:
                 # Critic grads for this state and value
                 critic_inputs = [s, [1], v, 0]
@@ -147,48 +184,54 @@ class Agent(threading.Thread):
                 actor_inputs = [s, [1], log_prob, 0]
                 actor_grads = self.get_actor_gradients(actor_inputs)
                 # Updating gradients
-                if first:
-                    total_actor_grads = ALPHA * I * td * actor_grads
-                    total_critic_grads = BETA * td * critic_grads
-                    first = False
-                else:
-                    total_actor_grads += ALPHA * I * td * actor_grads
-                    total_critic_grads += BETA * td * critic_grads
+                j = 0
+                while j < len(actor_grads):
+                    # Critic
+                    update_critic = self.local_critic_model.layers[j+1].get_weights()[0] + BETA * td_error * critic_grads[0][j]
+                    bias_critic = self.local_critic_model.layers[j+1].get_weights()[1]
+                    self.local_critic_model.layers[j+1].set_weights((update_critic, bias_critic))
+                    # Actor
+                    update_actor = self.local_actor_model.layers[j+1].get_weights()[0] + ALPHA * I * td * actor_grads[0][j]
+                    bias_actor = self.local_actor_model.layers[j+1].get_weights()[1]
+                    self.local_actor_model.layers[j+1].set_weights((update_actor, bias_actor))
                 I = I * GAMMA
+                
             lock.acquire()
             # Updating the global parameters
             with graph.as_default():
                 # Updating critic model
                 j = 0
                 while j < len(total_critic_grads):
-                    delta_w = global_critic_model.layers[j+1].get_weights()[0] + total_critic_grads[0][j]
+                    self.m_w = alpha * self.m_w + (1. - alpha) * total_critic_grads[0][j]
+                    delta_w = global_critic_model.layers[j+1].get_weights()[0] - LR * self.m_w
                     bias_w = global_critic_model.layers[j+1].get_weights()[1]
                     global_critic_model.layers[j+1].set_weights((delta_w, bias_w))
-                    j += 1;
+                    j += 1
                 # Updating actor model
                 j = 0
                 while j < len(total_actor_grads):
-                    delta_theta = global_actor_model.layers[j+1].get_weights()[0] + total_actor_grads[0][j]
+                    self.m_theta = alpha * self.m_theta + (1. - alpha) * total_actor_grads[0][j]
+                    delta_theta = global_actor_model.layers[j+1].get_weights()[0] - LR * self.m_theta
                     bias_theta = global_actor_model.layers[j+1].get_weights()[1]
                     global_actor_model.layers[j+1].set_weights((delta_theta, bias_theta))
-                    j += 1;
+                    j += 1
             lock.release()
-
+'''
 
 agent006 = Agent(NUM_STATE, NUM_ACTIONS)
-agent007 = Agent(NUM_STATE, NUM_ACTIONS)
-agent008 = Agent(NUM_STATE, NUM_ACTIONS)
-agent009 = Agent(NUM_STATE, NUM_ACTIONS)
+#agent007 = Agent(NUM_STATE, NUM_ACTIONS)
+#agent008 = Agent(NUM_STATE, NUM_ACTIONS)
+#agent009 = Agent(NUM_STATE, NUM_ACTIONS)
 
 agent006.start()
-agent007.start()
-agent008.start()
-agent009.start()
+#agent007.start()
+#agent008.start()
+#agent009.start()
 
 agent006.join()
-agent007.join()
-agent008.join()
-agent009.join()
+#agent007.join()
+#agent008.join()
+#agent009.join()
 
 c = 0
 k = 100
