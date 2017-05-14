@@ -57,16 +57,47 @@ Each neuron transforms its series of input signals into a single output signal w
 each neuron in the following layer through a \textit{weighted connection}, where
 the weight of the connections define the importance of the signals.
 Thus purpose of the hidden layers is to extract the key features of the original input.
+They do so through the usage of \textit{activation functions}.
+Activation functions take the weighted input signals and transform them
+into a single output that describes a feature.
 %%%% A drawing of a neuron “up close”
 \begin{figure}[!h]
     \centering
     \includegraphics[width=10cm]{include/neuron.png}
-    \caption{The structure of a single neuron.}
+    \caption{The structure of a single neuron with activation function $\alpha$.}
     \label{fig:neuron}
 \end{figure}
 
-%% Introduce activators
+This means that role of the output of each layer is to provide some additional
+transformation from the features in order to complete the task the network
+must perform\cite{DeepLearningBook}
 
 \subsubsection{Updating the weights using gradients}
+
+A neural network is trained to minimize its total loss based on its \textit{loss
+function}.
+A loss function $\mathcal{L} : \R^K \to \R$ is supposed to describe how close the
+predictions are to the true result.
+In the reinforcement learning setting it is often difficult to estimate the
+true result.
+E.g. for a policy aproximator $\pi^{\sim}(A_t | S_t)$ we want to use the knowledge
+of wether or not action $A_t$ was actually chosen in state $S_t$ to determine
+if the probability of taking $A_t$ should be increased or decreased to
+reduce the loss of the network.
+Therefore the weights of the connections in the network are typically updated
+in a direction in the weight space
+that most increases the probability of repeating the action $A_t$ on future visits to
+state $S_t$\cite{RLbook}. 
+To find the direction we would use the \textit{gradient} of the probability of
+taking the action actually taken, since it tells us how the weights of the network
+should be updated.
+
+Now, this would only increase the chance of picking action $A_t$ in state $S_t$ again
+but what if the action led to a poor return?
+To avoid this problem the probability is generally updated proportionally to the
+return, which means the network will then learn to favor actions that provide
+the highest return.
+
+
 
 \end{document}
