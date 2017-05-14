@@ -27,56 +27,46 @@ The goal of deep learning is to separate difficult problems into smaller and sim
 and in this process create a hierarchy of concepts, where each concept can be described in terms
 of simpler concepts\cite{DeepLearningBook}.
 
-In other words a neural network consists of layers that each represent a concept, which
+More formally, a neural network consists of \textit{layers} that each represent a concept, which
 when connected are able to solve the complex problem at hand.
 With this definition of a neural network the approximation function $f^{\sim}(x)$ can be
 defined as
 \begin{equation}
     f^{\sim}(x) = f^{k}(f^{k-1}( \cdots f^{0}(x) \cdots))
 \end{equation}
-for a network with $k$ \textit{layers}.
+for a network with $k$ layers.
 The only layers that have their dimensions restrained are the first and last, since they are defined by the
 dimensions of the input and the output of the approximator function.
-Since we won't be seeing the output of the layers in between we call them \textbf{hidden layers}.
+This means the layers inbetween can have arbitrary shapes and
+since we won't be seeing the output of those layers, we call them \textit{hidden layers}.
 
 Each layer consists of a number of \textit{neurons} that are connected to the neurons of the
 next layer.
 %%%% Figure of layers
 \begin{figure}[!h]
     \centering
-    \includegraphics{include/layers.png}
+    \includegraphics[width=10cm]{include/layers.png}
     \caption{A series of layers in a fully connected neural network.}
     \label{fig:layers}
 \end{figure}
 When we discuss layers in this project we will only be referring to \textit{dense}
 layers where every neuron is connected to all neurons in the subsequent layer - a fully
 connected neural network.
-The reason for this choice is that \textit{sparse} neural networks, where every neuron is not
-connected to every neuron of the following layer, can be 'emulated' by a dense network by setting some of the
-weights to 0.
 
-Each neuron transforms its series of input signals into a single output signal which is then sent to
+Each neuron transforms its series of input signals into a single output signal which is sent to
 each neuron in the following layer through a \textit{weighted connection}, where
 the weight of the connections define the importance of the signals.
+Thus purpose of the hidden layers is to extract the key features of the original input.
 %%%% A drawing of a neuron “up close”
 \begin{figure}[!h]
     \centering
-    \includegraphics{include/neuron.png}
+    \includegraphics[width=10cm]{include/neuron.png}
     \caption{The structure of a single neuron.}
     \label{fig:neuron}
 \end{figure}
-Thus the hidden layers aim to extract the key features of the original input.
-The input of the neuron typically goes through a function which aims to activate
-a property of the input.
+
 %% Introduce activators
 
-
-The idea in an Artificial Neural Network is that we building a network of \textit{neurons} which is connected to each other,
-and the learning is done by adjusting the connection between these neurons,
-the connection parameter between two neurons is called \textit{weights} and by adjusting these weights
-we can optimize the network for solving a problem.
-
 \subsubsection{Updating the weights using gradients}
-
 
 \end{document}

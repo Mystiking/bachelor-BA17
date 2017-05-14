@@ -7,22 +7,108 @@
 
 \subsection{Estimating the value of actions}
 
-We have already introduced the goal of the learning agent as being the
-task of maximising the total reward.
-This we can formally define as maximizing the \textit{return}, $G_t$, as
-a function of the sequence of rewards following time step $t$, $R_{t+1}$,
-$R_{t+2}$, $R_{t+3}$, $\hdots$.
-In its simplest form the return could be expressed as the sum of the
+We have already introduced the goal of the learning agent as
+maximising the total reward, which we can formally define as maximizing the \textit{return}, $G_t$, as
+a function of the sequence of rewards, $R_{t+1}$,
+$R_{t+2}$, $R_{t+3}$, $\hdots$, following time step $t$.
+In its simplest form the return can be expressed as the sum of the
 rewards
-\begin{equation}
-    G_t \coleq R_{t+1} + R_{t+2} + \hdots + R_{T}
+\begin{equation}\label{G_t}
+    G_t \coloneqq R_{t+1} + R_{t+2} + \hdots + R_{T} = \sum\limits_{i}^T R_{t+i}
 \end{equation}
-where $T$ is the time when the \textit{terminal state} is reached
+where $T$ is the point in time where the \textit{terminal state} is reached
 \cite{RLBook}.
 
 This definition makes sense in tasks that have a natural ending.
-In this case the terminal state is simply the last state from where no
+The terminal state is in this case the state from where no
 other states can be reached.
+However, if there is no apparent terminal state, equation \ref{G_t}
+becomes problematic, as the final timestep $T$ is $\infty$ which means $G_t$ could converge towards
+$\infty$ in the worst case.
+
+To address this problem we introduce a way to weight the rewards by how far into the
+future they lie - a concept called \textit{discounting}.
+The basic idea behind discounting is that rewards recieved $k$ steps into the future
+is worth $\gamma^k$ times less than a reward recieved at present time, where
+$\gamma$ is the \textit{discount rate} and $0 \leq \gamma \leq 1$.
+
+Using the discount we can redefine the return $G_t$ as the sum of the discounted
+rewards given by
+\begin{equation}\label{gammaG_t}
+    G_t \coloneqq R_t + \gamma * R_{t+1} + \gamma^2 * R_{t+2} + \hdots 
+        = \sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1}
+\end{equation}
+with $\gamma$ close to 1 weighting future rewards strongly and $\gamma$ close to 0
+putting more emphasis on immediate rewards.
+
+Now that the return has been defined, lets consider the response from the environment at time $t + 1$
+to the action taken at time $t$.
+According to the agent-environment model (Fig. \ref{agent_environment}) this response consists
+of a new state $S_{t+1} = s'$ and a corresponding reward $R_{t+1} = r$.
+Assuming the response depends on all past actions $A_{0}, A_{1}, \cdots, A_{t-1}$ and
+corresponding responses $S_{1}, R_{1}, \cdots, S_{t}, R_{t}$, the probability
+of arriving in state $S_{t+1}$ and receiving reward $R_{t+1}$ can be defined as the
+joint probability given by
+\begin{equation}
+    \mathds{P}(S_{t+1} = s', R_{t+1} = r | S_0, A_0, R_1, \cdots, S_{t-1}, A_{t-1}, R_{t}, S_{t}, A_{t})
+\end{equation}
+where $S_0$ is the inital state and $A_0$ the first action taken.
+
+Before we discuss how to estimate the value of taking an action in a state, as
+well as estimating the value of the state, we make an assumption about the reinforcement
+learning tasks we will encounter.
+The assumption is that the agent-environment model has the \textit{Markov property}.
+This means that the state signal is able to retain all relevant information
+from the past, or in other words, that the state signal is able to summarize
+everything important about the complete sequence of states leading to it.
+Under this assumption the joint probability can now be written as
+\begin{equation}
+    \mathds{P}(S_{t+1} = s', R_{t+1} = r | S_t, A_t)
+\end{equation}
+When the agent-environement model has the Markov property the reinforcement
+learning task is called a \textit{Markov decision process (MDP)}
+
+From equation \ref{gammaG_t} we know that the discounted return
+is defined as 
+\begin{equation}
+    G_t = \sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1}
+\end{equation}
+We have also defined a policy $\pi$ as a mapping from state $s$ and action $a$
+to the probability $\pi(a, s)$ of taking action $a$ in state $s$ for all states
+and all available actions.
+The value of the state $s$ can thus be described as the \textit{expected return}
+when starting in state $s$ and following policy $\pi$ thereafter\cite{RLBook}.
+For MDPs we are thus able to define the value of state $s$ as
+\begin{equation}
+    v_\pi(s) = \mathds{E}[G_t | S_t = s] = \mathds{E}\big[\sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1} \big| S_t = s\big]
+\end{equation}
+
+We call the function $v_\pi$ a \textit{state-value function}.
+In the same way we are also able to describe the value of taking an action $a$ in a state $s$  as
+\begin{equation}
+    q_{\pi}(s, a) = \mathds{E}[G_{t} | S_{t} = s, A_{t} = a] = \mathds{E}\bigg[\sum_{k = 0}^{\infty} \gamma^{k} R_{t + k + 1} \bigg| S_{t} = s, A_{t} = a \bigg]
+\end{equation}
+which we call the \textit{action-value function}.
+Generally the state-value and action-value functions aren't known and must therefore be
+estimated.
+This can be done from experience by maintaining an average of the actual return of each
+state and each state-action pair for the state-value and action-value
+functions, respectively.
+These estimates will converge towards the true function values as the number of times
+the states are encountered approach infinity since the average actual returns approach
+the expectations at this time.
+
+A problem with this kind of estimation is that it needs to keep track of all the states, and state-action
+pairs, to be able to actually approach the true functions.
+This is not feasible if the amount of states is very high or the state space is continous.
+Therefore the agent can instead maintain the state-value and action-value functions as
+parameterized functions and adjust the parameters to better match the observed actual returns\cite{RLBook}.
+These functions then work as approximators of the true functions and in this project we will
+be using \textit{deep neural networks} as function estimators.
+
+%%% ENTER DEEP LEARNING SECTION
+
+% Should probably be moved to its own document
 
 %\printbibliography
 %\bibliography{citations}
