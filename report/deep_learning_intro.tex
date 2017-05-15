@@ -68,7 +68,7 @@ into a single output that describes a feature.
     \label{fig:neuron}
 \end{figure}
 
-This means that role of the output of each layer is to provide some additional
+This means that the role of the output of each layer is to provide some additional
 transformation from the features in order to complete the task the network
 must perform\cite{DeepLearningBook}
 
@@ -81,23 +81,23 @@ predictions are to the true result.
 In the reinforcement learning setting it is often difficult to estimate the
 true result.
 E.g. for a policy aproximator $\pi^{\sim}(A_t | S_t)$ we want to use the knowledge
-of wether or not action $A_t$ was actually chosen in state $S_t$ to determine
-if the probability of taking $A_t$ should be increased or decreased to
+of wether or not action $A_t$ was  chosen in state $S_t$ to determine
+whether the probability of taking $A_t$ should be increased or decreased to
 reduce the loss of the network.
 Therefore the weights of the connections in the network are typically updated
-in a direction in the weight space
-that most increases the probability of repeating the action $A_t$ on future visits to
-state $S_t$\cite{RLbook}. 
+in a direction in the weight space.
+This direction describes how the weights should be updated to increases the
+probability of repeating the action $A_t$ the most on future visits to
+state $S_t$\cite{RLbook}.
 To find the direction we would use the \textit{gradient} of the probability of
-taking the action actually taken, since it tells us how the weights of the network
-should be updated.
+taking the action actually taken, since it exactly describes how to increate
+this probability.
 
-Now, this would only increase the chance of picking action $A_t$ in state $S_t$ again
-but what if the action led to a poor return?
-To avoid this problem the probability is generally updated proportionally to the
-return, which means the network will then learn to favor actions that provide
+Now, this would increase the chance of picking action $A_t$ in state $S_t$ again,
+but we really only want to pick actions again that lead to a good return.
+Therefore the probability is generally updated proportionally to the
+return, since the network will then learn to favor actions that provide
 the highest return.
-
 
 
 \end{document}
