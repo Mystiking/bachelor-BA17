@@ -8,163 +8,195 @@ from keras import regularizers
 from keras import optimizers 
 from keras.optimizers import sgd, RMSprop
 from keras import backend as K
+import os
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 import random
+import time
+import threading
 
-GAME = 'CartPole-v0'
-L_RATE = 0.005
-MINI_BATCH = 32
-GAMMA = 0.9
-N_STEP = 8
+results = open('results_cp_11.csv', 'w')
+
+# Constants
 ALPHA = 0.5
+GAMMA = 0.9
+LR = 0.001
+EPSILON = 1e-8
+lock = threading.Lock()
+GAME_NAME = 'CartPole-v0'
+# The environtment that we will be using
+env = gym.make(GAME_NAME)
+NUM_STATE = env.observation_space.shape[0]
+NUM_ACTIONS = env.action_space.n
+# For graphing
+reward_list = []
 
-class Environment:
-    def __init__(self, GAME):
-        self.env = gym.make(GAME)
-        self.agent = Agent()
-        #self.critic = Critic()
-    
+# Global networks
+input_layer = Input(shape=[NUM_STATE])
+first_critic = Dense(8,activation='relu',kernel_initializer='uniform')(input_layer)
+first_actor = Dense(8,activation='relu',kernel_initializer='uniform')(input_layer)
+output_critic = Dense(1,activation='linear',kernel_initializer='uniform')(first_critic)
+output_actor = Dense(NUM_ACTIONS,activation='softmax',kernel_initializer='uniform')(first_actor)
+# The "final" networks
+global_critic_model = Model(inputs=input_layer, outputs=output_critic)
+global_actor_model = Model(inputs=input_layer, outputs=output_actor)
+# Here the optimizer is irrelevant since we won't be using the Keras
+# function "fit" to optimize the model
+#global_critic_model.compile(optimizer='sgd', loss='mse')
+#global_actor_model.compile(optimizer='sgd', loss='mse')
+# Must be done to enable threading
+global_critic_model._make_predict_function()
+global_actor_model._make_predict_function()
+
+# Initialize tf global variables
+sess = tf.Session()
+K.set_session(sess)
+init = tf.global_variables_initializer()
+sess.run(init)
+graph = tf.get_default_graph()
+
+
+class Agent(threading.Thread):
+    def __init__(self, state_input_shape, action_output_shape):
+        threading.Thread.__init__(self)
+        self.opt = tf.train.RMSPropOptimizer(0.005)
+        self.gtheta = 0
+        self.gw = 0
+        # Init layers of the model
+        input_layer = Input(shape=[state_input_shape])
+        first_critic = Dense(8,activation='relu',kernel_initializer='uniform')(input_layer)
+        first_actor = Dense(8,activation='relu',kernel_initializer='uniform')(input_layer)
+        output_critic = Dense(1,activation='linear',kernel_initializer='uniform')(first_critic)
+        output_actor = Dense(action_output_shape,activation='softmax',kernel_initializer='uniform')(first_actor)
+        # The "final" networks
+        self.local_critic_model = Model(inputs=input_layer, outputs=output_critic)
+        self.local_actor_model = Model(inputs=input_layer, outputs=output_actor)
+        # Here the optimizer is irrelevant since we won't be using the Keras
+        # function "fit" to optimize the model
+        #self.local_critic_model.compile(optimizer='sgd', loss='categorical_crossentropy')
+        #self.local_actor_model.compile(optimizer='sgd', loss='categorical_crossentropy')
+        # Must be done to enable threading
+        self.local_critic_model._make_predict_function()
+        self.local_actor_model._make_predict_function()
+        
+        self.s_t = tf.placeholder(tf.float32, shape=(None, NUM_STATE))
+        self.a_t = tf.placeholder(tf.float32, shape=(None, NUM_ACTIONS))
+        self.r_t = tf.placeholder(tf.float32, shape=(None, 1))
+        v = self.local_critic_model(self.s_t)
+        p = self.local_actor_model(self.s_t)
+        # Actor weights
+        w_actor = self.local_actor_model.trainable_weights # weight tensors
+        w_actor = [weight for weight in w_actor]
+        w_actor = w_actor[::2]
+        # Critic weights
+        w_critic = self.local_critic_model.trainable_weights # weight tensors
+        w_critic = [weight for weight in w_critic]
+        w_critic = w_critic[::2]
+        # "Losses"
+        advantage = (self.r_t - v)
+        loss_actor = tf.log(tf.reduce_sum(p * self.a_t, axis=1, keep_dims=True) + 1e-10) * tf.stop_gradient(advantage)
+        loss_critic = tf.square(advantage)
+        self.a_grads = tf.gradients(loss_actor, w_actor)
+        self.c_grads = tf.gradients(loss_critic, w_critic)
+
     def run(self):
-        state = self.env.reset()
-        state = state.reshape([1, 4])
-        total_reward = 0
-        while True:
-            self.env.render()
-            action = self.agent.get_action(state)
-            _state, reward, done, info = self.env.step(action)
-            _state = _state.reshape([1, 4])
-            self.agent.train(state, action, reward, _state, done)
-            total_reward += reward
-            state = _state
-            if done:
-                break
-        print(total_reward)
+        self.train(200, 4000)
+        print("It worked!")
 
-class Critic:
-    def __init__(self):
-        self.replay_memory = [[], [], [], [], []]
-        self.session = tf.Session()
-        K.set_session(self.session)
-        K.manual_variable_initialization(True)
+    def train(self, t, episodes):
+        i = 0
+        env = gym.make(GAME_NAME)
+        while i < episodes: 
+            i += 1
+            # Initialize weights of local networks
+            lock.acquire()
+            with graph.as_default():
+                start_weights_actor = global_actor_model.get_weights()
+                self.local_actor_model.set_weights(start_weights_actor)
+                start_weights_critic = global_critic_model.get_weights()
+                self.local_critic_model.set_weights(start_weights_critic)
+            lock.release()
+            dtheta = 0
+            dw = 0
+            total_reward = 0
+            I = 1.
+            memory = []
+            state = env.reset()            
+            state = state.reshape([1, NUM_STATE])
+            done = False
+            value = self.local_critic_model.predict(state)
+            while not done:
+                probabilities = self.local_actor_model.predict(state)
+                #print(probabilities)
+                action = np.random.choice(2, p=probabilities[0])
+                _state, reward, done, info = env.step(action)
+                _state = _state.reshape([1, NUM_STATE])
+                _value = self.local_critic_model.predict(_state)
+                _value = _value if not done else np.array([[0.]])
+                total_reward += reward
+                #td_error = reward + GAMMA * _value - value
+                memory.append([state, action, reward, done])
 
-        shared_input = Input(batch_shape=(None, NUM_STATES))
-        shared_layer = Dense(16, activation='relu', init='uniform')(shared_input)
-        shared_optimizer = RMSprop(L_RATE, decay=0.99)
+                state = _state
+                value = _value
+            print("Episode {} : Reward = {}".format(i, total_reward))
+            results.write(str(i) + ',' + str(total_reward) + '\n')
+            reward_list.append(total_reward)
+            R = 0
+            for s, a, r, d in memory:
+                R = r + GAMMA * R
+                a_list = np.zeros(NUM_ACTIONS)
+                a_list[a] = 1.
+                a_list = np.reshape(a_list, (-1, 2))
+                actor_grads = sess.run(self.a_grads, {self.s_t : s, self.a_t : a_list, self.r_t : np.reshape(np.array([R]), (-1, 1))})
+                dtheta = dtheta + np.array(actor_grads)
 
-        actor_output = Dense(NUM_ACTIONS, activation='softmax', init='uniform')(shared_layer)
-        self.actor_model = Model(shared_input, actor_output)
-        #self.actor_model.compile(loss='mse', optimizer=shared_optimizer)
-
-        critic_output = Dense(1, activation='linear', init='uniform')(shared_layer)
-        self.critic_model = Model(shared_input, critic_output)
-        #self.critic_model.compile(loss='mse', optimizer=shared_optimizer)
-        self.optimizer = tf.train.RMSPropOptimizer(L_RATE, decay=0.99)
-
-        self.graph = self.train_model()
-        g = tf.global_variables_initializer()
-        self.session.run(g)
-        self.default_graph = tf.get_default_graph()
-
-        # self.default_graph.finalize()
-
-    def train_model(self):#, state, action, reward):
-        #tf_state = tf.Variable(state)
-        #tf_action = tf.Variable(action)
-        #tf_reward = tf.Variable(reward)
-        # Tensorflow placeholders for a state, an action and a reward
-        tf_state = tf.placeholder(tf.float32, shape=(None, NUM_STATES))
-        tf_action = tf.placeholder(tf.float32, shape=(None, NUM_ACTIONS))
-        tf_reward = tf.placeholder(tf.float32, shape=(None, 1))
-
-        # Policy (action probabilities)
-        probs = self.actor_model(tf_state)
-
-        # Value of state
-        value = self.critic_model(tf_state)
+                critic_grads = sess.run(self.c_grads, {self.s_t : s, self.r_t : np.reshape(np.array([R]), (-1, 1))})
+                dw = dw + np.array(critic_grads)
+            lock.acquire()
+            with graph.as_default():
+                self.gtheta = self.gtheta * ALPHA + (1 - ALPHA) * (dtheta**2)
+                self.gw = self.gw * ALPHA + (1 - ALPHA) * (dw**2)
+                j = 0
+                while j < len(dtheta):
+                    # Critic
+                    update_critic = global_critic_model.layers[j+1].get_weights()[0] - LR * dw[j] / np.sqrt(self.gw[j] + EPSILON)
+                    bias_critic = global_critic_model.layers[j+1].get_weights()[1]
+                    global_critic_model.layers[j+1].set_weights((update_critic, bias_critic))
+                    # Actor
+                    update_actor = global_actor_model.layers[j+1].get_weights()[0] - LR * dtheta[j] / np.sqrt(self.gtheta[j] + EPSILON)
+                    bias_actor = global_actor_model.layers[j+1].get_weights()[1]
+                    global_actor_model.layers[j+1].set_weights((update_actor, bias_actor))
+                    j += 1
+            lock.release()
         
-        advantage = tf_reward - value
-        
-        prob = tf.reduce_sum(probs * tf_action)
-        log_prob = tf.log(prob)
-        loss_policy = - log_prob * advantage
-        loss_value = ALPHA * advantage * advantage
+agent006 = Agent(NUM_STATE, NUM_ACTIONS)
+agent007 = Agent(NUM_STATE, NUM_ACTIONS)
+agent008 = Agent(NUM_STATE, NUM_ACTIONS)
+agent009 = Agent(NUM_STATE, NUM_ACTIONS)
 
-        loss_total = tf.reduce_mean(loss_value + loss_policy)
-        minimized = self.optimizer.minimize(loss_total)
-        return tf_state, tf_action, tf_reward, minimized
+agent006.start()
+agent007.start()
+agent008.start()
+agent009.start()
 
-    def optimize(self):
-        state, action, reward, _state, done = self.replay_memory
-        state = np.vstack(state)
-        action = np.vstack(action)
-        reward = np.vstack(reward)
-        _state = np.vstack(_state)
+agent006.join()
+agent007.join()
+agent008.join()
+agent009.join()
 
-        value = self.critic_model.predict(_state)
-        reward = reward + (GAMMA ** N_STEPS) * value if not done else reward
-        tf_state, tf_action, tf_reward, minimize = self.graph
-        self.session.run(minimize, feed_dict={tf_state : state, tf_action : action, tf_reward : reward})
+c = 0
+k = 500
+avg_list = []
+for i in range(len(reward_list) - 1):
+    if c % k == 0:
+        avg_list.append(sum(reward_list[i + c : i + c + k]) / k)
 
-    def push_to_replay_memory(self, state, action, reward, _state, done):
-        self.replay_memory[0].append(state)
-        self.replay_memory[1].append(action)
-        self.replay_memory[2].append(reward)
-        self.replay_memory[3].append(_state)
-        self.replay_memory[4].append(done)
+print(sum(reward_list) / len(reward_list))
+plt.plot(range(len(reward_list)), reward_list, 'r')
+plt.plot(range(len(avg_list)), avg_list, 'b')
+plt.xlabel('Episodes')
+plt.ylabel('Score')
+plt.title('Score of the a3c algorithm over time')
+plt.show()
 
-
-class Agent:
-    
-    def __init__(self):
-        self.memory = []
-        self.R = 0
-
-    def get_action(self, state):
-        probs = critic.actor_model.predict(state)
-        action = np.random.choice(NUM_ACTIONS, p=probs[0])
-        return action
-
-    def get_sample(self, memory, n):
-        state, action, _, _, _ = memory[0]
-        _, _, _, _state, done = memory[n-1]
-
-        return state, action, self.R, _state, done
-
-    def train(self, state, action, reward, _state, done):
-        a_one_hot = np.zeros(NUM_ACTIONS)
-        a_one_hot[action] = 1
-        
-        self.memory.append((state, a_one_hot, reward, _state, done))
-        
-        self.R = (self.R + reward * (GAMMA ** N_STEP)) / GAMMA
-
-        if done:
-            while(len(self.memory) > 0):
-                n = len(self.memory)
-                s, a, r, _s, d = self.get_sample(self.memory, n)
-                critic.push_to_replay_memory(s, a, r, _s, d)
-
-                self.R = (self.R - self.memory[0][2]) / GAMMA
-                self.memory.pop(0)
-            self.R = 0
-
-        if len(self.memory) >= N_STEP:
-            s, a, r, _s, d = self.get_sample(self.memory, N_STEP)
-            critic.push_to_replay_memory(s, a, r, _s, d)
-
-            self.R = self.R - self.memory[0][2]
-            self.memory.pop(0)
-
-
-episodes = 200
-env = Environment(GAME)
-NUM_ACTIONS = env.env.action_space.n
-NUM_STATES = env.env.observation_space.shape[0]
-critic = Critic()
-
-while(episodes > 0):
-    env.run()
-    critic.optimize()
-
-
-print("Hello world")
