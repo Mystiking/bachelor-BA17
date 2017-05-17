@@ -89,7 +89,7 @@ get_gradients_actor = K.function(inputs=input_tensors, outputs=gradients)
 
 
 # Contants
-episodes = 2000
+episodes = 10000
 gamma = 0.9
 alpha = 0.1
 beta = 0.2
