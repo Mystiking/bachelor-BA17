@@ -39,19 +39,15 @@ The only layers that have their dimensions restrained are the first and last, si
 dimensions of the input and the output of the approximator function.
 This means the layers inbetween can have arbitrary shapes and
 since we won't be seeing the output of those layers, we call them \textit{hidden layers}.
-
-Each layer consists of a number of \textit{neurons} that are connected to the neurons of the
-next layer.
-%%%% Figure of layers
 \begin{figure}[!h]
     \centering
     \includegraphics[width=10cm]{include/layers.png}
     \caption{A series of layers in a fully connected neural network.}
     \label{fig:layers}
 \end{figure}
-When we discuss layers in this project we will only be referring to \textit{dense}
-layers where every neuron is connected to all neurons in the subsequent layer - a fully
-connected neural network.
+Each layer consists of a number of \textit{neurons} that are connected to the neurons of the
+next layer.
+%%%% Figure of layers
 
 Each neuron transforms its series of input signals into a single output signal which is sent to
 each neuron in the following layer through a \textit{weighted connection}, where
@@ -71,6 +67,50 @@ into a single output that describes a feature.
 This means that the role of the output of each layer is to provide some additional
 transformation from the features in order to complete the task the network
 must perform\cite{DeepLearningBook}
+
+\subsubsection{Learning from multidimensional input}
+
+To process the high dimensional frames the Atari games we will be using
+\textit{convolutional} layers.
+We use convolutional layers to reduce the dimensionality of the
+input frames and in that process extract important features of each frame.
+To accomplish this a convolutional layer perform a \textit{convolution} over
+its input.
+A convolution is an operation on two functions, $a$ and $b$ that produces a third function
+$h$ which is then the convolution of $a$ and $b$\cite{DeepLearningBook}.
+The convolution operation is denoted by a $\ast$ and the convolution of $a$ and $b$
+is formally defined as
+\begin{equation}\label{eq:conv}
+    (a \ast b)(x) = \int\limits_{-\infty}^{\infty} a(y) * b(x - y) dy
+\end{equation}
+where both $a$ and $b$ are continous.
+The convolutions of the network are used on frames from the Atari games, which
+means that they are applied to discrete sequences.
+
+To accommodate for this we start by describing a convolution as a sum of infinite
+discrete sequences.
+This transforms equation \ref{eq:conv} into
+\begin{equation}
+    (a \ast b)(x) = \sum\limits_{y = -\infty}^{\infty} a(y) * b(x - y)
+\end{equation}
+
+Now what we really want is to apply convolutions to the frames from the Atari games.
+These have a fixed size which means they are represented as \textbf{finite} sequences
+so we extend the sequences by 0's to make them \textbf{infinite} whenever a convolution
+is applied to a pixel “outside” of the frames.
+
+In our network we can view the input images as a function $f : \R^{(x, y)} \to \R$ and
+to extract the features of the image we apply a filter function $g : \R^{(d, d)} \to \R$
+using a convolutoon.
+This convolution can is then a neighbourhood operation, where each output pixel
+is a weighted sum of its neighbouring pixels\cite{convSE}.
+The convolution can be seen as moving a kernel
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=10cm]{include/conv.png}
+    \caption{A convolution on an input map which produces a feature map.}
+    \label{fig:neuron}
+\end{figure}
 
 \subsubsection{Updating the weights using gradients}
 
