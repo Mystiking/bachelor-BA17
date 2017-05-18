@@ -1,0 +1,33 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+\maketitle
+
+\section{Reinforcement Learning}
+
+
+
+\subsection{Looking into the future (TD)}
+
+Temporal difference (TD) learning is a technique used in reinforcement learning for predicting the total reward expected in the future. By using TD learning it's possible to update the value functions after each time step. We wish to update the value functions after each time step, instead of each episode, for speed up learning. Updating the state value function for a state $S_{t}$ at time $t$ after running through an entire episode look like this,
+\begin{equation}\label{eq:td}
+    V(S_{t}) \leftarrow V(S_{t}) + \alpha \big[G_{t} - V(S_{t}) \big]
+\end{equation}
+where $\alpha$ is a constant and $G_{t}$ is the actually return value for an episode. The problem with this approach is that we have to wait until the episode is done, before updating the state value function for every state visited that episode. The simplest TD method which make is possible for updating the state value function dynamic through the run is \textit{TD(0)}. 
+Using TD(0), we can update the state value function, with only the information available at time $t + 1$,
+\begin{equation}\label{eq:td2}
+    V(S_{t}) \leftarrow V(S_{t}) + \alpha \big[R_{t + 1} + \gamma V(S_{t + 1}) - V(S_{t}) \big]
+\end{equation}
+here we compute the difference between the estimated value for being in state $S_{t}$ and $S_{t + 1}$ plus $R_{t + 1}$, where $R_{t + 1}$ is the reward gained by the transition from state $S_{t}$ to $S_{t + 1}$.
+
+The expression $R_{t + 1} + \gamma V(S_{t + 1}) - V(S_{t})$, is called the \textit{TD error} for TD(0), 
+\begin{equation}
+    \delta_{t} = R_{t + 1} + \gamma V(S_{t + 1}) - V(S_{t})
+\end{equation}
+the idea is that $(V(S_{t + 1}) + R_{t + 1})$ should be a better estimate of the actually return than $V(S_{t})$ for state $S_{t}$, by the assumption of that the estimate made later in the episode is better because, the estimate is closer to a terminal state, and consists of actually gained reward. 
+
+\subsection{Multi-step Bootstrapping}
+TD(0) we mentioned in the last section, is an one-step TD method, because it change a value functions based on a estimate made one step later. By using multi-step bootstrapping we introduce \textit{n-step backup}, for example two-step backup is based on the value estimate in $S_{t}$ versus the value estimate in $S_{t+2}$ plus the rewards gained in the transition from $S_{t}$ to $S_{t + 2}$. So n-step backup.
+
+\end{document}
