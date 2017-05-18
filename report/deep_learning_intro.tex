@@ -66,7 +66,7 @@ into a single output that describes a feature.
 
 This means that the role of the output of each layer is to provide some additional
 transformation from the features in order to complete the task the network
-must perform\cite{DeepLearningBook}
+must perform\cite{DeepLearningBook}.
 
 \subsubsection{Learning from multidimensional input}
 
@@ -104,13 +104,43 @@ to extract the features of the image we apply a filter function $g : \R^{(d, d)}
 using a convolutoon.
 This convolution can is then a neighbourhood operation, where each output pixel
 is a weighted sum of its neighbouring pixels\cite{convSE}.
-The convolution can be seen as moving a kernel
 \begin{figure}[!h]
     \centering
     \includegraphics[width=10cm]{include/conv.png}
-    \caption{A convolution on an input map which produces a feature map.}
-    \label{fig:neuron}
+    \caption{A convolution on an input map which produces a \textit{feature} map.}
+    \label{fig:conv}
 \end{figure}
+
+Using a convolution on an image produces a \textit{feature map}.
+This feature map has the property that each of its elements is
+the result of a convolution of the input with a linear filter\cite{DeepLearningBook}.
+In the network, the filter function $g$ corresponds to a weight matrix $\mathbf{W}$ shared between all neurons in the layer.
+$$
+\mathbf{W} =
+\begin{bmatrix}
+    w_{1,1 } & w_{1, 2} & \hdots & w_{1, d} \\
+    w_{2,1 } & w_{2, 2} & \hdots & w_{2, d} \\
+    \vdots   &          & \ddots &          \\
+    w_{d,1 } & w_{d, 2} & \hdots & w_{d, d} \\
+\end{bmatrix}
+$$
+
+This means that there is as many neurons as there are elements in the feature map.
+Each neuron can then be seen as a linear transformation given by
+\begin{equation}
+    X_{i, j} = \sum\limits_{z, q} W_{z, q} * X_{z, q}
+\end{equation}
+for all $z, q$ in the filter with center in $X_{i, j}$.
+
+% Måske ændre fra raw til preproccessed
+As explained in section \ref{Data} there are a lot of pixels in the raw Atari frames that
+contain little information abut the state.
+To reduce the amount of areas without relevance we have chosen to \textit{subsample}
+the input images after they has gone through a convolution.
+
+
+Now the convolution in itself doesn't reduce the dimensionality of its input
+
 
 \subsubsection{Updating the weights using gradients}
 
