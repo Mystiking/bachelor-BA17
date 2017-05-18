@@ -64,6 +64,26 @@ into a single output that describes a feature.
     \label{fig:neuron}
 \end{figure}
 
+The choice of activation function depends on the task the
+network is supposed to solve.
+E.g. when learning to plat Atari games we generally want to estimate a policy.
+This policy describes the probabilities of taking each available action
+in the given state.
+For this particular task the \textit{softmax} function can be used as activation function
+in the final layer.
+The softmax is defined as
+\begin{equation}
+    Softmax(x) = \frac{exp(x_i)}{\sum\limits_{k=1}^K exp(x_k)}, \text{ for } i = 1, \dots, K
+\end{equation}
+for a $k$ dimensional input $x$ and is a generalization of the logistic function shown below
+
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=15cm]{include/sigmoid.png}
+    \caption{Plot of the logistic function.}
+    \label{fig:softmax}
+\end{figure}
+
 This means that the role of the output of each layer is to provide some additional
 transformation from the features in order to complete the task the network
 must perform\cite{DeepLearningBook}.
@@ -71,78 +91,96 @@ must perform\cite{DeepLearningBook}.
 \subsubsection{Learning from multidimensional input}
 
 To process the high dimensional frames the Atari games we will be using
-\textit{convolutional} layers.
-We use convolutional layers to reduce the dimensionality of the
-input frames and in that process extract important features of each frame.
-To accomplish this a convolutional layer perform a \textit{convolution} over
-its input.
-A convolution is an operation on two functions, $a$ and $b$ that produces a third function
-$h$ which is then the convolution of $a$ and $b$\cite{DeepLearningBook}.
-The convolution operation is denoted by a $\ast$ and the convolution of $a$ and $b$
-is formally defined as
-\begin{equation}\label{eq:conv}
-    (a \ast b)(x) = \int\limits_{-\infty}^{\infty} a(y) * b(x - y) dy
-\end{equation}
-where both $a$ and $b$ are continous.
-The convolutions of the network are used on frames from the Atari games, which
-means that they are applied to discrete sequences.
+a \textit{convolutional} neural network.
+A convolutional neural network typically performs three operations - a \textit{convolution},
+a \textit{pooling} and an activation.
 
-To accommodate for this we start by describing a convolution as a sum of infinite
-discrete sequences.
-This transforms equation \ref{eq:conv} into
+A convolution in two dimensions of a discrete image I with filter kernel \textbf{K}
+is given by 
 \begin{equation}
-    (a \ast b)(x) = \sum\limits_{y = -\infty}^{\infty} a(y) * b(x - y)
+    S(i, j) = (I \ast K)(i, j) = \sum\limits_m \sum\limits_n I(m, n) * K(i - m, j - n)
 \end{equation}
+where the kernel filter \textbf{K} is a function $K : \R^{(d, k)} \to \R$.
+A 2d convolutional layer uses the spatial structure in the input data to contruct a feature map
+using the linear filter \textbf{K}.
+Here the kernel filter is learned as the weights in the network.
+A non-linear function is then applied to the feature map elements resulting from the convolution,
+which can be seen as neurons with shared weights\cite{IgelConv}.
 
-Now what we really want is to apply convolutions to the frames from the Atari games.
-These have a fixed size which means they are represented as \textbf{finite} sequences
-so we extend the sequences by 0's to make them \textbf{infinite} whenever a convolution
-is applied to a pixel “outside” of the frames.
+The kernel function can thus be represented as a $d \times k$ dimensional weight matrix
+$$
+\mathbf{K} =
+\begin{bmatrix}
+    w_{1,1 } & w_{1, 2} & \hdots & w_{1, k} \\
+    w_{2,1 } & w_{2, 2} & \hdots & w_{2, k} \\
+    \vdots   &          & \ddots &          \\
+    w_{d,1 } & w_{d, 2} & \hdots & w_{d, k} \\
+\end{bmatrix}
+$$
+In other words each element in the resulting feature map is weighted
+based on its distance to the kernel center.
 
-In our network we can view the input images as a function $f : \R^{(x, y)} \to \R$ and
-to extract the features of the image we apply a filter function $g : \R^{(d, d)} \to \R$
-using a convolutoon.
-This convolution can is then a neighbourhood operation, where each output pixel
-is a weighted sum of its neighbouring pixels\cite{convSE}.
-\begin{figure}[!h]
+Given a $4 \times 4$ input image and a $3 \times 3$ kernel filter a convolution
+would look like this
+%%% 2d convolution
+\begin{figure}[!h]\label{con2}
     \centering
-    \includegraphics[width=10cm]{include/conv.png}
-    \caption{A convolution on an input map which produces a \textit{feature} map.}
+    \includegraphics[width=10cm]{include/conv_2.png}
+    \caption{A 2d convolution on an image which produces a \textit{feature} map.}
     \label{fig:conv}
 \end{figure}
 
-Using a convolution on an image produces a \textit{feature map}.
-This feature map has the property that each of its elements is
-the result of a convolution of the input with a linear filter\cite{DeepLearningBook}.
-In the network, the filter function $g$ corresponds to a weight matrix $\mathbf{W}$ shared between all neurons in the layer.
-$$
-\mathbf{W} =
-\begin{bmatrix}
-    w_{1,1 } & w_{1, 2} & \hdots & w_{1, d} \\
-    w_{2,1 } & w_{2, 2} & \hdots & w_{2, d} \\
-    \vdots   &          & \ddots &          \\
-    w_{d,1 } & w_{d, 2} & \hdots & w_{d, d} \\
-\end{bmatrix}
-$$
+A problem with the raw convolution shown in figure \ref{conv2} is that
+pixels at the boundary of the image are lost, which means some of the
+features of the input may be lost.
+To deal with this boundary issue we make use of zero padding.
+We simply add zeros to the border of each image until the kernel
+filter fits around each pixel.
+This maintains the dimensions of the original image, since the pixels that are lost are
+now all part of the padding.
 
-This means that there is as many neurons as there are elements in the feature map.
-Each neuron can then be seen as a linear transformation given by
-\begin{equation}
-    X_{i, j} = \sum\limits_{z, q} W_{z, q} * X_{z, q}
-\end{equation}
-for all $z, q$ in the filter with center in $X_{i, j}$.
+%%% Zero padded 2d convolution
+\begin{figure}[!h]\label{con2}
+    \centering
+    \includegraphics[width=10cm]{include/conv_2_zero_pad.png}
+    \caption{The effect of zero padding the input image.}
+    \label{fig:conv}
+\end{figure}
 
-% Måske ændre fra raw til preproccessed
-As explained in section \ref{Data} there are a lot of pixels in the raw Atari frames that
-contain little information abut the state.
-To reduce the amount of areas without relevance we have chosen to \textit{subsample}
-the input images after they has gone through a convolution.
+Each pixel is now a weighted sum of its neighbouring pixels
+which means that the result of the convolution is features from
+the original input.
+Since the feature map consists of more separated objects than the original input,
+we can now reduce the dimensionality of the feature map without losing much information.
+This is called a pooling of the feature map and is used to support \textit{translation invariance}.
+Translation invariance means that the features of the network should be able to
+be extracted, regardless of their position in the feature map.
+
+Instead of doing pooling and convolutions in two separate steps, we will be using 
+\textit{convolutions with stride} in this project.
+What this means is that we we won't be be applying the convolution to 
+every element of the input, but instead only the \textit{n'th} element.
+In one dimension this can visualized as
+
+%%%%% Strides
+\begin{figure}[!h]\label{con2}
+    \centering
+    \includegraphics[width=10cm]{include/strides.png}
+    \caption{A convolution with stride 2 of an input using the kernel filter K. Only every second
+        element of te resulting
+            feature map is sent to the next layer.}
+    \label{fig:conv}
+\end{figure}
+
+Here the convolution skips every second element, resulting in a downsampling
+of the input.
+The pooling operation usually computes the maximum or average of a region of a feature map,
+and using convolution with strides emulates this behaviour since the convolution
+can be seen as a weighted average of neighbouring pixels.
 
 
-Now the convolution in itself doesn't reduce the dimensionality of its input
-
-
-\subsubsection{Updating the weights using gradients}
+%%% Move this to after Policy Gradients
+\subsubsection{Updating the weights of the network}
 
 A neural network is trained to minimize its total loss based on its \textit{loss
 function}.
