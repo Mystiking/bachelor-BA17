@@ -6,105 +6,120 @@
 
 \section{Data}\label{Data}
 
-To train and test our actor-critic and advantage asynchronous actor-critic implementation we will use a framework called OpenAI Gym, which provides an interface to Atari 2600 games, that can be used by developers to compare and test their reinforcement learning algorithms\cite{openAIGym}.
+To train and test our actor-critic and advantage asynchronous actor-critic implementation we will use
+the OpenAI Gym framework\cite{openAIGym}.
+This framework provides an interface to 118 Atari 2600 games,
+that can be used by developers to compare and test their reinforcement learning algorithms.
 
-By using OpenAI Gym the information needed for testing our algorithms is easy to collect. 
-In the Atari enviroments there is always a finite \textit{action space} and a continous \textit{state space}, where the action space describes the available actions in the environment.
+ 
+In the Atari enviroments there is always a finite \textit{action space} and a continous \textit{state space}.
+The state space is continous because a \textit{state} is represented as a RGB image - a screenshot - from a game
+at the given time and the action space is finite because there is always a fixed amount of
+actions available to the player.
 
-In all environments it's possible to simulate a action in the enviroment. Simulating an action the environment returns a \textit{state}, a \textit{reward} and a \textit{binary signal} which indicate whether the game is done or not.
-
-A state consist of information about the environment, which varies depending on the problem. The reward correspond to what score a real player would have earned.
+Simulating an action in a game return information about the new state,
+a \textit{reward} for taking said action and a \textit{binary signal} which indicate whether the 
+game is done or not.
+The reward is the score the game has registered in the new state.
+It is not uncommon for this reward to be $0$ as many of the players actions doesn't produce an immediate reward.
 
 \subsection{Cart-Pole}
 
-One additional game interface we will be using is made for the Cart-Pole problem.
-The game of Cart-Pole consists of balancing a pole connected to the top of a moving cart.
-The game ends when the pole is more than 15 degrees from vertical or the cart moves outside of the frame or
-the player has reached a score of 200.
+OpenAI gym also supports an additional interface we will be using, which is made for the Cart-Pole problem.
+A player wins the Cart-Pole game if he manages to balance a pole connected to the top of a moving cart for
+200 time steps.
+The player loses if the pole moves to more than 15 degrees from vertical
+or if the cart exits the frame.
 
 \begin{figure}[!h]
     \centering
     \includegraphics[scale=0.5]{include/cartpole.png}
-    \caption{A frame of the Cart-Pole problem.}
+    \caption{A frame from Cart-Pole.}
     \label{fig:cartpole}
 \end{figure}
 
-In the CartPole environment a state consists of four elements: The position of the cart and its velocity, as well as the angle and the angular velocity of the pole.
-In the CartPole problem we achieve a reward of +1 for every action performed that does not end the game.
-The only available actions are moving left and right, and in our setting the player is not able to choose not to take
-an action.
+Unlike the Atari environments a state in Cart-Pole consits of only four elements - the position, and velocity, of the cart and the
+angle, and angular velocity, of the pole.
+Each time step the player has to chose between moving the cart to the right or to the left and it is not possible
+to do nothing.
+For every time step the pole doesn't move 15 degrees from vertical the player is awarded a single point.
 
-We have chosen the Cart-Pole problem because of its simplicity compared to more advanced games.
-An advantage of this problem is that the player is given only relevant information, which means every element
-of each state should influence the choice of the next action.
+We will be using the Cart-Pole problem as a proof of concept for our actor-critic implementation and will
+compare it to the A3C algorithm used on the same problem.
+The reason for this choice is that the problem should be easier to solve, because the
+states have fewer dimensions.
 
-\subsection{Atari 2600}
 
-The real challenge of this project is to improve the model used for playing Cart-Pole to be able to
-play Atari 2600 games.
-In the OpenAI Gym framework the interface to Atari games resembles the one focused on the Cart-Pole,
-with one important difference.
-Instead of only being given relevant information about a state, the player is given a frame of the
-game in RGB values.
-This means that instead of only having 4 items to influence which action to take in a state,
-the player is now faced with a frame represented by a 3-dimensional matrix.
-All of the games have been normalized to have the same screen size of $210 \times 160$ pixels,
-where each pixel contains the three values corresponding to the red, green and blue intensities in the pixel.
+\subsection{Atari 2600 games}
 
-In this project we our goal will be to create a generic model that is able to play
-any Atari game complying with the structure described above.
-However, due to the time limitations of this project we will only
-be testing the model on the following games
-\begin{itemize}
-    \item Pong
-    \item ...
-\end{itemize}
+As mentioned earlier the interface to Atari games resembles the one focused on the Cart-Pole problem,
+with the difference being that we are given the RGB values of a frame from the game
+instead of a vector containing information about the environment.
+This means that instead of only taking 4 items into consideration when picking an action,
+the player is now faced with a 3-dimensional matrix representing a frame.
+All of the games have the same resolution of $210 \times 160$ pixels.
+Each pixel contains three channels corresponding to the red, green and blue intensities of the pixel.
 
-Upon a more thorough inspection of the Atari environment we have found that
-there are pixels in all of the games that never change their RGB value.
-These pixels difer from Atari game to Atari game, meaning we can never be sure which part
-of the screen we can safely ignore.
-In Figure \ref{fig:Atari_env} below we present a single frame from the games
-\textit{Pacman}, \textit{Pong}, \textit{Space Invaders} and \textit{Breakout}.
-It is easy to spot that each of these games have pixel values that will never change.
-E.g. in \textit{Breakout} the gray outer barrier never changes, no matter where the player or ball
-is positioned.
+Using the raw Atari frames can be computationally demanding, so we have chosen
+to preprocess our data as described in \cite{dqn}. 
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.35]{include/space_invaders_1.png}
+    \caption{A raw RGB frame from \textit{Space Invaders}.}
+    \label{fig:si}
+\end{figure}
+The first step of the preprocessing is to reduce the amount of channels needed to
+represent the image.
+To do this we gray-scale the RGB images so that only a single channel is used.
+In our approach, the gray-scaling calculates the relative luminance\cite{luminance} of each pixel and the formula is given in equation \ref{eq:lum}.
+\begin{equation}\label{eq:lum}
+    L(R, G, B) = 0.2126*R + 0.7152*G + 0.0722*B
+\end{equation}
 
-\begin{figure}[H]
-    \begin{subfigure}[b]{.5\textwidth}
-        \centering
-        \includegraphics[scale=0.75]{include/pacman.png}
-        \caption{A frame from \textit{Pacman}.}
-    \end{subfigure}
-    \begin{subfigure}[b]{.5\textwidth}
-        \centering
-        \includegraphics[scale=0.75]{include/pong.png}
-        \caption{A frame from \textit{Pong}.}
-    \end{subfigure}
-    \vskip\baselineskip
-    \begin{subfigure}[b]{.5\textwidth}
-        \centering
-        \includegraphics[scale=0.75]{include/space.png}
-        \caption{A frame from \textit{Space Invaders}.}
-    \end{subfigure}
-    \begin{subfigure}[b]{.5\textwidth}
-        \centering
-        \includegraphics[scale=0.75]{include/breakout.png}
-        \caption{A frame from \textit{Breakout}.}
-    \end{subfigure}
-    \caption{Frames from the \textit{Pacman}, \textit{Pong}, \textit{Space Invaders} and \textit{Breakout} environments}
-    \label{fig:Atari_env}
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.35]{include/space_invaders_1_gray.png}
+    \caption{The gray-scaled frame from figure \ref{fig:si}.}
+    \label{fig:sig}
 \end{figure}
 
-The main difference between the Cart-Pole problem and the Atari games is that
-we will have to extract the features of the environments ourselves.
-Since the frames and the available actions vary a lot from game to game
-our model will need to train itself on each of the games before it can
-be expected to perform properly on each game.
+We further reduce the dimensions of the gray-scaled images by a downsampling.
+We simply ignore every second pixel effectively halfing the resolution of the images
+in both dimensions.
 
-To decrease the workload of the model and increase the pace at which it learns
-we will be \textit{grayscaling} the frames.
-This will reduce the dimensionality, since each pixel will only have to
-store a single value instead of three.
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale=0.35]{include/space_invaders_1_gray_resized.png}
+    \caption{The result of resizing the gray-scaled frame from figure \ref{sig}.}
+    \label{fig:sigr}
+\end{figure}
+
+Thus, the final output of the preprocessing step is $105 \times 80$ pixel gray-scaled
+images.
+After the data has been preprocessed it is computationally cheaper to extract the remaining
+features than it would be to extract them from the raw Atari frames.
+The reason we can reduce the dimensionalities of the frames this way
+is due to an assumption about the structure of the data - that
+little to no information is lost in the process.
+
+
+
+In the articles \cite{a3c} and \cite{dqn} one more preprocessingstep is performed.
+Instead of only resizing the grey-scaled frames, they are also cropped to $84 \times 84$ images.
+This is done to meet a condition in their implementation of 2d convolutions,
+since they could only process square input\cite{dqn-nature}.
+We will only be resizing the gray-scaled images and not be cropping,
+since the cropping doesn't serve the same purpose in our project.
+Another consideration about cropping the images is it is difficult to assume that no
+information is lost when a large chunk of the data is removed.
+This project aims at a generalized solution that is able to learn to play any Atari game.
+If the images were to be cropped in the same manner,
+the different structure of the frames of each game would lead to an unstable
+result, meaning we would have to handcraft a cropping scheme for each game.
+
+Due to the time limitations of this project we will only be testing our
+implementation of the A3C algorithm on certain games.
+Namely \textit{Pong}, \textit{Breakout}, \textit{Space Invaders} and
+\textit{Pacman}.
 
 \end{document}
