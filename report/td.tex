@@ -45,7 +45,7 @@ When performing function approximation on the value function and the policy, we 
 \end{equation}
 At each time step it is incremented by the gradient of the value function and multiplied with some discounting parameter $\lamda$ so earlier updates fades away.
 \begin{equation}
-  \mathbf{e}_{t} = \delta_{\hat{v}}(S_{t}, \theta_{t}) + \lamda \mathbf{e}_{t - 1}
+  \mathbf{e}_{t} = \nabla_{\hat{v}}(S_{t}, \theta_{t}) + \lamda \mathbf{e}_{t - 1}
 \end{equation}
 
 
