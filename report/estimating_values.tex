@@ -17,7 +17,7 @@ rewards
     G_t \coloneqq R_{t+1} + R_{t+2} + \hdots + R_{T} = \sum\limits_{i}^T R_{t+i}
 \end{equation}
 where $T$ is the point in time where the \textit{terminal state} is reached
-\cite{RLBook}.
+\cite{RLbook}.
 
 This definition makes sense in tasks that have a natural ending.
 The terminal state is in this case the state from where no
@@ -77,15 +77,15 @@ We have also defined a policy $\pi$ as a mapping from state $s$ and action $a$
 to the probability $\pi(a, s)$ of taking action $a$ in state $s$ for all states
 and all available actions.
 The value of the state $s$ can thus be described as the \textit{expected return}
-when starting in state $s$ and following policy $\pi$ thereafter\cite{RLBook}.
+when starting in state $s$ and following policy $\pi$ thereafter\cite{RLbook}.
 For MDPs we are thus able to define the value of state $s$ as
-\begin{equation}
-    v_\pi(s) = \mathds{E}[G_t | S_t = s] = \mathds{E}\big[\sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1} \big| S_t = s\big]
+\begin{equation}\label{eq:sv}
+    v_\pi(s) = \mathds{E}[G_t | S_t = s] = \mathds{E}\bigg[\sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1} \bigg| S_t = s\bigg]
 \end{equation}
 
 We call the function $v_\pi$ a \textit{state-value function}.
 In the same way we are also able to describe the value of taking an action $a$ in a state $s$  as
-\begin{equation}
+\begin{equation}\label{eq:av}
     q_{\pi}(s, a) = \mathds{E}[G_{t} | S_{t} = s, A_{t} = a] = \mathds{E}\bigg[\sum_{k = 0}^{\infty} \gamma^{k} R_{t + k + 1} \bigg| S_{t} = s, A_{t} = a \bigg]
 \end{equation}
 which we call the \textit{action-value function}.
@@ -102,7 +102,7 @@ A problem with this kind of estimation is that it needs to keep track of all the
 pairs, to be able to actually approach the true functions.
 This is not feasible if the amount of states is very high or the state space is continous.
 Therefore the agent can instead maintain the state-value and action-value functions as
-parameterized functions and adjust the parameters to better match the observed actual returns\cite{RLBook}.
+parameterized functions and adjust the parameters to better match the observed actual returns\cite{RLbook}.
 These functions then work as approximators of the true functions and in this project we will
 be using \textit{deep neural networks} as function estimators.
 
