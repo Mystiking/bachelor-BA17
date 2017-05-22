@@ -1,0 +1,98 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+\section{Policy Gradient Methods}
+
+
+Earlier we mentioned how to estimate the policy using the action value function. Now we are going to introduce a new way for updating the policy, using gradient methods. We have talked about neural network, how they works and what they can be used for. By using policy gradient methods, we can update the weights in a network for maximizing the expected future reward.
+
+In policy gradient methods we try to learn a \textit{parameterized policy}, which is a policy using some parameters for estimating the best policy. In a neural network the parameters are the weights. When updating the policy parameters, we use the gradients of the performance measure formally written as $\eta(\theta)$ with respect to the policy weights,
+\begin{equation}
+    \theta_{t + 1} = \theta_{t} + \alpha \nabla \eta (\theta_{t})
+\end{equation}
+where $\eta$ is (EN SLAGS LEARNING RATE?). Methods using a update like this for maximizing the policy is called policy gradient methods, if we also updating the value function using same technique, and using the estimated value for updating the policy we call it a \textit{actor–critic method}.
+
+\subsection{Actor-Critic algorithms}
+
+Actor-Critic methods combines the benefits from both value and policy iteration, by estimating a value function $V(s)$ and using this estimate for compute the td-error which is used for updating a policy $\pi(s)$. So an Actor-Critic algorithm is split into an actor and a critic part, where the actor is responsible for policy improvement, and the critic is responsible for policy evaluation. 
+
+%%%% Actor-Environment graph
+\begin{figure}[!h]
+    \centering
+    \includegraphics[scale = 0.5]{include/A.png}
+    \caption{A representation of the workflow in an actor-critic
+    model. Here the environment sends a state and reward signal to both the actor and the critic. The critic respond with a TD-error which is sent to the actor.
+    The actor responds with a new action and so forth.}
+    \label{fig:actor-critic}
+\end{figure}
+%%%%
+
+At figure \ref{fig:actor-critic} we see the workflow for a actor-critic method. Before we can use the model we have to initialize the weights for the policy $\theta$ and state value $\mathbf{w}$. Then the generally flow in a actor-critic algorithm is that we take an action using policy $\pi$.
+\begin{equation}
+    A \sim \pi(\cdot | S, \theta)
+\end{equation}
+By taking action $A$, we observe and new state $S'$ and a reward $R$. Now we can use the critic for computing the TD-error.
+\begin{equation}
+    \delta \leftarrow R + \gamma \hat{v} (S', \mathbf{w}) - \hat{v}(S, \mathbf{w})
+\end{equation}
+Given the td-error we can update the parameters for the  state-value estimator,
+\begin{equation}
+    \mathbf{w} \leftarrow \mathbf{w} + \beta \delta \nabla_{\mathbf{w}} \hat{v}(S, \mathbf{w})
+\end{equation}
+and the policy estimator,
+\begin{equation}
+    \theta \leftarrow \theta + \alpha I \delta \nabla_{\theta} \text{ log } \pi(A | S, \theta)
+\end{equation}
+where $\alpha$ and $\beta$ is the step sizes when updating the parameters for the state-value and policy estimators.
+
+
+\subsection{Actor-Critic with Eligibility Traces}
+
+One actor-critic algorithm is \textit{Actor-Critic with Eligibility Traces}, which use the workflow from figure \ref{fig:actor-critic} and eligibility traces for online updating the parameters used to estimate the value function and policy.
+
+\begin{algorithm}[!h]
+\SetAlgoLined
+    Input: a differentiable policy parameterization $\pi(a | s, \theta), \forall a \in \mathcal{A}, s \in \mathcal{S}, \theta \in \mathbs{R}^{n}$\\
+    Input: a differentiable state-value parameterization  $\hat{v}(s, \mathbf{w}), \forall s \in \mathcal{S}, \mathbf{w} \in \mathbs{R}^{m}$\\
+    Parameters: step sizes $\alpha > 0, \beta > 0$ \\
+    \\
+    Initialize policy weights $\theta$ and state-value weights $\mathbf{w}$ 
+
+ \While{True}{
+  Initialize $S$ (first state of episode) \\
+$\mathbf{e}^{\theta} \leftarrow 0$ (n-component eligibility trace vector) \\
+$\mathbf{e}^{\mathbf{w}} \leftarrow 0$ (m-component eligibility trace vector) \\
+$I \leftarrow 1$ \\
+\While{$S$ is not terminal}{    
+$A \sim \pi(\cdot | S, \theta)$ \\
+Take action $A$, observe $S'$, $R$ \\
+$\delta \leftarrow R + \gamma \hat{v} (S', \mathbf{w}) - \hat{v}(S, \mathbf{w})$ \\
+$\mathbf{e}^{\mathbf{w}} \leftarrow \lambda^{\mathbf{w}} \mathbf{e}^{\mathbf{w}} + I \nabla_{\mathbf{w}} \hat{v} (S, \mathbf{w})$ \\
+$\mathbf{e}^{\theta} \leftarrow \lambda^{\theta} \mathbf{e}^{\theta} + I  \nabla_{\theta} log \pi (A | S, \theta)$ :\\
+$\mathbf{w} \leftarrow \mathbf{w} + \beta \delta \mathbf{e}^{\mathbf{w}}$ \\
+$\theta \leftarrow \theta + \alpha \delta \mathbf{e}^{\theta}$ \\
+$I \leftarrow \gamma I$ \\
+$S \leftarrow S'$
+    }
+ }
+ \caption{Actor-Critic with Eligibility Traces}
+\end{algorithm}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+%\printbibliography
+%\bibliography{citations}
+%\bibliographystyle{plain}
+\end{document}
