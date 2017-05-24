@@ -1,0 +1,111 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+\maketitle
+
+
+\subsection{Policy improvement}\label{sec:pol}
+
+
+Now that we are able to estimate the value of states, and state-action pairs,
+we can begin comparing policies.
+Generally when we refer to a policy $\pi(a|s)$ it is the probability
+of taking action $a$ in state $s$.
+In this section, however, policies can be deterministic too we represent
+as $\pi(s)$, which returns an action $a$ instead of the probability
+of taking action $a$.
+We define a policy $\pi'$ as being better than policy $\pi$ if
+\begin{equation}
+    v_{\pi'}(s) \geq v_{\pi}(s), \forall s \in \mathcal{S}
+\end{equation}
+where $\exists s \in \mathcal{S}$ s.t. $\pi'(s) = a \neq \pi'(s)$.
+
+The issue here is that we typically don't know the true value functions before
+we start solving the problem.
+We know from the Bellman equation (equation \ref{bellman}) for $v_\pi$
+that
+\begin{equation}
+    \begin{aligned}
+        v_\pi(s) & = \E_\pi [R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots | S_t = s] \\
+                 & = \sum\limits_{a} \pi(a | s) \sum\limits_{s',r} p(s', r | s, a)[r + \gamma v_\pi(s')]
+    \end{aligned}
+\end{equation}
+which we can use to create an updating scheme for approximating $v_\pi$
+\begin{equation}
+    \begin{aligned}
+        v_{k+1}(s) & = \E_\pi[R_{t+1} + \gamma v_k(S_{t+1}) | S_t = s]\\
+                   & = \sum\limits_{a} \pi(a | s) \sum\limits_{s',r} p(s', r | s, a)[r + \gamma v_k(s')]
+    \end{aligned}
+\end{equation}
+for all $s \in \mathcal{S}$ where the first approxmiation $v_0$
+is initialized arbitrarily\cite{RLbook}.
+Since this updating scheme allows us to approximate the value functions,
+we are now able to compare policies to each other, which enables us
+improve them. 
+
+\subsubsection{Improving policies using their value functions}
+
+Assuming that we have found the value function $v_\pi$ for
+the policy $\pi$ we want to find out if we arrive at a better policy if
+we deterministically choose an action that our policy wouldn't
+return\cite{RLbook}.
+The benefit, or possible deficit, of performing this change can be thought of
+as taking action $a$ in state $s$ and then following the current policy $\pi$
+- for which $v_\pi$ is known.
+\begin{equation}
+    \begin{aligned}
+        q_\pi(s, a) & = \E_\pi[R_{t+1} + \gamma v(S_{t+1}) | S_t = s, A_t = a] \\
+        & = \sum\limits_{s', r}p(s', r | s, a)[r + \gamma v(s')]
+    \end{aligned}
+\end{equation}
+
+If $q_\pi(s, a)$ yields a higher expected return than $v_\pi$, then it was
+better to select action $a$ in state $s$ and follow $\pi$ from there,
+than it would have been to always follow $\pi$.
+This also means that it would be better to select action $a$
+everytime state $s$ is encountered
+and that the new policy is better overall.
+More formally if $\pi$ and $\pi'$ are a pair of deterministic policies such that
+\begin{equation}\label{qq}
+    q_\pi(s, \pi'(s)) \geq v_\pi(s)
+\end{equation}
+then
+\begin{equation}
+    v_{\pi'}(s) \geq v_\pi(s)
+\end{equation}
+for all $s \in \mathcal{S}$\cite{RLbook}.
+If the first holds, then the second statement must follow, since
+\begin{equation}
+    \begin{aligned}
+        v_\pi(s) & \leq q_\pi(s, \pi'(s))\\
+                 & = \E_{\pi'}[R_{t+1} + \gamma v_\pi(S_{t+1}) | S_t = s]\\
+                 & \leq \E_{\pi'}[R_{t+1} + \gamma q_\pi(S_{t+1}, \pi'(S_{t+1})) | S_t = s]\\
+                 & = \E_{\pi'}[R_{t+1} + \gamma \E_{\pi'}[R_{t+2} + \gamma v_\pi(S_{t+2})] | S_t = s]\\
+                 & = \E_{\pi'}[R_{t+1} + \gamma R_{t+2} + \gamma^2 v_\pi(S_{t+2}) | S_t = s]\\
+                 & \vdots\\
+                 & \leq \E_{\pi'}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} + \dots | S_t = s]\\
+                 & = v_{\pi'}(s)
+    \end{aligned}
+\end{equation}
+
+So far we have discussed a single change in the policy for a
+particular state and action,
+which can improve the policy as a whole by
+looking at changes to all states and all available actions.
+
+In this section we have discussed policies as if they were deterministic,
+but the ideas extend to the stochastic policies where $\pi(a|s)$ is the
+probability of picking action $a$ in state $s$ following policy $\pi$.
+We translate these ideas to the stochastic methods by
+allowing more than one action to be the optimal -
+that is if $q_\pi(s, a) = q_\pi(s, a')$ and $a \neq a'$ then the actions
+are equally good and we can assign them the same probability of being
+performed in state $s$.
+
+Policy improvement form the basis of reinforcement learning,
+as the policy is contructed by the learning agent and not
+the environment, to dictate which actions should be performed at a
+given time.
+
+\end{document}

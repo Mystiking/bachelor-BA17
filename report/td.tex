@@ -6,21 +6,17 @@
 
 \subsection{Temporal Difference Learning}
 
-In the previous section we defined the state-value function as
+It is difficult to improve policies using the value functions from
+section \ref{sec:pol} if the state space is large, since it is then
+computationally expensive to estimate the value of each state and
+state-action pair.
+Instead we can construct an estimator, $V(S_{t}) \approx v_\pi(S_t)$,
+from the experience we collect throughout an episode.
+This experience consists of states, taken actions and the rewards
+earned from state transitions, which we can use to construct
+a scheme for updating and maintaining the approximator
 \begin{equation}
-    v_\pi(s) = \mathds{E}\bigg[\sum\limits_{k=0}^\infty \gamma^k  R_{t+k+1} \bigg| S_t = s\bigg] \tag{\ref{eq:sv} revisited}
-\end{equation}
-
-For most reinforcement learning problems the value of each state
-is not known before the learning agent starts experiencing the
-effects of its actions.
-This means that we will have to estimate the state-value function from this experience, consisting of states, actions taken and the rewards earned
-in the transitions from state to state.
-We can construct an estimator, $V(S_t) \approx v_\pi(S_t)$, from the experience
-since it is a sample of the expected return.
-The scheme for updating and maintaining $V(S_t)$ can thus be described as
-\begin{equation}
-    V(S_t) = V(S_t) + \alpha  [G_t - V(S_t)]
+    V(S_t) = V(S_t) + \alpha [G_t - V(S_t)]
 \end{equation}
 where $G_t$ is the experienced actual return following from state
 $S_t$ and $0 \leq \alpha \leq 1$ is a step-size parameter, 

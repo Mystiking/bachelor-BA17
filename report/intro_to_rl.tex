@@ -32,8 +32,11 @@ The agent decides which action should be performed in each state by creating and
 The policy is a mapping from states in the environment to actions available to the agent\cite{RLbook}.
 Policies can take many forms, such as simple look-up table where each state map to an
 action, but in this project we will be treating policies solely as probability distributions.
-This means that a policy $\pi(A_t = a|S_t = s)$ given an action $a$ and a state $s$ describes the
-probability of taking action $a$ in state $s$ under policy $\pi$ at time $t$.
+This means that a policy $\pi(A_t = a|S_t = s)$ given a state $s \in \mathcal{S}$ describes the
+probability of taking action $a \in \mathcal{A(s)}$ from state $s$ under policy $\pi$ at time $t$.
+We define $\mathcal{A}(s)$ as the \textit{action space} and $\mathcal{S}$ as the \textit{state space},
+where the action space consists of all actions available in $s$ and the state space consists of
+all possible states.
 
 This means that every problem can be described as a set of states that can be reached
 through a set of actions describing how to interact with the environment.

@@ -1,0 +1,25 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+\maketitle
+
+Generally the state-value and action-value functions aren't known and must therefore be
+estimated.
+This can be done from experience by maintaining an average of the actual return of each
+state and each state-action pair for the state-value and action-value
+functions, respectively.
+These estimates will converge towards the true function values as the number of times
+the states are encountered approach infinity since the average actual returns approach
+the expectations at this time.
+
+A problem with this kind of estimation is that it needs to keep track of all the states, and state-action
+pairs, to be able to actually approach the true functions.
+This is not feasible if the amount of states is very high or the state space is continous.
+Therefore the agent can instead maintain the state-value and action-value functions as
+parameterized functions and adjust the parameters to better match the observed actual returns\cite{RLbook}.
+These functions then work as approximators of the true functions and in this project we will
+be using \textit{deep neural networks} as function estimators.
+
+
+\end{document}
