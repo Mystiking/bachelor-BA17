@@ -13,12 +13,11 @@ actions with outcomes.
 Using these principles in a machine learning approach
 we can find the sequence of actions that provide the best outcome - a technique known as
 \textit{reinforcement learning}.
-
 The goal of this project is to investigate the advantages of asynchronous reinforcement
 learning in an advanced setting - playing Atari 2600 games\cite{openAIEnvs}.
-Playing an Atari game can be seen as task that is solved by obtaining 
-a high score.
 
+Playing an Atari game can be seen as a task that is solved by obtaining 
+a high score in the game.
 This means solving a task consists of being in a certain state and making a decision,
 which leads to a new state with a new set of decisions to be made, until
 a terminal state is reached.
@@ -36,7 +35,7 @@ Thus a task can be seen as a \textit{decision tree}, with actions connecting sta
 In a typical reinforcement learning setting we try to solve a problem
 by moving downwards through the decision tree until a terminal state is reached.
 The result of taking this exact path is then
-taken into account the next time the algorithm tries to solve this problem.
+taken into account the next time the algorithm tries to solve the problem.
 
 \subsection{Inspiration}
 
@@ -48,7 +47,7 @@ With a combination of convolutional nerual networks (CNN) and
 the reinforcement learning method Q-learning\cite{RLbook} - an approach they
 dubbed \textit{Deep Q-Networks} (DQN) - they
 presented results proving that it was possible to learn how to play Atari
-2600 games at a superhuman level.
+2600 games at a superhuman level from only the frames of the games.
 
 Previous reinforcement learning methods haven't been able to succeed at learning to play
 advanced games, but the combination of neural networks and
@@ -57,6 +56,12 @@ reinforcement learning have made it possible.
 A problem that presents itself when a program is learning to play an advanced 
 game is that the amount of time and computational resources it takes to train
 the algorithm are high.
+The general approach to these reinforcement learning problems is to
+play through a game and continually update while playing.
+The basic idea is that to decrease the time of training, the game can be
+played in parallel,
+allowing multiple paths in the decision tree to be explored at the same time -
+a method called \textit{asynchronous training}.
 
 %As a way to lower the time of training the traditional reinforcement
 %learning algorithm can be implemented to do asynchronous training.
@@ -69,44 +74,74 @@ the algorithm are high.
 One way to train asynchronously is to run multiple instances of threads on a single
 CPU.
 Most modern CPUs consists of multiple cores which means it is possible to have a thread
-running on each core without taking up resources from each other.
-The advantage of asynchronous learning is that multiple different paths
-can be explored simultanously, which means that learning can happen at
-a higher pace.
+running on each core without stealing resources from each other.
+Each thread can then use the experience of the other threads to make
+better estimates of which paths that will yield the highest score.
 
 An example of asynchronous reinforcement learning was presented by the
-Google DeepMind team collaborating with the Montreal Institue for Learning
+Google DeepMind team collaborating with the Montreal Institute for Learning
 Algorithms (MILA) in an article from June 2016, where multiple 
 reinforcement learning methods were implemented to take advantage of
-asynchronous learning\cite{a3c}.
-
-One of the algorithms that were implemented asynchronously
-was \textit{advantage actor-critic} (A3C).
-This is algorithm that we will use as a benchmark for
-comparisons with different amounts of threads.
+asynchronous learning\cite{a3c} - .
 
 \subsection{Methods}
 
-In their first succesful attempt at learning to play Atari games using
-reinforcement learning the Google deepmind team ran into problems with
-the stability of their DQN-algorithm\cite{dqn} - they simply weren't able
-to make their algorithm consistently produce satisfactory results.
+With the results of the Google DeepMind team in mind\cite{a3c}, the scope of the project we present in
+this paper, will be to implement the \textit{Actor-Critic} algortihm according to \cite{RLbook}
+with a deep learning approach for learning how to play the simple game of \textit{Cart-Pole}\cite{cart_pole}
+as a proof of concept.
+We will then extend this idea to the \textit{Asynchronous Advantage Actor-Critic}(A3C)
+method presented in \cite{a3c} and examine the effects of different amounts of threads
+in solving the Cart-Pole problem as well as in playing Atari games.
 
-However, in their next article they adressed their stability problem
-and came up with a new algorithm based on the actor-critic method
-that takes advantage of asynchronous learning.
+When we implement the \textit{Asynchronous Advantage Actor-Critic}(A3C)
+method, we will be doing it according to \cite{a3c}.
+A3C is a reinforcement learning method that is able to learn
+how to solve a problem solely from experience.
+The algorithm uses two separate \textit{Convolutional Neural Networks}
+(CNN) - one to extract information about the algorithms performance 
+and the other to select how to interact with the environment.
+These two networks can be seen as the body and the brain of an animal.
+The body performs actions which are evaluated by the brain and if
+the action leads to a good result the brain reinforces the idea
+of repeating the action in the future, should it be in a similar
+situation.
 
-With the results of the A3C algorithm in mind\cite{a3c}, the scope of the project we present in
-this paper will be to implement the actor-critic algortihm\cite{RLbook}
-with a deep learning approach and extend it to exploit the benefits
-of asynchronous learning.
+We use CNN's since they have proved to work well on extracting features
+of Atari framesin previous projects (\cite{dqn}, \cite{a3c}).
+They are computationally expensive to update though,
+so to decrease the amount of necessary computations we will limit
+the input by preprocessing the frames before feeding them
+to the networks, following the approach suggested in \cite{dqn-nature}.
+In \cite{a3c} more than one optimization scheme
+is suggested, but the focus in this project is on the effect of
+different amounts of threads so we won't be tuning hyperparameters
+and testing different optimization strategies.
+Thus, this project will not focus on playing Atari games really well,
+but instead how asynchronous learning affects the stability of
+reinforcement learning methods.
+
+In the remainder of this project we review the 
+Cart-Pole and Atari environments available to us in
+the OpenAI Gym framework and examine the theory behind the
+reinforcement and deep learning methods we will be using
+- i.e. the Actor-Critic algorithm and the asynchronous strategy of A3C.
+We also provide the results of the Actor-Critic algorithm
+on the Cart-Pole game compared to the A3C method, as well as the
+results of the A3C algorithm playing Atari games, with multiple different 
+amounts of threads. 
+Lastly the implementation and experimental setup will be presented and
+a discussion of the results will be given as well as ideas for further
+work.
+
+
 %%%% Dette skal kun med hvis vi ikke kan gøre vores eget trådet
 %However, due to the time limitations of the project, we will focus on
-%the implementation of the actor-critic algorithm and only alter
+%the implementation of the Actor-Critic algorithm and only alter
 %an already existing implementation of the a3c method.
 %%%%
 
-%In order to test the performance and stability of the actor-critic
+%In order to test the performance and stability of the Actor-Critic
 %method, we will be using learning environments provided by OpenAI
 %gym\cite{openAI} - an open source project which aims at providing
 %a simple interface to a collection of reinforcement learning tasks.
@@ -116,7 +151,7 @@ of asynchronous learning.
 %The main focus of this project is the stability of reinforcement learning
 %tasks and how asynchronous learning can be used to achieve better
 %stabiliyty.
-%We will be presenting the results of the actor-critic method used on a
+%We will be presenting the results of the Actor-Critic method used on a
 %simpler task than the Atari environments - the cartpole problem
 %\cite{cart_pole} - and then compare an asynchronous approach to the
 %results of the DQN-method\cite{dqn} as well as the a3c
@@ -125,8 +160,8 @@ of asynchronous learning.
 %In the remainder of the paper we present and review the reinforcement
 %learning environments in the Open AI gym collection and examine the
 %theory behind the reinforcement learning methods that will be used -
-%i.e. the actor-critic algorithm.
-%Furthermore, results of the actor-critic approach to solving the cart-pole
+%i.e. the Actor-Critic algorithm.
+%Furthermore, results of the Actor-Critic approach to solving the cart-pole
 %problem as well as the comparison between our asynchronous approach and
 %the one produced by the Google Deepmind team are given.
 %Lastly a discussion of these results and the stability problem as a whole
