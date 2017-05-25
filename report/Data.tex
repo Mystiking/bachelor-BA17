@@ -6,7 +6,7 @@
 
 \section{Data}\label{Data}
 
-To train and test our actor-critic and advantage asynchronous actor-critic implementation we will use
+To train and test our actor-critic and asynchronous advantage actor-critic implementation we will use
 the OpenAI Gym framework\cite{openAIGym}.
 This framework provides an interface to 118 Atari 2600 games,
 that can be used by developers to compare and test their reinforcement learning algorithms.
@@ -17,18 +17,22 @@ The state space is continous because a \textit{state} is represented as a RGB im
 at the given time. The action space is finite because there is always a fixed amount of
 actions available to the player in the OpenAI Gym framework.
 
-Simulating an action in a game return information about the new state,
-a \textit{reward} for taking this action and a \textit{binary signal} which indicate whether the 
+Simulating an action in a game takes the player into a new state
+and returns information about the new state,
+the \textit{reward} the action trigered and a \textit{binary signal} which indicates whether the 
 game is done or not.
 The reward is the score gained from transitioning to the new state and
 it is not uncommon for this reward to be $0$ as many of the players actions do not produce immediate rewards.
+In most of the Atari games performing an action for a single frame have almost no impact,
+so instead taking an action using the OpenAI Gym framework
+results in that action being repeated $x$ times, where $x$ is uniformly sampled from $\{2, 3, 4\}$.
 
 \subsection{Cart-Pole}
 
 Among a lot of other game types OpenAI gym also supports an interface
 to the Cart-Pole problem.
 A player can win the Cart-Pole game if he manages to balance a pole connected to the top of a moving cart for
-200 consecutive frames.
+200 consecutive time steps.
 The player loses if the pole moves more than 15 degrees from vertical in
 either direction or if the cart exits the frame.
 
