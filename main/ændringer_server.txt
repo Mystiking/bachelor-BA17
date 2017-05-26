@@ -1,0 +1,8 @@
+ÆNDRINGER:
+
+- Implementeret episolen exploration
+- ALPHA = 0.99 (0.9)
+- GAMME = 0.99 (0.9)
+
+- (- foran loss_policy)
+
