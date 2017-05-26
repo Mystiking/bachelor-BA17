@@ -21,7 +21,7 @@ T_MAX = 100000000
 NUM_THREADS = 8
 INITIAL_LEARNING_RATE = 1e-4
 DISCOUNT_FACTOR = 0.99
-VERBOSE_EVERY = 40000
+VERBOSE_EVERY = 200
 TESTING = False
 
 I_ASYNC_UPDATE = 5
@@ -119,7 +119,6 @@ def async_trainer(agent, env, sess, thread_idx, T_queue, summary, saver,
         # Reverse the batch target values, so they are in the correct order
         # again.
         batch_target_values.reverse()
-        print(last_R)
         # Test batch targets
         if TESTING:
             temp_rewards = batch_rewards + [last_R]

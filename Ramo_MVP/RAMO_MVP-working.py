@@ -69,7 +69,7 @@ class Agent():
         with tf.variable_scope('network'):
             self.action = tf.placeholder('int32', [None], name='action')
             self.target_value = tf.placeholder('float32', [None], name='target_value')
-            self.state, self.policy, self.value = self.build_model(RESIZED_WIDTH, RESIZED_HEIGHT, 1)
+            self.state, self.policy, self.value = self.build_model(84, 84, 4)
             self.weights = tf.get_collection(tf.GraphKeys.GLOBAL_VARIABLES, scope='network')
             self.advantages = tf.placeholder('float32', [None], name='advantages')
 
@@ -139,7 +139,7 @@ class Agent():
     # Builds the DQN model as in Mnih, but we get a softmax output for the
     # policy from fc1 and a linear output for the value from fc1.
     def build_model(self, h, w, channels):
-        state = tf.placeholder('float32', shape=(None, RESIZED_HEIGHT, RESIZED_WIDTH, 1), name='state')
+        state = tf.placeholder('float32', shape=(None, h, w, channels), name='state')
 
         #input_layer = Input(shape=(RESIZED_WIDTH, RESIZED_HEIGHT, 1))
         #self.layers['state'] = input_layer
@@ -166,7 +166,7 @@ class Agent():
 
 
 class CustomGym:
-    def __init__(self, game_name, skip_actions=4, num_frames=4, w=RESIZED_WIDTH, h=RESIZED_HEIGHT):
+    def __init__(self, game_name, skip_actions=4, num_frames=4, w=84, h=84):
         self.env = gym.make(game_name)
         self.num_frames = num_frames
         self.skip_actions = skip_actions
@@ -190,9 +190,14 @@ class CustomGym:
         self.game_name = game_name
 
     def preprocess(self, obs, is_start=False):
-        s = rgb2grayscale(obs)
-        s = resize(s)
-        self.state= s.reshape(1, s.shape[1], s.shape[0], 1)
+        grayscale = obs.astype('float32').mean(2)
+        len(grayscale)
+        s = imresize(grayscale, (self.w, self.h)).astype('float32') * (1.0/255.0)
+        s = s.reshape(1, s.shape[0], s.shape[1], 1)
+        if is_start or self.state is None:
+            self.state = np.repeat(s, self.num_frames, axis=3)
+        else:
+            self.state = np.append(s, self.state[:,:,:,:self.num_frames-1], axis=3)
         return self.state
 
     def render(self):
@@ -240,7 +245,7 @@ def async_trainer(agent, env, sess, thread_idx, T_queue):
         baseline_values = []
 
         if terminal:
-            print(total_reward)
+            #print(total_reward)
             total_reward = 0
             terminal = False
             state = env.reset()
