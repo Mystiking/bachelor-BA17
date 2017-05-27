@@ -24,10 +24,9 @@ def rgb2grayscale(img):
 gtheta = 0
 gw = 0
 # Constants
-ALPHA = 0.9
+ALPHA = 0.99
 GAMMA = 0.99
-LR = 0.01
-min_LR = 5e-3
+LR = 5e-3
 EPSILON = 1e-8
 lock = threading.Lock()
 GAME_NAME = 'CartPole-v0'
@@ -51,7 +50,7 @@ global_model = Model(inputs=input_layer, outputs=[output_actor, output_critic])
 # Must be done to enable threading
 global_model._make_predict_function()
 
-opt = tf.train.RMSPropOptimizer(LR, epsilon=1e-8, decay=0.99)
+opt = tf.train.RMSPropOptimizer(LR, epsilon=EPSILON)
 
 # Initialize tf global variables
 sess = tf.Session()
@@ -96,8 +95,12 @@ class Agent(threading.Thread):
         loss_actor = tf.log(tf.reduce_sum(p * self.a_t, axis=1, keep_dims=True) + 1e-10) * (advantage)
         loss_critic = 0.5 * tf.square(advantage)
         loss_entropy = 0.01 * tf.reduce_sum(p * tf.log(p + 1e-10), axis=1, keep_dims=True)
-        self.a_grads = tf.gradients(loss_actor + loss_entropy, weights_actor)
-        self.c_grads = tf.gradients(loss_critic, weights_critic)
+        with graph.as_default():
+            self.a_grads = opt.compute_gradients(loss_actor + loss_entropy, weights_actor)
+            self.update_actor = opt.apply_gradients(self.a_grads)
+            self.c_grads = opt.compute_gradients(loss_critic, weights_critic)
+            self.update_critic = opt.apply_gradients(self.c_grads)
+
 
     def run(self):
         self.train(5, 10000)
@@ -141,14 +144,15 @@ class Agent(threading.Thread):
                         a_list = np.zeros(NUM_ACTIONS)
                         a_list[a] = 1
                         a_list = np.reshape(a_list, (-1, NUM_ACTIONS))
-                        actor_grads = sess.run(self.a_grads, {self.s_t : s, self.a_t : a_list, self.r_t : np.reshape(np.array([R]), (-1, 1))})
-                        dtheta = dtheta + np.array(actor_grads)
-                        critic_grads = sess.run(self.c_grads, {self.s_t : s, self.a_t : a_list, self.r_t : np.reshape(np.array([R]), (-1, 1))})
-                        dw = dw + np.array(critic_grads)
-                    gtheta = gtheta * ALPHA + (1 - ALPHA) * (dtheta**2)
-                    gw = gw * ALPHA + (1 - ALPHA) * (dw**2)
-                    lock.acquire()
-                    with graph.as_default():
+
+                        lock.acquire()
+                        sess.run(self.update_actor, {self.s_t : s, self.a_t : a_list, self.r_t : np.reshape(np.array([R]), (-1, 1))})
+                        sess.run(self.update_critic, {self.s_t : s, self.a_t : a_list, self.r_t : np.reshape(np.array([R]), (-1, 1))})
+                        lock.release()
+                    #gtheta = gtheta * ALPHA + (1 - ALPHA) * (dtheta**2)
+                    #gw = gw * ALPHA + (1 - ALPHA) * (dw**2)
+
+                    '''
                         j = 0
                         critic_layers = [1, 3]
                         actor_layers = [1, 2]
@@ -167,7 +171,7 @@ class Agent(threading.Thread):
                                 j += 1
                         start_weights = global_model.get_weights()
                         self.local_model.set_weights(start_weights)
-                    lock.release()       
+                    '''
                     dtheta = 0
                     dw = 0
                     t_start = self.step_counter
