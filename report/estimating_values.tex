@@ -8,42 +8,39 @@
 \subsection{Estimating the value of actions}\label{est_vals}
 
 We have already introduced the goal of the learning agent as
-maximising the total reward, which we can formally define as maximizing the \textit{return}, $G_t$, as
-a function of the sequence of rewards, $R_{t+1}$,
-$R_{t+2}$, $R_{t+3}$, $\hdots$, following time step $t$.
-In its simplest form the return can be expressed as the sum of the
-rewards
+maximising the total reward, which can formally be defined as maximizing the \textit{return}, $G_t$.
+Assuming we have received the rewards $R_{t+1}, R_{t+2}, \dots$ from our starting state $S_t$
+the return can be expressed as the sum of these rewards
 \begin{equation}\label{G_t}
-    G_t \coloneqq R_{t+1} + R_{t+2} + \hdots + R_{T} = \sum\limits_{i}^T R_{t+i}
+    G_t \coloneqq R_{t+1} + R_{t+2} + \hdots + R_{T} = \sum\limits_{i = 1}^T R_{t+i}
 \end{equation}
-where $T$ is the point in time where the \textit{terminal state} is reached
-\cite{RLbook}.
-
-This definition makes sense in tasks that have a natural ending.
-The terminal state is in this case the state from where no
-other states can be reached.
-However, if there is no apparent terminal state, equation \ref{G_t}
-becomes problematic, as the final timestep $T$ is $\infty$ which means $G_t$ could converge towards
-$\infty$ in the worst case.
-
-To address this problem we introduce a way to weight the rewards by how far into the
-future they lie - a concept called \textit{discounting}.
-The basic idea behind discounting is that rewards recieved $k$ steps into the future
-is worth $\gamma^k$ times less than a reward recieved at present time, where
-$\gamma$ is the \textit{discount rate} and $0 \leq \gamma \leq 1$.
-
-Using the discount we can redefine the return $G_t$ as the sum of the discounted
-rewards given by
+where $T$ is the point in time where the \textit{terminal state} is reached.
+The terminal state is the last state in the problem from which
+no other states can be reached.
+I.e. in backgammon the terminal state is the state where one of the players
+have removed all of his pieces from the board and the game is over.
+In this project we will only be solving \textit{epiosodic} problems, which
+means there will always be a terminal state.
+However, using the sum of rewards as the return of a state proves problematic.
+Picture a game of backgammon where a player is given reward 1 for winning the game
+and reward 0 for all other actions.
+The return of all states will thus be the same
+as the value of $R_T$ defines the value of the entire playthrough.
+Therefore the learning agent won't be able to tell which actions are the best to take
+since all state transitions, except the last, will result in the same return.
+To deal with this issue we make use of \textit{discounting}.
+This means that for each time step further into the future
+we proportionally discredit the reward.
 \begin{equation}\label{gammaG_t}
-    G_t \coloneqq R_t + \gamma * R_{t+1} + \gamma^2 * R_{t+2} + \hdots 
-        = \sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1}
+    G_t \coloneqq R_{t+1} + \gamma R_{t+1} + \gamma^2 R_{t+3} \dots = \sum\limits_{k=0} \gamma^k R_{t+k+1}
 \end{equation}
-with $\gamma$ close to 1 weighting future rewards strongly and $\gamma$ close to 0
-putting more emphasis on immediate rewards.
+The rate of discount, $\gamma$, determines how far-sighted the learning agent can be,
+with a rate of 0 meaning the return is only the most recent reward and a rate of 1 giving us equation \ref{G_t}.
+
 
 Now that the return has been defined, lets consider the response from the environment at time $t + 1$
 to the action taken at time $t$.
-According to the agent-environment model (Fig. \ref{agent_environment}) this response consists
+According to the agent-environment model (Fig. \ref{fig:agent_environment}) this response consists
 of a new state $S_{t+1} = s'$ and a corresponding reward $R_{t+1} = r$.
 Assuming the response depends on all past actions $A_{0}, A_{1}, \cdots, A_{t-1}$ and
 corresponding responses $S_{1}, R_{1}, \cdots, S_{t}, R_{t}$, the probability
@@ -54,57 +51,52 @@ joint probability given by
 \end{equation}
 where $S_0$ is the inital state and $A_0$ the first action taken.
 
-Before we discuss how to estimate the value of taking an action in a state, as
-well as estimating the value of the state, we make an assumption about the reinforcement
-learning tasks we will encounter.
-The assumption is that the agent-environment model has the \textit{Markov property}.
-This means that the state signal is able to retain all relevant information
-from the past, or in other words, that the state signal is able to summarize
-everything important about the complete sequence of states leading to it.
-Under this assumption the joint probability can now be written as
-\begin{equation}
-    \mathds{P}(S_{t+1} = s', R_{t+1} = r | S_t, A_t)
+This notation is tedious so to avoid it we will assume that all Reinforcement Learning tasks
+we encounter have the \textit{Markov property}.
+A task has this property if a single state can summarize everything important that
+has happened through the entire game.
+In the Cart-Pole and Atari games the Markov property is present because each state is
+an accurate description of what has happened until now.
+I.e. when given the information about the cart and pole in the Cart-Pole game
+the previous states wouldn't provide us with more important
+information than the present state does.
+
+This property allows us to describe the joint probability for reaching state $s'$ and
+experiencing reward $r$ from state $s$ performing action $a$ as
+\begin{equation}\label{joint_prob}
+    \mathds{P}(S_{t+1} = s', R = r | S_t = s, A_t = a)
 \end{equation}
-When the agent-environement model has the Markov property the reinforcement
-learning task is called a \textit{Markov decision process (MDP)}
+since $S_t$ retains all information from states $S_0, S_1, \dots, S_{t-1}$
+which also means we only have to concern ourseves with the current action $A_t$.
 
-From equation \ref{gammaG_t} we know that the discounted return
-is defined as 
+Our actions are sampled from the probability distribution $\pi$, which means
+we can't truly know which states and rewards we will encounter.
+Therefore the return $G_t$ we defined in equation \ref{gammaG_t}
+can only be used to describe the return from state $S_t$ if 
+the policy is deterministic.
+In this project we will not be using deterministic policies, so instead
+of using $G_t$ as our return, we use the expectation of $G_t$.
+Using the joint probability from equation \ref{joint_prob} we can
+find the expected return for a state $s$.
+The expected return is called the \textit{value} of a state and
+finding the value of a state $s$ as the \textit{state-value} function, following policy $\pi$, $v_\pi(s)$.
+For each available action $a \in \mathcal{A}(s)$ the value of that action is given by
+the experienced reward $r$ and the expected return of the new state $s'$.
+Now, transitioning to state $s'$ and receiving reard $r$ isn't certain, which means
+we have to take all the possible new states and rewards into consideration.
+The expected return of taking an action $a$ in state $s$ is called the \textit{action-value}
+and can thus be defined as
 \begin{equation}
-    G_t = \sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1}
+    q_\pi(s,a) = \sum\limits_{s', r}p(s', r|s, a) [r + v_\pi(s')]
 \end{equation}
-We have also defined a policy $\pi$ as a mapping from state $s$ and action $a$
-to the probability $\pi(a, s)$ of taking action $a$ in state $s$ for all states
-and all available actions.
-The value of the state $s$ can thus be described as the \textit{expected return}
-when starting in state $s$ and following policy $\pi$ thereafter\cite{RLbook}.
-For MDPs we are thus able to define the value of state $s$ as
-\begin{align}\label{eq:sv}
-        v_\pi(s)  & = \mathds{E}[G_t | S_t = s]\\
-                  & = \mathds{E}\bigg[\sum\limits_{k=0}^\infty \gamma^k * R_{t+k+1} \bigg| S_t = s\bigg]\\
-                  & = \sum\limits_{a} \pi(a | s) \sum\limits_{s', r'} p(s', r | s,a)[r + \gamma v_\pi(s')]\label{bellman}
-\end{align}
-where $p(s', r | s, a)$ denotes the probability of the state $S_{t+1}$
-being $s'$ and the reward yielded being $r$.
 
-We call the function $v_\pi$ a \textit{state-value function} and equation
-\ref{bellman} the Bellman equation.
-This equation is important to the later theories of this project as
-it is formulates a relationship between the value of a state and its
-successor states.
+When we want to measure the value of a state $s$ we have to take all possible
+actions into consideration, which leaves us with the following definition of
+the state-value function
+\begin{equation}
+    v_\pi(s) = \sum\limits_{a} \pi(a|s) \sum\limits_{s', r}p(s', r|s, a) [r + v_\pi(s')]
+\end{equation}
 
-We can describe the value of taking an action $a$ in a state $s$ as
-\begin{align}\label{eq:av}
-    q_{\pi}(s, a) & = \mathds{E}[G_{t} | S_{t} = s, A_{t} = a]\\
-                  & = \mathds{E}\bigg[\sum_{k = 0}^{\infty} \gamma^{k} R_{t + k + 1} \bigg| S_{t} = s, A_{t} = a \bigg]\\
-                  & = \sum\limits_{s', r} p(s', r | s, a)[r + \gamma
-                  v_\pi(s')]
-\end{align}
-which we refer to as the \textit{action-value function}.
-
-%%% ENTER DEEP LEARNING SECTION
-
-% Should probably be moved to its own document
 
 %\printbibliography
 %\bibliography{citations}
