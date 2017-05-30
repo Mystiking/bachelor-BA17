@@ -7,9 +7,14 @@
 
 \subsection{Estimating the value of actions}\label{est_vals}
 
-We have already introduced the goal of the learning agent as
-maximising the total reward, which can formally be defined as maximizing the \textit{return}, $G_t$.
-Assuming we have received the rewards $R_{t+1}, R_{t+2}, \dots$ from our starting state $S_t$
+Now that we have introduced the goal of the learning agent as
+maximising the total reward, we want to extend this goal to
+maximising the reward following a state.
+This quantity is called the \textit{return} from state $S_t$ and is
+denoted as $G_t$.
+The original goal is contained within this new definition, since the total
+reward is the return following the starting state $S_0$.
+Assuming we receive the rewards $R_{t+1}, R_{t+2}, \dots$ following from state $S_t$
 the return can be expressed as the sum of these rewards
 \begin{equation}\label{G_t}
     G_t \coloneqq R_{t+1} + R_{t+2} + \hdots + R_{T} = \sum\limits_{i = 1}^T R_{t+i}
@@ -19,7 +24,7 @@ The terminal state is the last state in the problem from which
 no other states can be reached.
 I.e. in backgammon the terminal state is the state where one of the players
 have removed all of his pieces from the board and the game is over.
-In this project we will only be solving \textit{epiosodic} problems, which
+In this project we will only be solving \textit{episodic} problems, which
 means there will always be a terminal state.
 However, using the sum of rewards as the return of a state proves problematic.
 Picture a game of backgammon where a player is given reward 1 for winning the game
@@ -28,13 +33,14 @@ The return of all states will thus be the same
 as the value of $R_T$ defines the value of the entire playthrough.
 Therefore the learning agent won't be able to tell which actions are the best to take
 since all state transitions, except the last, will result in the same return.
-To deal with this issue we make use of \textit{discounting}.
+To deal with this issue we use the \textit{discounted} sum of rewards as our return instead
+of just the sum.
 This means that for each time step further into the future
 we proportionally discredit the reward.
 \begin{equation}\label{gammaG_t}
     G_t \coloneqq R_{t+1} + \gamma R_{t+1} + \gamma^2 R_{t+3} \dots = \sum\limits_{k=0} \gamma^k R_{t+k+1}
 \end{equation}
-The rate of discount, $\gamma$, determines how far-sighted the learning agent can be,
+Here, the rate of discount, $ 0 \leq \gamma \leq 1$ determines how far-sighted the learning agent can be,
 with a rate of 0 meaning the return is only the most recent reward and a rate of 1 giving us equation \ref{G_t}.
 
 
@@ -53,14 +59,10 @@ where $S_0$ is the inital state and $A_0$ the first action taken.
 
 This notation is tedious so to avoid it we will assume that all Reinforcement Learning tasks
 we encounter have the \textit{Markov property}.
-A task has this property if a single state can summarize everything important that
-has happened through the entire game.
-In the Cart-Pole and Atari games the Markov property is present because each state is
-an accurate description of what has happened until now.
-I.e. when given the information about the cart and pole in the Cart-Pole game
-the previous states wouldn't provide us with more important
-information than the present state does.
-
+A task has this property if a state can summarize everything important that
+has happened up until this point in time.
+In the Cart-Pole and Atari games the Markov property is present because each state provides
+an amount of information that makes previous states unnecessary.
 This property allows us to describe the joint probability for reaching state $s'$ and
 experiencing reward $r$ from state $s$ performing action $a$ as
 \begin{equation}\label{joint_prob}
@@ -69,34 +71,40 @@ experiencing reward $r$ from state $s$ performing action $a$ as
 since $S_t$ retains all information from states $S_0, S_1, \dots, S_{t-1}$
 which also means we only have to concern ourseves with the current action $A_t$.
 
-Our actions are sampled from the probability distribution $\pi$, which means
+The actions taken are sampled from the probability distribution $\pi$, which means
 we can't truly know which states and rewards we will encounter.
 Therefore the return $G_t$ we defined in equation \ref{gammaG_t}
 can only be used to describe the return from state $S_t$ if 
 the policy is deterministic.
-In this project we will not be using deterministic policies, so instead
-of using $G_t$ as our return, we use the expectation of $G_t$.
-Using the joint probability from equation \ref{joint_prob} we can
-find the expected return for a state $s$.
-The expected return is called the \textit{value} of a state and
-finding the value of a state $s$ as the \textit{state-value} function, following policy $\pi$, $v_\pi(s)$.
-For each available action $a \in \mathcal{A}(s)$ the value of that action is given by
-the experienced reward $r$ and the expected return of the new state $s'$.
-Now, transitioning to state $s'$ and receiving reard $r$ isn't certain, which means
-we have to take all the possible new states and rewards into consideration.
-The expected return of taking an action $a$ in state $s$ is called the \textit{action-value}
-and can thus be defined as
-\begin{equation}
-    q_\pi(s,a) = \sum\limits_{s', r}p(s', r|s, a) [r + v_\pi(s')]
-\end{equation}
+In this project we will not be using deterministic policies, so 
+instead we use the expectation of the return to value how
+good it is to be in a state.
+We denote finding the value of a state $s$ following policy $\pi$ as
+$v_\pi(s)$ - a \textit{state-value function}.
 
-When we want to measure the value of a state $s$ we have to take all possible
-actions into consideration, which leaves us with the following definition of
-the state-value function
+Now, for every action in every state there is
+probability $p(s', r | s, a)$ of arriving at exactly state $s'$ and
+receiving reward $r$.
+This means that for each action we need to go through all possible future
+states and rewards, giving us probability $\pi(a|s)p(s',r|s, a)$ of receiving
+exactly reward $r$ and encountering future state $s'$ from state $s$ taking
+action $a$.
+Therefore the value of taking action $a$ in state $s$ is the expected
+return of all possible future states $s'$ and corresponding rewards $r$.
+Finding the value of an action can thus be defined as
 \begin{equation}
-    v_\pi(s) = \sum\limits_{a} \pi(a|s) \sum\limits_{s', r}p(s', r|s, a) [r + v_\pi(s')]
+    q_\pi(s, a) = \sum\limits_{s', r} p(s', r | s, a) [r + v_\pi(s')]
 \end{equation}
+and is refered to as the \textit{action-value function}.
 
+To extend this idea to the value of a state, we simply have to take the expectation over
+every possible action and hence
+\begin{equation}\label{eq:sv}
+    v_\pi(s) = \sum\limits_{a}\pi(a|s) \sum\limits_{s', r} p(s', r | s, a) [r + v_\pi(s')]
+\end{equation}
+which means we the value function is defined recursively in terms of its future estimate until the
+terminal state is reached, where the value always has to be 0 since no more rewards can be obtained
+from this point.
 
 %\printbibliography
 %\bibliography{citations}

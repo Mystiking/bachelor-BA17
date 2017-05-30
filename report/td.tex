@@ -43,11 +43,11 @@ where we only have to take a single step into the future before we are
 able to update the estimate.
 Updating the value estimator based on future results is the basis
 of \textit{temporal difference learning}(TD) and the quantity $R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)$
-is defined as the \textit{one-step TD error}.
+is defined as the \textit{one-step TD-error}.
 This error describes the difference between the current estimator
 and the estimate that is based on actual current experience.
 
-Generally we want to minimize the TD error, as the function $V(S_t)$
+Generally we want to minimize the TD-error, as the function $V(S_t)$
 would then be as close to $v_\pi(S_t)$ as possible.
 In particular if this error was 0 for all states, then
 $V(S_t) = v_\pi(S_t)$ and
@@ -81,58 +81,54 @@ This way of updating the estimate is espicially beneficial in tasks that only so
 We want to find these significant changes because the entire chain of estimates 
 will be affected, making the estimate converge faster towards the real value function.
 
-\subsubsection{Eligibility traces}\label{sec:eligibility_traces}
+\subsubsection{Eligibility traces}
 
-In section \ref{est_vals} we mentioned estimators being represented as
-parameterized functions.
-Using a parameterized function to estimate the state-value function means
-the n-step return can be defined as
-\begin{equation}
-    G^{(n)} = R_{t+1} + \gamma  R_{t+2} + \gamma^2  R_{t+3} + \dots + \gamma^n  \hat{v}(S_{t+n}, \mathbf{\theta})
-\end{equation}
-where $\hat{v}(S_{t+n}, \mathbf{\theta}_t)$ is an estimator of the
-state-value function with parameters $\mathbf{\theta}_t$.
-Instead of keeping track of the last $n$ steps as in the n-step TD
-methods,
-we can construct a short-term memory vector called an \textit{eligibility trace}, $\mathbf{e}_t \in \R^n$,
-that parallels the weight vector $\mathbf{\theta}_t \in \R^n$\cite{RLbook}.
-This eligibility trace describes the eligibility of each component in $\mathbf{\theta}_t$ -
-how much influence this particular component has in the estimation.
-Another advantage of using an eligibility trace is that
-learning occurs continually and can affect behaviour immediately,
-unlike n-step methods which are always $n$ steps behind.
+% Intro til parameterized functions
+So far we have described the state-value function as a mapping from states to values.
+A problem with this approach is that it becomes infeasable to maintain this mapping
+when the state space is continuous, since there is an infinite number of states in this case.
+To make the transition from a discrete to a continous state space we can use a
+parameterized function $\hat{v}(s, \theta)$ with weights $\theta$
+to estimate $v_\pi(s)$.
+Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \theta)$
+only needs to keep track of the weight vector $\theta$, which can be seen as a long-term memory.
+There are many ways to construct $\hat{v}(s, \theta)$, but in this project we will only
+be using \textit{deep neural networks} as function approximators,
+which will be discussed in detail in section \ref{sec:deep_learning}.
 
-The eligibility of a component of the weight vector is determined
-by its contribution to the most recent computations of the estimate,
-where “recent” is determined by the discount rate $0 < \gamma \leq 1$ and the weight
-$0 < \lambda \leq 1$.
-Thus whenever a component of the weight vector
-is used to produce an estimate, the corresponding eligibility component
-is increased in either a positive or negative direction and then begins to fade away.
-%If a component is rarely used, we provide it with less eligibility
-%as it is then less likely to be directly affecting the estimate, and vice versa if
-%a component is used often.
-This directional change can be found by computing the
-gradients of the estimator with respects to $\mathbf{\theta}_t$\cite{RLbook}.
-An eligibility trace for $\hat{v}(S_{t+n}, \mathbf{\theta}_t)$ would then
-be maintained in the following fashion
+Now, before we could estimate the value function based on the n-step return, but
+since the value function now depends on the weights $\theta$ we need to find a way
+to measure how much each component of the weight vector is influencing the
+current estimate.
+To do so we can use an \textit{eligibility trace}, $\mathbf{e} \in \R^n$, that
+has exactly as many components as the weight vector.
 
+Generally we want to use the elegibility trace to improve the value function by
+changing its weights $\theta$ based on \textit{gradient ascent}.
+The eligibility trace describes the elegibility of its corresponding component in $\theta$
+- in other words which direction to update the weight to reach a maximum for $\hat{v}(s, \theta)$.
+Thus an elegibility trace for the value estimator can be updated as
 \begin{equation}
-    \mathbf{e}_t = \nabla(\hat{v}(S_t, \mathbf{\theta}_t)) + \lambda  \gamma  \mathbf{e}_t
+    \mathbf{e}^\theta = \lambda e^\theta + \nabla_\theta \hat{v}(s, \theta)
 \end{equation}
-with an initial value of 0 for every component.
-The weights of the estimator $\hat{v}(S_t, \mathbf{\theta}_t)$ are
-updated every time a state transition occurs, which produces
-produces the one-step TD error, $\delta_t = R_{t+1} + \gamma  \hat{v}(S_{t+1}, \mathbf{\theta}_t) - \hat{v}(S_t, \mathbf{\theta}_t)$.
-The weights of the estimators we use are updated proportionally to the TD error, since
-a low error means we don't have to change much while a large error means that
-the estimator needs to be corrected significantly.
-A typical update scheme could look like this
+where $\lambda$ is a discounting factor used to decrease the elegibility of a component
+over time, as it gets closer to a maximum.
+Now, the trace describes the trend of the most recent gradients of the value function
+w.r.t $\theta$, but we also want to base the update of the weights on their
+performance.
+Since we want the estimate of the value function to improve as we
+experience the effect of our actions we genereally want to
+update the weights proportionally to the one-step TD-error introduced in
+section \ref{sec:td}.
+A low TD-error means that we don't have to change much as the value estimator is
+close to a maximum, while a high error means that we need to take a larger step
+in the directions from the elegibility trace as we are still far from the maximum.
+An update based on this approach would look like this
 \begin{equation}
-    \mathbf{\theta}_t = \mathbf{\theta}_t + \eta  \delta_t  \nabla(\hat{v}(S_t, \mathbf{\theta}_t))
+    \theta = \theta + \eta \delta \nabla e^\theta
 \end{equation}
-where $0 < \eta \leq 1$ is a step-size parameter limiting how much the weights,
-$\mathbf{\theta}_t$, can be changed each time they are updated.
+where $\eta$ determines how much the weights can change each step.
+
 
 
 \end{document}
