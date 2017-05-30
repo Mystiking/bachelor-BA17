@@ -30,7 +30,7 @@ and,
 
 \subsection{Actor-Critic Methods}
 
-Actor-Critic methods are a type of policy gradient methods, that estimate both a state-value function $\hat{V}(s, \mathbf{w})$ and a parameterized policy $\pi(a | s, \theta)$. Actor-Critic methods use the value function to update the policy,
+Actor-Critic methods are a type of policy gradient methods, that estimate both a state-value function $\hat{v}(s, \mathbf{w})$ and a parameterized policy $\pi(a | s, \theta)$. Actor-Critic methods use the value function to update the policy,
 
 \begin{figure}[!h]
     \centering
@@ -67,6 +67,7 @@ where $\mathbf{w}$ is the weight vector used for the parameterized state-value f
 An advantage of using Actor-Critic methods is that the split into a actor and critic, reduces the variance of the function approximation, because the update step size for the policy parameters is defined relative to estimated value from critic.\cite{actCrit}
 
 
+
 \subsection{Actor-Critic with Eligibility Traces}
 
 In this project we using the \textit{Actor-Critic with eligibility traces}, which follow the workflow from figure \ref{fig:actor-critic}, and using eligibility traces for performing online updates of the weight vectors $\theta$ and $\mathbf{w}$. The general updating scheme for the eligibility vector $\mathbf{e}^{\mathbf{w}}$ is,
@@ -77,12 +78,19 @@ and $\mathbf{e}^{\theta}$ as,
 \begin{equation}
     \mathbf{e}^{\theta} \leftarrow \lambda^{\theta} \mathbf{e}^{\theta} + \nabla_{\theta} \text{log} \pi (A | S, \theta)
 \end{equation}
-where $\lambda$ discussed in section \ref{sec:td} is the discount rate, there represent how much the existing eligibility trace influence the update.
+where $\lambda$ discussed in section \ref{sec:eligibility_traces} is the discount rate, there represent how much the existing eligibility trace influence the update.
 \\
-The reason for using eligibility traces in Acotr-Critic methods is that it as elegant way for using the knowledge of how the gradients have changed in the last minor time period.
+By using eligibility traces in Acotr-Critic methods we can keep information of how the gradients have changed in the last minor time period. The reason that is smart to use these eligibility traces is that we can update the parameters based on the trend of how the parameters have changed in the last time, for both the weight vector $\mathbf{w}$,
+\begin{equation}
+    \mathbf{w} \leftarrow \mathbf{w} + \beta \delta \mathbf{e}^{\mathbf{w}}
+\end{equation}
+and $\theta$,
+\begin{equation}
+    \theta \leftarrow \theta + \alpha \delta \mathbf{e}^{\theta}
+\end{equation}
+where $0 \leq \alpha \leq 1$ and $0 \leq \beta \leq 1$ is the step-size parameters, which defines how much the eligibility traces influence the update. 
 
-We have implemented Actor-Critic using Eligibility traces, and we follow this algorithm,\cite{RLbook}
-
+We have implemented Actor-Critic with eligibility traces to solve the CartPole problem, which we will discuss in section KOM MED REF, using the algorithm from Appendix \ref{sec:pseudo_code_et}
 
 
 
