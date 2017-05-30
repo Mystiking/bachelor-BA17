@@ -1,0 +1,40 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+\section{Pseudo-code for A3C}\label{sec:pseudo_code_a3c}
+\begin{algorithm}[!h]
+\SetAlgoLined
+    Input: a differentiable policy parameterization $\pi(a | s, \theta), \forall a \in \mathcal{A}, s \in \mathcal{S}, \theta \in \mathbb{R}^{n}$\\
+    Input: a differentiable state-value parameterization  $\hat{v}(s, \mathbf{w}), \forall s \in \mathcal{S}, \mathbf{w} \in \mathbb{R}^{m}$\\
+    Parameters: step sizes $\alpha > 0, \beta > 0$ \\
+    Initialize policy weights $\theta$ and state-value weights $\mathbf{w}$  \\
+    Initialize thread step counter $t \leftarrow 1$
+
+ \While{True}{
+  Reset gradients: $d\theta \leftarrow 0$ and $d\mathbf{w} \leftarrow 0$ \\
+  Synchronize agents parameters with global network $\theta' = \theta$ and $\mathbf{w}' = \mathbf{w}$ \\
+  $t_{start} = t$ \\
+  Initialize $S$ \\
+\While{$S$ is not terminal {\normalfont \textbf{and}} t - t_{start} == t_{max}}{    
+$A \sim \pi(\cdot | S, \theta)$ \\
+Take action $A$, observe $S'$, $R$ \\
+$t \leftarrow t + 1$ \\
+$S \leftarrow S'$ \\
+}
+\eIf{S == terminal state}{
+   R = 0\;
+   }{
+   R = V(s_{t}, \mathbf{w}')\;
+  }
+\For{i \in \{t - 1, ..., t_{start}\}}{
+$R \leftarrow r_{i} + \gamma R$ \\
+$d\theta \leftarrow d\theta + \nabla_{\theta'}$  {\normalfont log}$\pi (a_{i} | s_{i}, \theta')(R - V(s_{i}, \mathbf{w}')$ \\
+$d\mathbf{w} \leftarrow d\mathbf{w} + \frac{\partial (R - V(s_{i}, \mathbf{w}'))^{2}}{\partial \mathbf{w}'}$ \\
+}
+{\normalfont Perform asynchronous update of} $\theta$ {\normalfont using} $d\theta$ {\normalfont and of} $\mathbf{w}$ {\normalfont using} $d\mathbf{w}$.
+ }
+ \caption{Asynchronous advantage actor-critic}
+\end{algorithm}
+
+\end{document}

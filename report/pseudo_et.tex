@@ -1,0 +1,32 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+\section{Pseudo-code for eligibility traces}\label{sec:pseudo_code_et}
+\begin{algorithm}[!h]
+\SetAlgoLined
+    Input: a differentiable policy parameterization $\pi(a | s, \theta), \forall a \in \mathcal{A}, s \in \mathcal{S}, \theta \in \mathbb{R}^{n}$\\
+    Input: a differentiable state-value parameterization  $\hat{v}(s, \mathbf{w}), \forall s \in \mathcal{S}, \mathbf{w} \in \mathbb{R}^{m}$\\
+    Parameters: step sizes $\alpha > 0, \beta > 0$ \\
+    Initialize policy weights $\theta$ and state-value weights $\mathbf{w}$ 
+
+ \While{True}{
+  Initialize $S$ (first state of episode) \\
+$\mathbf{e}^{\theta} \leftarrow 0$ (n-component eligibility trace vector) \\
+$\mathbf{e}^{\mathbf{w}} \leftarrow 0$ (m-component eligibility trace vector) \\
+$I \leftarrow 1$ \\
+\While{$S$ is not terminal}{    
+$A \sim \pi(\cdot | S, \theta)$ \\
+Take action $A$, observe $S'$, $R$ \\
+$\delta \leftarrow R + \gamma \hat{v} (S', \mathbf{w}) - \hat{v}(S, \mathbf{w})$ \\
+$\mathbf{e}^{\mathbf{w}} \leftarrow \lambda^{\mathbf{w}} \mathbf{e}^{\mathbf{w}} + I \nabla_{\mathbf{w}} \hat{v} (S, \mathbf{w})$ \\
+$\mathbf{e}^{\theta} \leftarrow \lambda^{\theta} \mathbf{e}^{\theta} + I  \nabla_{\theta} log \pi (A | S, \theta)$ :\\
+$\mathbf{w} \leftarrow \mathbf{w} + \beta \delta \mathbf{e}^{\mathbf{w}}$ \\
+$\theta \leftarrow \theta + \alpha \delta \mathbf{e}^{\theta}$ \\
+$I \leftarrow \gamma I$ \\
+$S \leftarrow S'$
+    }
+ }
+ \caption{Actor-Critic with Eligibility Traces}
+\end{algorithm}
+
+\end{document}
