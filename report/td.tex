@@ -6,60 +6,48 @@
 
 \subsection{Temporal Difference Learning}\label{sec:td}
 
-It is difficult to improve policies using the value functions from
-section \ref{sec:pol} if the state space is large, since it is then
-computationally expensive to estimate the value of each state and
-state-action pair.
-Instead we can construct an estimator, $V(S_{t}) \approx v_\pi(S_t)$,
-from the experience we collect throughout an episode.
-This experience consists of states, taken actions and the rewards
-earned from state transitions, which we can use to construct
-a scheme for updating and maintaining the approximator
+We now have a way to describe the value of a state, but we seldomly know the
+value function $v_\pi$ before we begin solving a problem.
+Even with the knowledge of the entire state space and all available actions
+it is difficult to compute the true value function.
+Instead it is possible to construct an estimator $V(S_t)$ that
+approximates $v_\pi(S_t)$.
+
+When a learning agent solves a problem, it gains a lot of experience
+about the states it encounters and rewards it earns through different transitions.
+Using this experience it is possible to construct an updating scheme
+for estimating the approximator,
 \begin{equation}
     V(S_t) = V(S_t) + \alpha [G_t - V(S_t)]
 \end{equation}
 where $G_t$ is the experienced actual return following from state
 $S_t$ and $0 \leq \alpha \leq 1$ is a step-size parameter, 
 which defines how much each update is able to change the estimate
-in state $S_t$ \cite{RLbook}.
+of the value in state $S_t$.
 
 This estimator only allows us to update the estimate, when an epsiode
-has ended.
+has ended, since this is the time at which $G_t$ is known.
 Updating this way is inefficient because it would take the estimator
 a lot of episodes to converge towards the true state-value function,
 due to it being updated seldomly. 
 
 Instead of updating the estimator $V(S_t)$ when an episode has
 ended, we can choose a different approach which updates the $V(S_t)$
-for every time step.
-We know from equation \ref{eq:sv} that
-\begin{equation}\label{eq:one_step}
-    \begin{aligned}
-        v_\pi(S_t) & = \mathds{E}\bigg[\sum\limits_{k=0}^\infty \gamma^k  R_{t+k+1} \bigg| S_t = s\bigg] \\
-                   & = \mathds{E}\bigg[R_{t+1} + \gamma  \sum\limits_{k=0}^\infty \gamma^k  R_{t+k+2} \bigg| S_t = s\bigg] \\
-                   & = \mathds{E}\bigg[R_{t+1} + \gamma  v_\pi(S_{t+1}) \bigg| S_t = s\bigg]
-    \end{aligned}
-\end{equation}
-
-According to \ref{eq:one_step} we can use $R_{t+1}$ instead of $G_t$
-and then base the rest of the return on the result of the state-value
-function in the next time step, which allows us to estimate $v_\pi(S_t)$ as
+every time a new state is reached.
+From equation \ref{eq:sv} we know that the value function is partly based on its future
+estimate, which we can extend to form an update scheme,
 \begin{equation}
     V(S_t) = V(S_t) + \alpha  [R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)]
 \end{equation}
+where we only have to take a single step into the future before we are
+able to update the estimate.
+Updating the value estimator based on future results is the basis
+of \textit{temporal difference learning}(TD) and the quantity $R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)$
+is defined as the \textit{one-step TD-error}.
+This error describes the difference between the current estimator
+and the estimate that is based on actual current experience.
 
-We refer to this way of updating the estimate as
-\textit{Temporal difference learning} (TD) and this particular one-step
-update as TD($0$)\cite{RLbook}.
-This method uses \textit{bootstrapping}, since we base
-part of the estimate on an already existing estimate.
-
-We call the quantity $R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)$
-the \textit{TD error}, and denote it by $\delta$.
-This error describes the difference in our current prediction of 
-$V(S_t)$ and the bootstrapped estimate $R_{t+1} + \gamma 
-V(S_{t+1})$.
-Generally we want to minimize the TD error, as the function $V(S_t)$
+Generally we want to minimize the TD-error, as the function $V(S_t)$
 would then be as close to $v_\pi(S_t)$ as possible.
 In particular if this error was 0 for all states, then
 $V(S_t) = v_\pi(S_t)$ and
@@ -68,100 +56,79 @@ $V(S_t) = v_\pi(S_t)$ and
            & = V(S_t) + \alpha  [V(S_t) - V(S_t)]  \\
            & = V(S_t) 
 \end{align}
-The one-step estimator of the action-value function from equation
-\ref{eq:av} can be derived in a similar fashion.
 
-\subsubsection{Bootstrapping from multiple steps}
+\subsubsection{Multi-step TD learning}
 
-The benefit of bootstrapping is that we are able to base part of our estimate on
-an already existing estimate.
-For some problems bootstrapping over a single time step is useful, since
-we are able to update our policy very fast,
-but bootstrapping works best if a significant state change has occured
-\cite{RLbook}.
-If a significant change occurs, it will affect the entire chain
-of future estimates from the next visit to those states.
-Therefore it is sometimes benificial to update after a period of time
-instead of every single time step.
-A method that use this multi-step bootstrapping is the \textit{n-step}
-TD.
-
-The idea behind n-step TD is to estimate the value function
-based on the \textit{n-step return}, $G^{(n)}_t$.
-In TD($0$) we estimated the actual return $G_t$ as
-$R_{t+1} + \gamma  V_t(S_{t+1})$ for each time step,
-where $V_t$ is the estimate of $v_\pi$ at time $t$.
-This is also called the one-step return $G^{(1)}_t$.
-Extending the one-step return to the n-step return $G^{(n)}_t$ gives us
+The benefit of this kind of updating scheme is that we are able to base
+part of our estimate on an already existing estimate.
+Sometimes it is useful to look at every state-change, but sometimes
+changes over a single time step can be small and maybe even insignificant.
+The one-step update scheme used a single experienced state transition to estimate
+$G_t$ using the reward earned in the transition and the estimate of the
+next state.
+Basically we want to extend this way of estimating $G_t$ to take $n$ experienced rewards
+into account, which is defined as the \textit{n-step} return,
 \begin{equation}
-        G^{(n)} = R_{t+1} + \gamma  R_{t+2} + \gamma^2  R_{t+3} + \dots + \gamma^n  V_{t+n-1}(S_{t+n})
+    G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \dots 0 \gamma^n V(S_{t+n})
 \end{equation}
-where $n \geq 1$, $0 < t \leq T - n$ and $T - n$ is the nth state before the terminal
-state\cite{RLbook}.
+where $n \geq 1$, $0 < t \leq T - n$ and $T - n$ is the nth time step before the terminal state
+is reached.
 
-In TD($0$) the quantity $R_{t+1} + \gamma  V_t(S_{t+1})$ is
-first available in the next time step, and likewise for the n-step TD method future rewards
-and value functions aren't available until time $t + n$.
-Therefore the natural algorithm for using n-step return to estimate $v_\pi$ is thus
+Using the n-step return allows the learning agent to base its update on the next $n$ experienced
+rewards, which means it is more likely to experience a significant change than the one-step return.
+This way of updating the estimate is espicially beneficial in tasks that only sometimes returns a reward
+- e.g. in a lot of games a score is only given to the player when an objective is completed.
+We want to find these significant changes because the entire chain of estimates 
+will be affected, making the estimate converge faster towards the real value function.
+
+\subsubsection{Eligibility traces}
+
+% Intro til parameterized functions
+So far we have described the state-value function as a mapping from states to values.
+A problem with this approach is that it becomes infeasable to maintain this mapping
+when the state space is continuous, since there is an infinite number of states in this case.
+To make the transition from a discrete to a continous state space we can use a
+parameterized function $\hat{v}(s, \theta)$ with weights $\theta$
+to estimate $v_\pi(s)$.
+Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \theta)$
+only needs to keep track of the weight vector $\theta$, which can be seen as a long-term memory.
+There are many ways to construct $\hat{v}(s, \theta)$, but in this project we will only
+be using \textit{deep neural networks} as function approximators,
+which will be discussed in detail in section \ref{sec:deep_learning}.
+
+Now, before we could estimate the value function based on the n-step return, but
+since the value function now depends on the weights $\theta$ we need to find a way
+to measure how much each component of the weight vector is influencing the
+current estimate.
+To do so we can use an \textit{eligibility trace}, $\mathbf{e} \in \R^n$, that
+has exactly as many components as the weight vector.
+
+Generally we want to use the elegibility trace to improve the value function by
+changing its weights $\theta$ based on \textit{gradient ascent}.
+The eligibility trace describes the elegibility of its corresponding component in $\theta$
+- in other words which direction to update the weight to reach a maximum for $\hat{v}(s, \theta)$.
+Thus an elegibility trace for the value estimator can be updated as
 \begin{equation}
-    V_{t+n} = V_{t+n-1} + \alpha  [G^{(n)}_t - V_{t+n-1}]
+    \mathbf{e}^\theta = \lambda e^\theta + \nabla_\theta \hat{v}(s, \theta)
 \end{equation}
-Since $G^{(n)}_t$ can't be used before $R_{t+n}$ has been experienced
-and $V_{t+n-1}$ has been computed, we need to update
-$V(S_t)$ for the remaining $n - 1$ following $S_{T-n}$.
-
-\subsubsection{Eligibility traces}\label{sec:eligibility_traces}
-
-In section \ref{est_vals} we mentioned estimators being represented as
-parameterized functions.
-Using a parameterized function to estimate the state-value function means
-the n-step return can be defined as
+where $\lambda$ is a discounting factor used to decrease the elegibility of a component
+over time, as it gets closer to a maximum.
+Now, the trace describes the trend of the most recent gradients of the value function
+w.r.t $\theta$, but we also want to base the update of the weights on their
+performance.
+Since we want the estimate of the value function to improve as we
+experience the effect of our actions we genereally want to
+update the weights proportionally to the one-step TD-error introduced in
+section \ref{sec:td}.
+A low TD-error means that we don't have to change much as the value estimator is
+close to a maximum, while a high error means that we need to take a larger step
+in the directions from the elegibility trace as we are still far from the maximum.
+An update based on this approach would look like this
 \begin{equation}
-    G^{(n)} = R_{t+1} + \gamma  R_{t+2} + \gamma^2  R_{t+3} + \dots + \gamma^n  \hat{v}(S_{t+n}, \mathbf{\theta})
+    \theta = \theta + \eta \delta \nabla e^\theta
 \end{equation}
-where $\hat{v}(S_{t+n}, \mathbf{\theta}_t)$ is an estimator of the
-state-value function with parameters $\mathbf{\theta}_t$.
-Instead of keeping track of the last $n$ steps as in the n-step TD
-methods,
-we can construct a short-term memory vector called an \textit{eligibility trace}, $\mathbf{e}_t \in \R^n$,
-that parallels the weight vector $\mathbf{\theta}_t \in \R^n$\cite{RLbook}.
-This eligibility trace describes the eligibility of each component in $\mathbf{\theta}_t$ -
-how much influence this particular component has in the estimation.
-Another advantage of using an eligibility trace is that
-learning occurs continually and can affect behaviour immediately,
-unlike n-step methods which are always $n$ steps behind.
+where $\eta$ determines how much the weights can change each step.
 
-The eligibility of a component of the weight vector is determined
-by its contribution to the most recent computations of the estimate,
-where “recent” is determined by the discount rate $0 < \gamma \leq 1$ and the weight
-$0 < \lambda \leq 1$.
-Thus whenever a component of the weight vector
-is used to produce an estimate, the corresponding eligibility component
-is increased in either a positive or negative direction and then begins to fade away.
-%If a component is rarely used, we provide it with less eligibility
-%as it is then less likely to be directly affecting the estimate, and vice versa if
-%a component is used often.
-This directional change can be found by computing the
-gradients of the estimator with respects to $\mathbf{\theta}_t$\cite{RLbook}.
-An eligibility trace for $\hat{v}(S_{t+n}, \mathbf{\theta}_t)$ would then
-be maintained in the following fashion
-
-\begin{equation}
-    \mathbf{e}_t = \nabla(\hat{v}(S_t, \mathbf{\theta}_t)) + \lambda  \gamma  \mathbf{e}_t
-\end{equation}
-with an initial value of 0 for every component.
-The weights of the estimator $\hat{v}(S_t, \mathbf{\theta}_t)$ are
-updated every time a state transition occurs, which produces
-produces the one-step TD error, $\delta_t = R_{t+1} + \gamma  \hat{v}(S_{t+1}, \mathbf{\theta}_t) - \hat{v}(S_t, \mathbf{\theta}_t)$.
-The weights of the estimators we use are updated proportionally to the TD error, since
-a low error means we don't have to change much while a large error means that
-the estimator needs to be corrected significantly.
-A typical update scheme could look like this
-\begin{equation}
-    \mathbf{\theta}_t = \mathbf{\theta}_t + \eta  \delta_t  \nabla(\hat{v}(S_t, \mathbf{\theta}_t))
-\end{equation}
-where $0 < \eta \leq 1$ is a step-size parameter limiting how much the weights,
-$\mathbf{\theta}_t$, can be changed each time they are updated.
 
 
 \end{document}
