@@ -28,17 +28,16 @@ and,
     \sum_{a} \pi (a | s, \theta) = 1
 \end{equation}
 
-
 \subsection{Actor-Critic Methods}
 
 Actor-Critic methods are a type of policy gradient methods, that estimate both a state-value function $\hat{V}(s, \mathbf{w})$ and a parameterized policy $\pi(a | s, \theta)$. Actor-Critic methods use the value function to update the policy,
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[scale = 0.5]{include/A.png}
-    \caption{A representation of the workflow in an actor-critic
-    model. Here the environment sends a state and reward signal to both the actor and the critic. The critic compute the TD-error which is sent to the actor.
-    Then the actor perform a action and so forth.}
+    \includegraphics[scale = 0.5]{include/ActorCriticDiagram.png}
+    \caption{A representation of the workflow in an Actor-Critic
+    model. The environment sends a state and reward signal to both the actor and the critic. The critic compute the TD-error which is sent to the actor,
+and then the actor perform a action and so forth.}
     \label{fig:actor-critic}
 \end{figure}
 
@@ -67,6 +66,7 @@ and the state-value function,
 where $\mathbf{w}$ is the weight vector used for the parameterized state-value function.
 An advantage of using Actor-Critic methods is that the split into a actor and critic, reduces the variance of the function approximation, because the update step size for the policy parameters is defined relative to estimated value from critic.\cite{actCrit}
 
+
 \subsection{Actor-Critic with Eligibility Traces}
 
 In this project we using the \textit{Actor-Critic with eligibility traces}, which follow the workflow from figure \ref{fig:actor-critic}, and using eligibility traces for performing online updates of the weight vectors $\theta$ and $\mathbf{w}$. The general updating scheme for the eligibility vector $\mathbf{e}^{\mathbf{w}}$ is,
@@ -77,7 +77,7 @@ and $\mathbf{e}^{\theta}$ as,
 \begin{equation}
     \mathbf{e}^{\theta} \leftarrow \lambda^{\theta} \mathbf{e}^{\theta} + \nabla_{\theta} \text{log} \pi (A | S, \theta)
 \end{equation}
-where $\lambda$ discussed in section REF TIL TD\ref{} is the discount rate, there represent how much the existing eligibility trace influence the update.
+where $\lambda$ discussed in section \ref{sec:td} is the discount rate, there represent how much the existing eligibility trace influence the update.
 \\
 The reason for using eligibility traces in Acotr-Critic methods is that it as elegant way for using the knowledge of how the gradients have changed in the last minor time period.
 
@@ -87,7 +87,6 @@ We have implemented Actor-Critic using Eligibility traces, and we follow this al
     Input: a differentiable policy parameterization $\pi(a | s, \theta), \forall a \in \mathcal{A}, s \in \mathcal{S}, \theta \in \mathbb{R}^{n}$\\
     Input: a differentiable state-value parameterization  $\hat{v}(s, \mathbf{w}), \forall s \in \mathcal{S}, \mathbf{w} \in \mathbb{R}^{m}$\\
     Parameters: step sizes $\alpha > 0, \beta > 0$ \\
-    \\
     Initialize policy weights $\theta$ and state-value weights $\mathbf{w}$ 
 
  \While{True}{
@@ -110,6 +109,7 @@ $S \leftarrow S'$
  \caption{Actor-Critic with Eligibility Traces}
 \end{algorithm}
 
+HJÆLP MED AT LAV EN GOD AFSLUTNING PÅ DETTE EMNE MAX!!!!
 
 
 
