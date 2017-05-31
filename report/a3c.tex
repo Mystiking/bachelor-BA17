@@ -1,0 +1,68 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+\section{Asynchronous advantage Actor-Critic (A3C)}
+
+We have seen how to solve reinforcement problem using Actor-Critic
+methods, but it can take 
+long time before it converges on challenging tasks such as
+ Atari 2600 games. One way for speed up learning is to use
+ asynchronous agents, 
+which run trough the task, and by combine the experience from all
+these synchronous
+ agents, it's possible to make learning faster, and more stable. 
+
+In this project we will be using the Asynchronous advantage
+Actor-Critic (A3C), invented by DeepMind 16 June 2016\cite{a3c}. 
+In the A3C algorithm we have some global parameters $\theta$ and
+$\mathbf{w}$, 
+and multiple agents where each of these have there own local
+parameters $\theta'$ and $\mathbf{w}'$
+ for estimating the policy and value function. All these agents also
+ have there own environment to interact with, 
+which make i possible for all agents to interact with their own
+environment asynchronous, which give a 
+major speedup for learning, because it possible to run more iteration
+at the same time,
+ this experience gained from the agents is independent, which mean the training become more diverse.
+
+When using multiple agents one major challenge is how to synchronize
+the parameters from the 
+local agents with the global parameters. In the A3C algorithm all
+agents start initialize the 
+parameters $\theta'$ and $\mathbf{w}'$ to the same as the global
+network. Then each agent interact 
+with it's own environment by performing $5$ action $a$ according to
+policy $\pi (a | s, \theta_{t}')$, which results 
+in $5$ rewards. After performing $5$ actions in the local environment
+or the agent reached a terminal state, 
+the agent updates the local gradients $d\theta$,
+\begin{equation}
+    d\theta' \leftarrow d\theta' + \nabla_{\theta'} \text{ log} \pi (a_{i} | s_{i}, \theta')(R - V(s_{i}, \mathbf{w}'))
+\end{equation}
+and $d\mathbf{w}$,
+\begin{equation}
+    d\mathbf{w} \leftarrow d\mathbf{w} + \frac{\partial (R - V(s_{i}, \mathbf{w}'))^{2}}{\partial \mathbf{w}'}
+\end{equation}
+where $R$ is the overall reward which start at $0$ if the agent reached a terminal state, else $R$ is set to $V(s_{t}, \mathbf{w}')$. For	each	update uses the	longest	possible	n-step	return.
+
+And is updated when we iterate over the expreince given from the $5$ actions,
+\begin{equation}
+    R \leftarrow r_{i} + \gamma R
+\end{equation}
+After computing the gradients $d\theta'$ and $d\mathbf{w}'$, we can perform asynchronous update of the global parameters $\theta$ and $\mathbf{w}$ using $d\theta$ and $d\mathbf{w}$. For performing this asynchronous update we using Shared RMSProp. The genral update scheme for RMSprop is,
+\begin{equation}
+    \theta \leftarrow \theta - \eta \frac{\Delta \theta}{\sqrt{g + \epsilon}}
+\end{equation}
+where $\eta$ is the learning rate, and $g$ is the shared parameter, which is caculated as,
+\begin{equation}
+    g = a g + (1 - a)\Delta \theta^{2}
+\end{equation}
+
+There are two major advantages by using this asynchronous training,
+first there are a major speedup, 
+simply because it possible to run more iteration at the same time,
+second the experience from 
+the agents is independent, which mean the training become more diverse. 
+
+\end{document}
