@@ -16,18 +16,18 @@
   Synchronize agents parameters with global network $\theta' = \theta$ and $\mathbf{w}' = \mathbf{w}$ \\
   $t_{start} = t$ \\
   Initialize $S$ \\
-\While{$S$ is not terminal {\normalfont \textbf{and}} t - t_{start} == t_{max}}{    
+\While{$S$ is not terminal {\normalfont \textbf{and}} t - $t_{start}$ == $t_{max}$}{    
 $A \sim \pi(\cdot | S, \theta)$ \\
 Take action $A$, observe $S'$, $R$ \\
 $t \leftarrow t + 1$ \\
 $S \leftarrow S'$ \\
 }
-\eIf{S == terminal state}{
-   R = 0\;
+\eIf{$S == terminal state$}{
+   $R = 0$\;
    }{
-   R = V(s_{t}, \mathbf{w}')\;
+   $R = V(s_{t}, \mathbf{w}')$\;
   }
-\For{i \in \{t - 1, ..., t_{start}\}}{
+\For{$i \in \{t - 1, ..., t_{start}$\}}{
 $R \leftarrow r_{i} + \gamma R$ \\
 $d\theta \leftarrow d\theta + \nabla_{\theta'}$  {\normalfont log}$\pi (a_{i} | s_{i}, \theta')(R - V(s_{i}, \mathbf{w}')$ \\
 $d\mathbf{w} \leftarrow d\mathbf{w} + \frac{\partial (R - V(s_{i}, \mathbf{w}'))^{2}}{\partial \mathbf{w}'}$ \\
