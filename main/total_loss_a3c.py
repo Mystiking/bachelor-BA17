@@ -1,5 +1,6 @@
 import gym
 from gym import wrappers
+from scipy.misc import imresize
 import numpy as np
 from keras.models import Model, Sequential
 from keras.layers import Dense, Input, Convolution2D, MaxPooling2D, UpSampling2D, Flatten
@@ -15,8 +16,7 @@ import time
 import threading
 
 def resize(img):
-    i = img[::2, ::2]
-    return i[15:,:]
+    return imresize(img, (84, 84)).astype('float32') * 1./255.
 
 def rgb2grayscale(img):
     return np.dot(img[:,:,:3], [0.2126, 0.7152, 0.0722])
@@ -37,9 +37,9 @@ GAME_NAME = 'Pong-v0'
 env = gym.make(GAME_NAME)
 NUM_STATE = env.observation_space.shape
 NUM_ACTIONS = 3#env.action_space.n
-NUM_THREADS = 16
-RESIZED_WIDTH = int(NUM_STATE[0] / 2) - 15
-RESIZED_HEIGHT = int(NUM_STATE[1] / 2)
+NUM_THREADS = 1
+RESIZED_WIDTH = 84#int(NUM_STATE[0] / 2) - 15
+RESIZED_HEIGHT = 84#int(NUM_STATE[1] / 2)
 
 # For graphing
 reward_list = []
@@ -233,7 +233,7 @@ class Agent(threading.Thread):
             if self.main:
                 avg_reward = sum(rewards) / len(rewards)
                 rewards = []
-                print("T : ", global_step_counter, "Average reward : ", avg_reward)
+                print("T : ", global_step_counter, "Average reward : ", avg_reward, "Probs : ", probabilities)
             now = time.time()
             self.result_file.write("{},{},{}\n".format(i, total_reward, now - self.start_time))
         self.result_file.close()
