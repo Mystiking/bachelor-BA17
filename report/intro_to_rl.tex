@@ -16,9 +16,9 @@ without knowing the “rules” of the problem.
 Using the experience gained from trying different moves it is able to learn how to solve it.
 In other words when a good action is found for a given situation,
 the probability of taking said action needs to be reinforced because it is then more likely to be
-repeated in the future in a similar situation.
+repeated in the future if a similar situation occurs.
 
-The first task of learning to solve a problem with reinforcement learning is to define
+Before we can solve a problem with reinforcement learning we firstly need to define
 the \textit{states} and \textit{actions} of the problem environment.
 A state contains all available information related to the environment,
 i.e. in a game of backgammon a state could contain the position of every piece on the board at
@@ -28,7 +28,7 @@ An action describes a transition from one state to another.
 In the backgammon example an action would be to move a piece, following the rules of the
 environment.
 
-When a reinforcement learning algorithm is learning to solve a task, it is
+When a reinforcement learning algorithm learns how to solve a task, it is
 interacting with the environment through a \textit{learning agent}.
 The agent decides which action should be performed in each state by creating and maintaining a \textit{policy}.
 The policy is a mapping from states in the environment to actions available to the agent.
@@ -40,31 +40,31 @@ $\mathcal{A}(s)$ denotes the \textit{action space} and $\mathcal{S}$ the \textit
 where the action space consists of all actions available in state $s$ and the state space consists of
 all possible states.
 
-This means that every problem can be described as a set of states that can be reached
-through a set of actions describing how to interact with the environment.
-The difficult part of reinforcement learning is choosing the best action in a
+Every reinforcement learning problem can thus be described as a set of states that can be reached
+through a set of actions.
+The difficult part of reinforcement learning is to choose the best action in a
 state.
-To do so the agent is rewarded for making good decisions.
-This means that transitioning from one state to another should be assigned a numerical value
+To do so the agent is either rewarded for making good decisions or punished for making bad decisions.
+This means that transitioning from one state to another can be assigned a numerical value
 - a \textit{reward} - that describes if the action was good or bad.
 
 %%%% Actor-Environment graph
 \begin{figure}[!h]
     \centering
     \includegraphics[scale = 0.5]{include/RLdiagram.png}
-    \caption{A representation of the workflow in an agent-environment
-    model. Here the environment sends a state and reward signal to the
-    learning agent which then responds with a new action and so forth.}
-    \label{fig:agent_enviroment}
+    \caption{A representation of the agent interacting with the environment.
+        The environment sends a state and reward signal to the
+    learning agent which responds with a new action that return a new state and so forth.}
+    \label{fig:agent_environment}
 \end{figure}
 %%%%
 
-The essence of a good reinforcement learning algorithm is that it should be able to learn
-how to solve a task satisfactory without any prior knowledge of the rules of the environemnt.
+The essence of a good reinforcement learning algorithm is that it learns 
+to solve a task satisfactory without any prior knowledge about the rules of the environment.
 To do so the agent uses a combination of \textit{exploration} and \textit{exploitation}.
 The goal of the learning agent is to learn a policy that maximises the total reward, but in order to do
 so it must explore some of the options that seem suboptimal at first.
-This is because the immediate reward might be lower but it may lead to a higher total reward in the end.
+Hence the immediate reward might be lower but it may lead to a higher total reward in the end.
 The learning agent shouldn't be exploring too much though, since it then wouldn't
 be using the previously gathered knowledge - in other words it needs to
 exploit the fact that it “knows” the result of taking an action since it has been in

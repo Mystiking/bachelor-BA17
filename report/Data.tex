@@ -6,14 +6,14 @@
 
 \section{Data}\label{Data}
 
-To train and test our actor-critic and asynchronous advantage actor-critic implementation we will use
+To train and test our Actor-Critic and asynchronous advantage Actor-Critic implementation we will use
 the OpenAI Gym framework\cite{openAIGym}.
 This framework provides an interface to 118 Atari 2600 games,
 that can be used by developers to compare and test their reinforcement learning algorithms.
 
  
 In the Atari enviroments there is always a finite \textit{action space} and continous \textit{state space}.
-The state space is continous because a \textit{state} is represented as a RGB image - a screenshot - from a game
+The state space is continous because a \textit{state} is represented as a RGB image - a screenshot from a game
 at the given time. The action space is finite because there is always a fixed amount of
 actions available to the player in the OpenAI Gym framework.
 
@@ -31,9 +31,9 @@ results in that action being repeated $x$ times, where $x$ is uniformly sampled 
 
 Among a lot of other game types OpenAI gym also supports an interface
 to the Cart-Pole problem.
-A player can win the Cart-Pole game if he manages to balance a pole connected to the top of a moving cart for
+A player can win the Cart-Pole game if they manage to balance a pole connected to the top of a moving cart for
 200 consecutive time steps.
-The player loses if the pole moves more than 15 degrees from vertical in
+The player loses if the pole moves more than 15 degrees from an upright position in
 either direction or if the cart exits the frame.
 
 \begin{figure}[!h]
@@ -47,10 +47,10 @@ Unlike the Atari environments a state in Cart-Pole consits of only four elements
 angle and angular velocity of the pole.
 Each time step, corresponding to a new frame, the player has to chose between moving the cart to the right or to the left and it is not possible
 to do nothing.
-For every time step the pole doesn't move 15 degrees from vertical and
-the cart stays inside the frame, the player is awarded a single point.
+For every time step the pole hasn't moved more than 15 degrees from the starting position and
+the cart has stayed inside of the frame, the player is awarded a single point.
 
-We will be using the Cart-Pole problem as a proof of concept for our actor-critic implementation and will
+We will be using the Cart-Pole problem as a proof of concept for our Actor-Critic implementation and will
 compare it to the A3C algorithm used on the same problem.
 The reason for using the Cart-Pole problem is that it should be easier
 to solve, because each state consists of fewer dimensions than a state
@@ -61,8 +61,13 @@ from an Atari game.
 
 A state in an Atari game is represented as a 3-dimensional matrix representing a
 frame.
-This means that instead of only taking 4 items into consideration when picking an action,
+This means that instead of only taking 4 elements into consideration when picking an action,
 the player is now faced with a much more complex view. 
+In general we want the learning agent to be able to pick an action from all
+the available actions, but in some of the Atari games there are duplicate actions.
+To speed up the training we have chosen to remove duplicates of the same action
+from the action space.
+
 All of the games have the same resolution of $210 \times 160$ pixels.
 Each pixel contains three channels corresponding to the red, green and blue intensities of the pixel.
 \begin{figure}[!h]
@@ -76,16 +81,20 @@ Using the raw Atari frames can be computationally demanding, so we have chosen
 to preprocess our data as described in \cite{dqn}. 
 The first step of the preprocessing is to reduce the amount of channels used to
 represent the image.
-To do this we gray-scale the RGB representation of the frames so that only a single channel is used.
-In our approach, the gray-scaling calculates the relative luminance\cite{luminance} of each pixel
+To do this we gray-scale the RGB representation of the frames that only a single channel is used.
+In our approach, the gray-scaling is calculated based on the relative luminance\cite{luminance} of each pixel,
 for which the formula is given in equation \ref{eq:lum}.
 \begin{equation}\label{eq:lum}
     L(R, G, B) = 0.2126*R + 0.7152*G + 0.0722*B
 \end{equation}
 
-We further reduce the dimensions of the gray-scaled images by a downsampling.
-We simply ignore every second pixel effectively halfing the resolution of the frames 
+We further reduce the dimensions of the gray-scaled images by a downsampling, where
+we simply ignore every second pixel, effectively halving the resolution of the frames 
 in both dimensions.
+To avoid the scoreboard influencing the training, we crop the downsampled image by removing
+15 rows of pixels from the top of the screen.
+This step is only possible because we have selected games, where only the scoreboard is
+removed by this method.
 \begin{figure}[h!]
     \begin{subfigure}[t]{.5\textwidth}
         \centering
@@ -103,28 +112,20 @@ in both dimensions.
 \end{figure}
 
 
-The final output of the preprocessing step is a $105 \times 80$ pixel gray-scaled
+The final output of the preprocessing step is a $90 \times 80$ pixel gray-scaled
 image.
-After the data has been preprocessed it is computationally cheaper to extract the remaining
-features than it would be to extract them from the raw Atari frames,
-since the dimensions of input image have been significantly reduced.
-The reason we can downsample the frames the way we have,
-is due to an assumption about the structure of the input - that
-little to no information is lost in the process, because no important objects vanish completely.
+By preprocessing the data, the remaining featuer extraction becomes computationally much
+cheaper, as the dimensions have been significantly reduced compared to the raw Atari frames.
 
 In the articles \cite{a3c} and \cite{dqn} one more preprocessingstep is performed.
 Instead of only resizing the gray-scaled frames, they are also cropped to $84 \times 84$ images.
 This is done to meet a condition in their implementation of 2d convolutions,
 since they could only process square input\cite{dqn-nature}.
-We will only be resizing the gray-scaled images and not be cropping,
-since the cropping doesn't serve the same purpose in our project.
-Another consideration is that if the images were to be cropped in the same manner,
-the different structures of the games would lead to an unstable
-result, meaning we would have to handcraft a cropping scheme for each game.
+Our cropping scheme difers from their, due to the purpose being another.
 
 Due to the time limitations of this project we will only be testing our
-implementation of the A3C algorithm on certain games.
-Namely \textit{Pong}, \textit{Breakout}, \textit{Space Invaders} and
+implementation of the A3C algorithm on certain games;
+namely \textit{Pong}, \textit{Breakout}, \textit{Space Invaders} and
 \textit{Pacman}.
 
 \end{document}
