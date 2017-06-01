@@ -13,15 +13,14 @@ it is difficult to compute the true value function.
 Instead it is possible to construct an estimator $V(S_t)$ that
 approximates $v_\pi(S_t)$.
 
-When a learning agent solves a problem, it gains a lot of experience
-about the states it encounters and rewards it earns through different transitions.
-Using this experience it is possible to construct an updating scheme
-for estimating the approximator,
+When a learning agent solves a problem, it gains experience
+about the states it encounters and the rewards earned through its transitions.
+Using this experience it is possible to construct an estimator 
+of the state-value function,
 \begin{equation}
     V(S_t) = V(S_t) + \alpha [G_t - V(S_t)]
 \end{equation}
-where $G_t$ is the experienced actual return following from state
-$S_t$ and $0 \leq \alpha \leq 1$ is a step-size parameter, 
+where $0 \leq \alpha \leq 1$ is a step-size parameter, 
 which defines how much each update is able to change the estimate
 of the value in state $S_t$.
 
@@ -31,98 +30,104 @@ Updating this way is inefficient because it would take the estimator
 a lot of episodes to converge towards the true state-value function,
 due to it being updated seldomly. 
 
-Instead of updating the estimator $V(S_t)$ when an episode has
-ended, we can choose a different approach which updates the $V(S_t)$
+Instead of only updating the estimator $V(S_t)$ when an episode has
+ended, there is a different approach which updates
 every time a new state is reached.
 From equation \ref{eq:sv} we know that the value function is partly based on its future
 estimate, which we can extend to form an update scheme,
-\begin{equation}
+\begin{equation}\label{eq:up}
     V(S_t) = V(S_t) + \alpha  [R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)]
 \end{equation}
-where we only have to take a single step into the future before we are
-able to update the estimate.
+where we only have to take a single step into the future before we can 
+update the estimate.
 Updating the value estimator based on future results is the basis
 of \textit{temporal difference learning}(TD) and the quantity $R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)$
 is defined as the \textit{one-step TD-error}.
-This error describes the difference between the current estimator
-and the estimate that is based on actual current experience.
+This error describes the difference between the current estimate
+and the estimate of the next state with the reward experienced from the
+transition the new state.
 
 Generally we want to minimize the TD-error, as the function $V(S_t)$
 would then be as close to $v_\pi(S_t)$ as possible.
 In particular if this error was 0 for all states, then
-$V(S_t) = v_\pi(S_t)$ and
-\begin{align}
-   V(S_t)  & = V(S_t) + \alpha  [R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)]   \\
-           & = V(S_t) + \alpha  [V(S_t) - V(S_t)]  \\
-           & = V(S_t) 
-\end{align}
-
-\subsubsection{Multi-step TD learning}
-
-The benefit of this kind of updating scheme is that we are able to base
-part of our estimate on an already existing estimate.
-Sometimes it is useful to look at every state-change, but sometimes
-changes over a single time step can be small and maybe even insignificant.
-The one-step update scheme used a single experienced state transition to estimate
-$G_t$ using the reward earned in the transition and the estimate of the
-next state.
-Basically we want to extend this way of estimating $G_t$ to take $n$ experienced rewards
-into account, which is defined as the \textit{n-step} return,
+$V(S_t) = v_\pi(S_t)$ because 
 \begin{equation}
-    G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \dots 0 \gamma^n V(S_{t+n})
+    \begin{aligned}
+    V(S_t)  & = V(S_t) + \alpha  [R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)]   \\
+           & = V(S_t) + \alpha  [V(S_t) - V(S_t)]  \\
+           & = v_\pi(S_t) 
+    \end{aligned}
 \end{equation}
-where $n \geq 1$, $0 < t \leq T - n$ and $T - n$ is the nth time step before the terminal state
+
+\subsubsection{Multi-step TD learning}\label{sec:multi}
+
+The benefit of the updating scheme from equation \ref{eq:up}, is that we are able to base
+part of our estimate on an already existing estimate.
+It can be useful to update the estimate after very state transitions, but sometimes
+the changes over a single time step can be small and maybe even insignificant.
+The one-step update uses the experience gained from a single transition to
+estimate $G_t$.
+We can extend the estimate of $G_t$ to take $n$ experienced rewards
+into account, which is called as the \textit{n-step} return,
+\begin{equation}
+    G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \dots + \gamma^n V(S_{t+n})
+\end{equation}
+where $1 \leq n$, $0 < t \leq T - n$ and $T - n$ is the nth time step before the terminal state
 is reached.
 
 Using the n-step return allows the learning agent to base its update on the next $n$ experienced
 rewards, which means it is more likely to experience a significant change than the one-step return.
-This way of updating the estimate is espicially beneficial in tasks that only sometimes returns a reward
-- e.g. in a lot of games a score is only given to the player when an objective is completed.
+\begin{equation}
+    \begin{aligned}    
+        V(S_t) & = V(S_t) + \alpha [G^{(n)}_t - V(S_t)]\\
+        & = V(S_t) + \alpha [R_{t+1} + \gamma R_{t+2} + \dots + \gamma^n V(S_{t+n}) - V(S_t)]
+    \end{aligned}
+\end{equation}
+This way of updating the estimate is especially beneficial in tasks that only sometimes returns a reward.lot 
+E.g. in most Atari games a score is only given to the player when an objective has been completed.
 We want to find these significant changes because the entire chain of estimates 
 will be affected, making the estimate converge faster towards the real value function.
 
-\subsubsection{Eligibility traces}
+\subsubsection{Eligibility traces}\label{sec:et}
 
 % Intro til parameterized functions
 So far we have described the state-value function as a mapping from states to values.
-A problem with this approach is that it becomes infeasable to maintain this mapping
-when the state space is continuous, since there is an infinite number of states in this case.
-To make the transition from a discrete to a continous state space we can use a
-parameterized function $\hat{v}(s, \mathbf{w})$ with weights $\mathbf{w}$
-to estimate $v_\pi(s)$.
+A problem with this approach is that it becomes infeasable to maintain 
+when the state space is continuous, since there is an infinite number of states.
+To estimate the state-value function in a continous state space we can use a
+parameterized function $\hat{v}(s, \mathbf{w})$ with weights $\mathbf{w} \in \R^d$.
 Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \mathbf{w})$
 only needs to keep track of the weight vector $\mathbf{w}$, which can be seen as a long-term memory.
 There are many ways to construct $\hat{v}(s, \mathbf{w})$, but in this project we will only
 be using \textit{deep neural networks} as function approximators,
 which will be discussed in detail in section \ref{sec:deep_learning}.
 
-Now, before we could estimate the value function based on the n-step return, but
-since the value function now depends on the weights $\mathbf{w}$ we need to find a way
+In section \ref{sec:multi} we estimated the value function based on the n-step return, but
+since the value function now depends on the weights, $\mathbf{w}$, we need to find a way
 to measure how much each component of the weight vector is influencing the
 current estimate.
-To do so we can use an \textit{eligibility trace}, $\mathbf{e} \in \R^n$, that
+To do so we can use an \textit{eligibility trace}, $\mathbf{e}^{\mathbf{w}} \in \R^d$, that
 has exactly as many components as the weight vector.
 
 Generally we want to use the elegibility trace to improve the value function by
-changing its weights $\mathbf{w}$ based on \textit{gradient ascent}.
+changing its weights, $\mathbf{w}$, using \textit{gradient ascent}.
 The eligibility trace describes the elegibility of its corresponding component in $\mathbf{w}$
-- in other words which direction to update the weight to reach a maximum for $\hat{v}(s, \mathbf{w})$.
+- in other words it describes the recent tendency in directional changes needed to be made
+to maximize $\hat{v}(s, \mathbf{w})$.
 Thus an elegibility trace for the value estimator can be updated as
 \begin{equation}
     \mathbf{e}^\mathbf{w} = \lambda \mathbf{e}^\mathbf{w} + \nabla_\mathbf{w} \hat{v}(s, \mathbf{w})
 \end{equation}
 where $\lambda$ is a discounting factor used to decrease the elegibility of a component
-over time, as it gets closer to a maximum.
-Now, the trace describes the trend of the most recent gradients of the value function
+over time.
+The trace describes the trend of the most recent gradients of the value function
 w.r.t $\mathbf{w}$, but we also want to base the update of the weights on their
 performance.
-Since we want the estimate of the value function to improve as we
-experience the effect of our actions we genereally want to
-update the weights proportionally to the one-step TD-error introduced in
-section \ref{sec:td}.
-A low TD-error means that we don't have to change much as the value estimator is
+Since we want to improve the estimate of the value function, as we experience the effect of our actions,
+we update the weights proportionally to the one-step TD-error discussed in section \ref{sec:td}.
+A low TD-error means that we don't have to change much, since the value estimator is
 close to a maximum, while a high error means that we need to take a larger step
-in the directions from the elegibility trace as we are still far from the maximum.
+in the directions of the elegibility trace as we are still far from the maximum.
 An update based on this approach would look like this
 \begin{equation}
     \mathbf{w} = \mathbf{w} + \eta \delta \nabla e^\mathbf{w}
