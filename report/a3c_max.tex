@@ -1,0 +1,147 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+% Intro til A3C
+
+\section{Asynchronous Advantage Actor-Critic}
+
+A problem with the Actor-Critic method is that training the model can become very time consuming,
+when it is solving challenging tasks such as Atari games.
+To speed up the training process it is possible to use 
+multiple Actor-Critic models to 
+solve the problem locally in parallel.
+These models share a set of parameters, which they update asynchronously,
+and thus, each model can benefit from the experience gained by the other models.
+
+% Uformel forklaring
+Each Actor-Critic model interacts with its own enviornment
+wich means the training becomes more diverse, since it is independent of the other
+environments.
+Diverse experience stabilizes the training process,
+since more situations will be encountered,
+while the local models have approximately the same parameters.
+The major challenge of asynchronous training is therefore to decide how
+the local models can influence the global paramaters in a healthy
+way.
+
+The approach presented in \cite{a3c} use several local models
+and a single global model, whose only purpose is to keep track of the global parameters,
+to train asynchronously.
+Each of the local models use a copy of the global parameters to run through a problem
+and update the global parameters based on the local experience.
+% Global updating scheme
+The global update should be performed such that
+the elegibility of each component determines the size of the
+gradient step.
+In this project we use \textit{Root Mean Square propagation} (RMSprop)
+to perform the asynchronous update of the global parameters.
+RMSprop is an approach to \textit{gradient descent} 
+that uses the magnitude of the recent gradients to
+determine the step-size of the update.
+The update is given by 
+\begin{equation}
+    \theta = \theta - \eta \frac{\Delta \theta}{\sqrt{g + \epsilon}}
+\end{equation}
+where $\eta$ is the learning rate of the gradient descent, and 
+\begin{equation}
+    g = \alpha g + (1 - \alpha) \Delta \theta^2
+\end{equation}
+Here $g$ is the magnitude of the gradient and $\alpha$ works as a decay rate, determining how much each new update
+can influence the magnitude and how much the previous magnitude fades away.
+In this project $g$ is shared between all local models, which has a stabilizing
+effect, since “bad” gradient steps won't have as much influence as they would,
+if each local model had its own $g$.
+
+We want to update the weights of the global model
+when a significant change has occured.
+To decrease the amount of insignificant updates we accumulate the gradients
+in each of the local models, a number of steps, before performing the asynchronous update.
+
+% Advantage
+In section \ref{actor_critic} we used the one-step TD-error to determine
+whether an action was good or bad and updated the model accordingly, in order to 
+reinforce good behaviour and likewise discourage
+the model from taking actions that have led to a bad result in the past.
+If we used the one-step TD-error, we would be performing
+a lot of updates where no significant changes has happened, so
+instead we use the \textit{advantage} gained from taking an action.
+The advantage is computed after performing an action by comparing the experienced return the
+expected return.
+The advantage is given by
+\begin{equation}
+    A = R - \hat{v}(s, \mathbf{w}')
+\end{equation}
+where $R$ is the experienced return that followed from taking
+a certain action, and $\hat{v}(s, \mathbf{w}')$ 
+is the estimate of the expected return from state $s$.
+
+As mentioned previously, we want to accumulate the directional
+steps we should take, to increase the chance of encountering a significant change.
+This accumulation resembles the gradient ascent from \ref{eq:ac_theta} and
+is given by
+\begin{equation}
+    d\theta' = d\theta' + \nabla_{\theta'} \log \pi(a|s, \theta')(R - \hat{v}(s, \mathbf{w}'))
+\end{equation}
+The key difference lie in the usage of the advantage.
+As described in section \ref{sec:actor_critic} taking the gradient of $\log \pi(a|s, \theta')$
+w.r.t. to $\theta'$ is an attempt to normalize the influence of all actions, such that the
+gradient steps of actions that are rarely picked should be weighted the same
+as those belonging to actions that are picked more often.
+The advantage of taking action $a$ determines in which direction the gradient step
+is taken resulting in actions that perform poorly being less likely to be sampled
+and vice versa.
+
+In the previous sections we updated the value function proportionally to the
+one-step TD-error.
+Since we are using the n-step return, $R$, we can use the advantage, $R - \hat{v}(s, \mathbf{w'})$,
+as an error measure.
+We want the expected return of a state to be as close to the experienced return as possible,
+so to emphasize this, we use the square advantage to express the magnitude of the
+gradient step that should be taken in the asynchronous update.
+In \cite{a3c} this update is specified as
+\begin{equation}
+    d\mathbf{w}' = d\mathbf{w}' + \frac{\partial (R - \hat{v}(s, \mathbf{w'}))^2}{\partial \mathbf{w}'}
+\end{equation}
+which is the same as taking the gradient w.r.t. $\mathbf{w}'$ since
+\begin{equation*}
+    \begin{aligned}
+        \frac{\partial (R - \hat{v}(s, \mathbf{w}'))^2}{\partial \mathbf{w}'} & = \bigg(
+            \frac{\partial (R - \hat{v}(s, \mathbf{w}'))^2}{\partial \mathbf{w}'_1},
+            \frac{\partial (R - \hat{v}(s, \mathbf{w}'))^2}{\partial \mathbf{w}'_2}, \dots,
+            \frac{\partial (R - \hat{v}(s, \mathbf{w}'))^2}{\partial \mathbf{w}'_d} \bigg) \\
+            & = \nabla_{\mathbf{w}'} (R - \hat{v}(s, \mathbf{w}'))^2
+    \end{aligned}
+\end{equation*}
+where $\mathbf{w}'_1, \mathbf{w}'_2, \dots, \mathbf{w}'_d$ are the components of $\mathbf{w}'$.
+In other words whenever the advantage is large, we want the gradient step to be big as well.
+
+As an extra measure to favor exploration, an \textit{entropy} has been added
+to the policy approximator of the local models.
+The entropy of the policy corresponds to the spread of action probabilities.
+This means that the entropy will be large when the policy is close to being
+uniform and small when the probabilities approach determinism.
+In short, the entropy is used to discourage premature convergence
+by encouraging the model to be more conservative about how sure it is
+of which action is correct.
+Using the entropy, $H(\pi(s, \theta'))$, alters the accumulation of the gradients
+of the policy, such that
+\begin{equation}
+    \begin{aliegned}
+        d\theta' & = d\theta' + \nabla_{\theta'} \log \pi(a|s, \theta')(R - \hat{v}(s, \mathbf{w}')) + \beta \nabla_{\theta'} H(\pi(s, \theta'))\\
+                 & = d\theta' + \nabla_{\theta'} (\log \pi(a|s, \theta')(R - \hat{v}(s, \mathbf{w}')) + \beta H(\pi(s, \theta')))
+    \end{aliegned}
+\end{equation}
+
+The advantages of the A3C algorithm compared to the regular Actor-Critic method
+are increased stability and less time consumed by training.
+By running multiple Actor-Critic models in parallel, more paths through the environment are explored
+at the same time.
+All local models try to maximize the return from the state that they're in, which means that
+the global parameters are influenced by a lot of different factors at the same time.
+The many different updates increase the stability of the training by having
+extreme gradient updates cancel each other out.
+Using more than one model also decreases the time spent training, since
+more state-action transitions can be experienced at the same time.
+
+\end{document}
