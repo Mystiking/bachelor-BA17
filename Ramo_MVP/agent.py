@@ -3,7 +3,7 @@ import numpy as np
 
 class Agent():
     def __init__(self, session, action_size, model='mnih',
-optimizer=tf.train.AdamOptimizer(1e-4)):
+        optimizer=tf.train.RMSPropOptimizer(1e-4, epsilon=1e-8, decay=0.99)):
 
         self.action_size = action_size
         self.optimizer = optimizer
