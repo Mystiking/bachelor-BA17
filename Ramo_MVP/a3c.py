@@ -11,6 +11,7 @@ from time import time, sleep, gmtime, strftime
 import gym
 import queue
 from custom_gym import CustomGym
+#from custom_gym_classic_control import CustomGymClassicControl
 import random
 from agent import Agent
 
@@ -21,7 +22,7 @@ T_MAX = 100000000
 NUM_THREADS = 8
 INITIAL_LEARNING_RATE = 1e-4
 DISCOUNT_FACTOR = 0.99
-VERBOSE_EVERY = 200
+VERBOSE_EVERY = 40000
 TESTING = False
 
 I_ASYNC_UPDATE = 5
@@ -86,6 +87,8 @@ def async_trainer(agent, env, sess, thread_idx, T_queue, summary, saver,
             # probabilities. We do this anyway to prevent us having to compute
             # the baseline value separately.
             policy, value = agent.get_policy_and_value(state)
+            if T % 2000 == 0:
+                print(policy)
             action_idx = np.random.choice(agent.action_size, p=policy)
 
             # Take the action and get the next state, reward and terminal.
@@ -119,6 +122,7 @@ def async_trainer(agent, env, sess, thread_idx, T_queue, summary, saver,
         # Reverse the batch target values, so they are in the correct order
         # again.
         batch_target_values.reverse()
+
         # Test batch targets
         if TESTING:
             temp_rewards = batch_rewards + [last_R]
@@ -199,8 +203,7 @@ def a3c(game_name, num_threads=8, restore=None, save_path='model'):
     for _ in range(num_threads+1):
         gym_env = gym.make(game_name)
         if game_name == 'CartPole-v0':
-            pass
-            #env = CustomGymClassicControl(game_name)
+            env = CustomGymClassicControl(game_name)
         else:
             print("Assuming ATARI game and playing with pixels")
             env = CustomGym(game_name)
@@ -263,7 +266,7 @@ def test_equals(arr1, arr2, eps):
 
 def main(argv):
     num_threads = NUM_THREADS
-    game_name = 'SpaceInvaders-v0'
+    game_name = 'Pong-v0'
     save_path = None
     restore = None
     try:
