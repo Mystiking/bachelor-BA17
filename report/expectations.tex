@@ -1,0 +1,29 @@
+\documentclass[11pt]{article}
+\usepackage{mypackages}
+\begin{document}
+
+% Intro til A3C
+
+\section{Expectations and experiments}
+
+The aim for this project is to use deep reinforcement learning for solving a simple reinforcement learning problem, analyze and discus the effect of different amounts of thread in asynchronous methods for deep reinforcement learning. For doing this we have set up some experiments. In section \ref{sec:improving_policies} we discussed how Actor-Critic algorithms works, and how to use eligibility traces combined with Actor-Critic. We have implemented the Actor-Critic algorithm using eligibilty traces, and for test our implementation we will use the CartPole problem discussed in section \ref{sec:Data}. We have also implemented the Advantage Actor-Critic methods discussed in section \ref{sec:a3c}, to test the implementation we using both the CartPole and the following Atari environments.
+
+\subsection{Experimental Setup}
+
+\subsubsection{Cartpole Actor-Critic using eligibilty traces}
+
+The experiments performed on 
+
+
+\subsubsection{Cartpole Advantage Actor-Critic (A3C)}
+
+
+\subsubsection{Atari Advantage Actor-Critic (A3C)}
+
+The experiments performed on the Atari games, used the following setup. Each experiments use either $1$, $2$, $4$, $8$ or $16$ local actors and $1$ global actor. Each local actor and the global one use the same neural network setup, with an input layer correspond to the input image after prepossessing discussed in section \ref{sec:atari}, then we use a convolutional layer with $16$ filters of size $8 \times 8$ with stride $4$, followed by a convolutional layer with $32$ filters of size $4 \times 4$ with stride $2$, then we have a dense layer using 256 units, all the 3 hidden layers use rectifier (ReLU) as activation function. We use this network for estimating both the state-value function and the policy, so after the hidden layers, we have two output layers one with a single output unit using a linear activation, representing the state action-value function. The other output layer have a output unit per available action in the problem and using softmax as activation, for present the probability of selecting an action, this output layer correspond to estimating the policy. All local actors updating the global weights after every 5 iterations using shared RMSProp for optimization, with a learning rate of $0.0001$, and a of $\alpha = 0.99$. For regularizing the influence the entropy have on the policy gradient, we mutiply the entorpy with $\beta = 0.01$. We also regularize the stepsize for the gradients of the state-value approximator by multipying with $\tau = 0.5$
+
+
+
+
+\subsubsection{Atari Advantage Actor-Critic (A3C)}
+\end{document}
