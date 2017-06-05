@@ -4,19 +4,30 @@
 
 \maketitle
 
-\section{Using deep learning for approximating functions}\label{sec:deep_learning}
+\section{Deep learning}\label{sec:deep_learning}
 
-In the last section we claimed that a neural network could be used to approximate the
-state-value and action-value functions.
-Generally for a function $f(x)$ the neural network tries to approximate $f^\sim(x)$
-such that $f^\sim(x)$ varies the least from $f(x)$ for all $x$ in the input space\cite{DeepLearningBook}.
-It does so by adjusting its parameters based on experience - data for which $f(x)$ is already known,
-that can be used to compute how well the current approximation $f^\sim(x)$ is performing.
+In section \ref{sec:et} we mentioned that the state-value function and policy
+can be estimated with a neural network.
+The network can be seen as a function $f^\sim(x, w)$ that approximates a
+function $f(x)$.
+The parameters of the network, $w$, can be updated in many different ways, and in
+this project we will update them based on the schemes described in section \ref{sec:a3c}
+and \ref{sec:actor_critic}.
 
-This data is exactly what is available in the agent-environtment model, when there is a natural terminal state,
-since we can use the experienced actual returns to update the weights of the models.
+\subsection{Layers, neurons and connections}
 
-\subsubsection{Layers, neurons and connections}
+To approximate $f(x)$ the network uses a combination of simpler functions.
+More formally, a neural network consists of a number of \textit{layers},
+that each represent a function $f^i : \R^{d} \to \R^k$, for a one dimensional layer.
+This means the network can be seen as a composition of the functions
+\begin{equation}
+    f^\sim(x) = f^n(f^{n-1}( \cdots f^1(x) \cdots))
+\end{equation}
+for a network with $n$ layers.
+
+The layers of the network inbetween the input and output layer, are called
+\textit{hidden layers}, because we won't be directly seeing ther output
+\cite{DeepLearningBook}.
 
 Instead of trying to approximate the function $f^\sim(x)$ directly,
 a neural network uses a lot of less complex functions.
@@ -24,35 +35,32 @@ The beginning of the network can then be pretty simple, but by the combination o
 the simpler functions, it is able to solve complex problems in the end.
 We call this structure a hierarchy of concepts, where each concept can be described in terms
 of the previous and simpler concepts\cite{DeepLearningBook}.
-
-More formally, a neural network consists of \textit{layers} that each represent a concept, which
-when connected are able to solve the complex problem at hand.
-With this definition of a neural network the approximation function $f^{\sim}(x)$ can be
-defined as
-\begin{equation}
-    f^{\sim}(x) = f^{k}(f^{k-1}( \cdots f^{0}(x) \cdots))
-\end{equation}
-for a network with $k$ layers.
-The only layers that have their dimensions restrained are the first and last, since they are defined by the
-dimensions of the input data and the output of the true function, respectively.
-This means the layers in between can have arbitrary shapes and
-since we won't be seeing the output of those layers, we call them \textit{hidden layers}.
+Each layer consists of a number of \textit{neurons} that are connected to the
+neurons of the next layer
 \begin{figure}[!h]
     \centering
     \includegraphics[width=10cm]{include/layers.png}
     \caption{A series of layers in a fully connected neural network.}
     \label{fig:layers}
 \end{figure}
-Each layer consists of a number of \textit{neurons} that are connected to the neurons of the
-next layer.
 
-Each neuron transforms its series of input signals into a single output signal which is sent to
-each neuron in the following layer through \textit{weighted connections}, where
-the weights of the connections define the importance of the signals.
-The main purpose of hidden layers is to extract the key features of the original input
-and they do so through the use of \textit{activation functions}.
-Activation functions transform the weighted input signals into a single output that
-describes a feature.
+A neuron is a construct that transforms a series of input signals into a signle output signal.
+Each of the input signals are sent through a \textit{weighted connection}, which means
+that the input $a_i$ to neuron $z_i$ is given by
+\begin{equation}
+    a_i = \sum\limits_{j} w_{ij}* z_j
+\end{equation}
+for all neurons $z_j$ with a connection to $z_i$.
+
+The purpose of each of the hidden layers is to extract some features from the input.
+It does so by using an \textit{activation function}, $h : \R^d \to \R$, on the
+weighted input it receives.
+By combining the features extracted by the different hidden layers, the network
+is trying to approximate $f(x)$.
+The only way to change the network is by altering the weighted connections
+between the neurons, and the general idea is to change the weights such that
+$f^\sim(x)$ varies the least from $f(x)$ for all $x$.
+
 %%%% A drawing of a neuron “up close”
 \begin{figure}[!h]
     \centering
@@ -63,21 +71,20 @@ describes a feature.
 
 The choice of activation function depends on the task the
 network is supposed to solve.
-E.g. when learning to play Atari games we generally want to estimate a policy.
-This policy describes the probabilities of taking each available action
-in the given state.
-For this particular task the \textit{softmax} function can be used as activation function
-in the output layer.
+E.g. when learning to play Atari games we want to estimate a policy,
+that maximizes the expected return for each state.
+To produce a probability distribution we can use the softmax function in the
+final layer.
 The softmax is defined as
 \begin{equation}
     \text{softmax}(x) = \frac{exp(x_i)}{\sum\limits_{k=1}^K exp(x_k)}, \text{ for } i = 1, \dots, K
 \end{equation}
-for a $k$ dimensional input $x$ and is a generalization of the logistic function shown below.
-
+for a $k$ dimensional input $x$ and is a generalization of the sigmoid function
+shown below.
 \begin{figure}[!h]
     \centering
     \includegraphics[width=15cm]{include/sigmoid.png}
-    \caption{Plot of the logistic function.}
+    \caption{Plot of the sigmoid function.}
     \label{fig:softmax}
 \end{figure}
 
@@ -88,23 +95,24 @@ must perform\cite{DeepLearningBook}.
 \subsubsection{Learning from multidimensional input}
 
 To process the high dimensional frames from the Atari games we will be using
-a \textit{convolutional neural network}.
+a convolutional neural network (CNN).
 A convolutional neural network typically performs three operations - a \textit{convolution},
 a \textit{pooling} and an activation.
 
-A convolution in two dimensions of a discrete image $I$ with filter kernel $K$
+This means that the input to the CNN will be a two dimensional input with a single
+channel. A convolution in two dimensions of a discrete image $I$ with filter kernel $K$
 is given by 
 \begin{equation}
     S(i, j) = (I \ast K)(i, j) = \sum\limits_m \sum\limits_n I(m, n) * K(i - m, j - n)
 \end{equation}
 where the kernel filter $K$ is a function $K : \R^{(d, k)} \to \R$.
-A 2d convolutional layer uses the spatial structure in the input data to contruct a feature map
+A 2d convolutional layer takes advantage of the spatial structure in the input data to contruct a feature map
 using the linear filter $K$.
-Here the kernel filter is the weights of the connections in the network.
 A non-linear function is then applied to the feature map elements resulting from the convolution,
 and the process as a whole can be seen as neurons with shared weights\cite{IgelConv}.
 
-In the network the kernel filter is used as weights and can be represented as a $d \times k$ dimensional matrix.
+So in the network the kernel filter is the weights shared between the neurons of a
+singe convolutional layer, which can be represented as a $d \times k$ dimensional matrix.
 $$
 K =
 \begin{bmatrix}
@@ -114,28 +122,24 @@ K =
     w_{d,1 } & w_{d, 2} & \hdots & w_{d, k} \\
 \end{bmatrix}
 $$
-Each element in the resulting feature map is weighted based on its distance to the kernel center
-and this can be seen as a neighbourhood function.
-
-Given a $4 \times 4$ input image and a $3 \times 3$ kernel filter a convolution
-would look like this
+Each element in the resulting feature map descibres the weighted sum of its neighbouring
+pixels, which means the result of a convolution can be seen as a feature exracted from
+the input.
+For a $4 \times 4$ input image and a $3 \times 3$ kernel filter the convolution
+would be given by
 %%% 2d convolution
-\begin{figure}[!h]\label{con2}
+\begin{figure}[!h]\label{conv2}
     \centering
     \includegraphics[width=10cm]{include/conv_2.png}
     \caption{A 2d convolution on an image which produces a \textit{feature} map.}
     \label{fig:conv}
 \end{figure}
-
-A problem with the raw convolution shown in figure \ref{conv2} is that
-pixels at the boundary of the image are lost, which means some of the
-features of the input may be lost.
-To deal with this boundary issue we make use of zero padding.
-We simply add zeros to the border of each image until the kernel
-filter fits around each pixel.
-This maintains the dimensions of the original image, since the pixels that are lost, now are
-part of the padding.
-
+A problem with the convolution shown in figure \ref{conv2} is that
+pixels at the boundary of the image are lost.
+To deal with this issue we make use of zero padding.
+By adding zeros to the border of each image, until the kernel
+filter fits around each pixel, the image can maintain its dimensions, since the
+padding is all that is lost now.
 %%% Zero padded 2d convolution
 \begin{figure}[!h]\label{con2}
     \centering
@@ -143,38 +147,39 @@ part of the padding.
     \caption{The effect of zero padding the input image.}
     \label{fig:conv}
 \end{figure}
-
-Each pixel is now a weighted sum of its neighbouring pixels
-which means that the result of the convolution is features from
-the original input.
-The feature map now consists of more separated objects than the original input,
-which we means we can more safely reduce the dimensionality of without losing much information - 
-this is called pooling and is used to support \textit{translation invariance}.
+The feature map consists of more separated objects than the original input,
+which means we can more safely reduce the dimensionality without losing much information.
+This reduction is called a pooling and is used to support
+\textit{translation invariance}.
 Translation invariance means that the features of the network should be able to
 be extracted, regardless of their position in the feature map.
 In an Atari game most objects move, while maintaining their original shape so being able to
 extract information about objects independent of their position is very useful.
 
-Instead of doing pooling and convolutions in two separate steps, we will be using 
-convolutions \textit{with stride}.
-What this means is that we we won't be be applying the convolution to 
-every element of the input, but instead only the \textit{n'th} element.
-An example of a one dimensional convolution with stride is visualized below.
-
+Instead of performing both a pooling and a convolutions in two separate steps,
+we will be using convolutions \textit{with stride}.
+This means we won't be applying the convolution to 
+every element of the input, but instead every \textit{n'th} element,
 %%%%% Strides
 \begin{figure}[!h]\label{con2}
     \centering
     \includegraphics[width=10cm]{include/strides.png}
-    \caption{A convolution with stride $2$ of an input using the kernel filter K. Only every second
-        element of the resulting feature map is sent to the next layer.}
+    \caption{A convolution in one dimension, using a stride of 2.
+             This is effectively halving the size of the input, since
+             the convolution is skipping every second element.}
     \label{fig:conv}
 \end{figure}
-
 Here the convolution skips every second element, resulting in a downsampling
 of the input.
-The pooling operation usually computes the maximum or average of a region of a feature map,
-and using convolution with strides emulates this behaviour since the convolution
-can be seen as a weighted sum of neighbouring pixels.
+In two dimensions a convolution can be seen as the kernel moving across
+an image, which means the stride is the amount of pixels the filter is moved.
+Therefore the dimensions of an image can be halved by using a stride of $(2, 2)$, meaning
+the stride is performed in both dimensions.
+
+The pooling operation usually computes the maximum or average of a region of
+a feature map, and using convolution with strides emulates
+this behaviour since the convolution
+is seen as a weighted sum of neighbouring pixels.
 
 
 %%% Move this to after Policy Gradients
