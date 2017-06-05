@@ -3,11 +3,11 @@
 \begin{document}
 
 
-\subsection{Updating the weights of the network}
+\subsection{Updating the weights of a network}
 
 In section \ref{sec:actor_critic} and \ref{sec:a3c} we discussed different
-approaches available in regards to updating the weights of the policy and value estimator.
-These approaches all have in common that they are based on the directional values
+approaches available to update the weights of the policy and value estimator.
+These approaches are based on the directional values
 expressed by the gradient of the estimator, or an error measure containing
 the estimator.
 Taking the gradient of a function $f : \R^n \to \R$ with respects to
@@ -22,97 +22,81 @@ some parameters $x \in \R^n$ is given by
       \end{pmatrix}
 \end{equation}
 
-Now, in a neural netowkr it is difficult to take the gradient of the
+Now, in a neural netwokr it is difficult to take the gradient of the
 entire network at once, since it consists of a number of layers
 using different activation functions and a lot of parameters.
+To solve this issue the general approach to computing the gradient of a network
+is to use \textit{back-propagation} as presented in \cite{IgelBackProp}
+and \cite{DeepLearningBook}.
 
 Consider a network consisting of $d$ input neurons, $M$ hidden neruons and $K$ output neurons,
 estimating the function $f : \R^d \to \R^K$.
 Each neuron can be denoted as $z_i$, where neurons for which $i < d$ are the input neurons, $d < i \leq M + d$ are the hiden neurons
 and $M + d < i \leq M + d + K$ are the output neurons.
-As defined in section \ref{activation_functions} each neuron $z_i$ can be seen as a weighted activation of its input.
-For the input neurons each neuron sends the value of the input to the next layer, meaning $z_i = x_i$ for
-$i < d$.
-In the hidden neurons and the output neurons the input is activated.
-For the hidden neurons this means $z_i = h(a_i)$ and for the output that $z_i = \sigma(a_i)$, where
-$a_i = \sum\limits_{j} w_{ij} * z_{j}$ is the weighted sum of the input to the ith neuron.
+As described in section \ref{sec:lnc} each neuron $z_i$ can be seen as a weighted activation of its input.
+For the neurons in the hidden layers and the output layer, this means $z_i = h(a_i)$, where 
+$a_i = \sum_{j} w_{ij} * z_{j}$ is the weighted sum of the input to the ith neuron and $h$ is an arbitrary
+activation function.
 
-Previously we updated the weights of an estimator with regards to some error measure $E$
-describing by the error in the predictions of the network, $\hat{y}$, and the true values $y$.
-Given $N$ training datapoints the error measure is defined as
-\begin{equation}
-    E = \sum\limits_{n=1}^N E_n
+Previously we updated the weights of an estimator with regards to some performance measure $\rho$ 
+describing how well the policy and value functions are performing. 
+Now, we want to find the directional changes for all weights in the network
+in regards to the performance measure.
+If all $h$ in the network are differentiable this results in the partial derivatives
+\begin{equation}\label{part}
+    \frac{\partial \rho}{\partial w_{ij}}
 \end{equation}
-where $E_n$ measure the error of each point $n$.
-If all $h$ and $\sigma$ are differentiable this results in the partial derivatives
-\begin{equation*}
-    \frac{\partial E}{\partial w_{ij}} = \sum\limits_{n=1}^N \frac{\partial E_n}{\partial w_{ij}}
-\end{equation*}
-for each weight in the network from $z_j$ to $z_i$.
-Now, we want to use the chain rule of calculus, such that
-\begin{equation*}
-    \frac{\partial E_n}{\partial w_{ij}} = \frac{\partial E_n}{\partial a_{i}} * \frac{\partial a_i}{\partial w_{ij}}
-\end{equation*}
-where $\frac{\partial E_n}{\partial a_{i}} = \delta_i$ and $\frac{\partial a_i}{\partial w_{ij}} = z_i$.
+describing the directional change for each weighted connection in the network from $z_j$ to $z_i$.
+
+If we start by looking at this partial derivative in the K output neurons of the
+neural network, we can apply the chain rule of calculus to \ref{part},
+\begin{equation}
+    \frac{\partial \rho}{\partial w_{ij}} = \frac{\partial \rho}{\partial a_i} \frac{\partial a_i}{\partial w_{ij}} 
+\end{equation}
+since $w_{ij}$ is a part of $a_i$.
+$\frac{\partial \rho}{\partial a_i}$ is denoted as $\delta_i$ and $\frac{\partial a_i}{\partial w_{ij}} = z_i$ since
+$\frac{\partial a_i}{\partial w_{ij}} = \frac{\partial}{\partial w_{ij}} \sum_{d} w_{id} * z_d = z_j$.
 This means
-\begin{equation}\label{eq:back_prop}
-    \frac{\partial E_n}{\partial w_{ij}} = \delta_i * z_j
+\begin{equation}\label{eq:der}
+    \frac{\partial \rho}{\partial w_{ij}} = \delta_i * z_j  
 \end{equation}
-Since we are using the chain rule to compute the partial derivatives we start by looking at
-the partial in the output units.
-For each output units $z_i$ where $M + d < i \leq M + d + K$,
-\begin{equation*}
-    \delta_i = \frac{\partial E_n}{\partial a_i} = \frac{\partial E_n}{\partial z_i} * \frac{\partial z_i}{\partial a_i} = \frac{\partial z_i}{\partial a_i} * \frac{\partial E_n}{\partial z_i}
-\end{equation*}
-Now, since $z_i = \sigma(a_i)$ then $\frac{\partial z_i}{\partial a_i} = \frac{\partial}{\partial a_i} \sigma(a_i) = \sigma'(a_i)$,
-which means
-\begin{equation*}
-    \delta_i = \sigma'(a_i) * \frac{\partial E_n}{\partial z_i} 
-\end{equation*}
-Because $z_i$ is an output neuron it corresponds to the predicted value of the ith component of $\hat{y}$,
-but since there are $M + k$ neurons ahead of it $z_i = \hat{y}_{i - M - d}$, giving us
-\begin{equation*}
-    \delta_i = \sigma'(a_i) * \frac{\partial E_n}{\partial \hat{y}_{i - M - d}} 
-\end{equation*}
-
-Now, to compute $\delta_i$ for the hidden neurons, the chain rule can be applied again to obtain
-\begin{equation*}
-    \begin{aligned}
-        \delta_i & = \frac{\partial E_n}{\partial w_{ij}}\\
-                 & = \sum\limits_{k=i+1}^{M + d + K} \frac{\partial E_n}{\partial a_k} * \frac{\partial a_k}{\partial a_i}\\
-    \end{aligned}
-\end{equation*}
-In other words we are able to compute the current $\delta$ based on the following partial derivatives,
-since $\frac{\partial E_n}{\partial a_k} = \delta_k$.
-We can also extend $\frac{\partial a_k}{\partial a_i}$ to $\frac{\partial a_k}{\partial z_i} * \frac{\partial z_i}{\partial a_i}$, using the
-chain rule yet again, which means
-\begin{equation*}
-    \begin{aligned}
-        \delta_i = \sum\limits_{k=i+1}^{M + d + K} \delta_k * \frac{\partial a_k}{\partial z_i} * \frac{\partial z_i}{\partial a_i}
-    \end{aligned}
-\end{equation*}
-
-The quantity $\frac{\partial z_i}{\partial a_i}$ is simply the derivative of $z_i$, because
-\begin{equation*}
-    \frac{\partial z_i}{\partial a_i} = \frac{\partial}{\partial a_i} h(a_i) = h'(a_i)
-\end{equation*}
-and $\frac{\partial a_k}{\partial z_i}$ is the weight between the neurons $z_i$ and $z_k$,
-since
-\begin{equation*}
-    \frac{\partial a_k}{\partial z_i} = \frac{\partial}{\partial z_i} \sum\limits_{j = 1}^k w_{kj} * z_j
-    = w_{ki}
-\end{equation*}
-Thus, $\delta_i$ can be expressed as
+For each of the output units, $\delta$ can be found as
 \begin{equation}
-    \delta_i = h'(a_i) \sum\limits_{k=i+1}^{M + d + K} w_{ki} * \delta_k
+    \begin{aligned}
+        \delta_i & = \frac{\partial \rho}{\partial a_i}\\
+        & = \frac{\partial \rho}{\partial z_i} \frac{\partial z_i}{\partial a_i}\\
+        & = h'(a_i) \frac{\partial \rho}{\partial z_i} 
+    \end{aligned}
 \end{equation}
-
-Therefore, when we want compute the gradients of a neural network, we start by computing the $\delta$'s from the last output neuron
-and then back-tracking all the way back to the first hidden neuron, giving us
-$\delta_d, \delta_{d+1}, \dots, \delta_{d + M + K}$.
-Using equation \ref{eq:backprop} we can then compute the partial derivatives for each of the datapoints in the input
-data as $\frac{\partial E_n}{\partial w_{ij}} = \delta_i * z_j$.
-This process is called \textit{back-propagation} and is used to evaluate the analytically computed
-gradient in a computationally inexpensive manner.
+since $\frac{\partial z_i}{\partial a_i} =  \frac{\partial}{\partial a_i} h(a_i) = h'(a_i)$.
+Therefore the partial derivative of the performance measure with respects to a weight from
+an output neuron can be found as
+\begin{equation}
+    \frac{\partial \rho}{\partial w_{ij}} = h'(a_i) \frac{\partial \rho}{\partial z_i} * z_j
+\end{equation}
+Now, this only holds for the output neurons because their output isn't
+used by any other neuron.
+For the hidden neurons we have to take all subsequent neurons into account as
+well, since their output is propagated forward through the network.
+Thus,
+\begin{equation}
+    \delta_i = \sum\limits_{k=i+1}^{M + d + K} \frac{\partial \rho}{\partial a_k} \frac{\partial a_k}{\partial a_i} 
+\end{equation}
+for all $d > i \leq M + d + K$ - the hidden neurons.
+Since $\frac{\partial \rho}{\partial a_k} = \delta_k$ and
+$\frac{\partial a_k}{\partial a_i} = \frac{\partial a_k}{\partial z_i} \frac{\partial z_i}{\partial a_i}$ we
+can derive $\delta_i$ as
+\begin{equation}
+    \begin{aligned}
+        \delta_i & = \sum\limits_{k=i+1}^{M + d + K} \delta_k \frac{\partial a_k}{\partial z_i} \frac{\partial z_i}{\partial a_i}\\
+        & = \sum\limits_{k=i+1}^{M + d + K} \delta_k * w_{ki} *  h'(a_i)\\
+        & = h'(a_i) \sum\limits_{k=i+1}^{M + d + K} \delta_k * w_{ki}
+    \end{aligned}
+\end{equation}
+because $\frac{\partial a_k}{\partial z_i} = \frac{\partial}{\partial z_i} \sum_{j} w_{kj} * z_j = w_{ki}$.
+Using equation \ref{eq:der} we can then compute the partial derivatives for all output and hidden neurons.
+It is important to note that the partial derivatives have to be computed in the reverse order,
+since each the derivative in each neuron is dependant on the ones from all the neurons later
+in the network.
 
 \end{document}
