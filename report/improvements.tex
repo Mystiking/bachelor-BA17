@@ -98,7 +98,7 @@ influencing the policy.
 %An advantage of using Actor-Critic methods is that the split into a actor and critic, reduces the variance of the function approximation, because the update step size for the policy parameters is defined relative to estimated value from critic.\cite{actCrit}
 
 
-\subsubsection{Applying eligibility traces to the Actor-Critic method}
+\subsubsection{Applying eligibility traces to the Actor-Critic method}\label{sec:actor_critic_el}
 
 To increase the stability of the Actor-Critic method, we can extend it to use eligibility traces
 for the weights of the policy and value estimators.
