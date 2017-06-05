@@ -60,7 +60,7 @@ as shown below.
     \pi(a | s, \theta_t) = \frac{e^{h(s,a,\theta_t)}}{\sum\limits_{a} e^{h(s,a,\theta_t)}}
 \end{equation}
 
-\subsubsection{The Actor-Critic model}
+\subsubsection{The Actor-Critic model}\label{sec:actor_critic}
 
 In this next step we want to combine the use of both a parameterized value function, $\hat{v}(s, \mathbf{w}_t)$,
 and a parameterized policy, $\pi(a|s, \theta_t)$.
@@ -77,7 +77,7 @@ compute the one-step TD-error from section \ref{sec:td}.
 We can use this error to update the parameters of the policy,
 by using it as a way to weight the performance measure - if the TD-error is low,
 the gradient step should be small, and vice versa.
-\begin{equation}
+\begin{equation}\label{eq:ac_theta}
     \theta_{t+1} = \theta_t + \delta_t \nabla_{\theta} \log \pi(A | S, \theta)
 \end{equation}
 This way of using the value function and policy is called an

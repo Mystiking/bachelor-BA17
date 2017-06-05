@@ -127,10 +127,10 @@ of which action is correct.
 Using the entropy, $H(\pi(s, \theta'))$, alters the accumulation of the gradients
 of the policy, such that
 \begin{equation}
-    \begin{aliegned}
+    \begin{aligned}
         d\theta' & = d\theta' + \nabla_{\theta'} \log \pi(a|s, \theta')(R - \hat{v}(s, \mathbf{w}')) + \beta \nabla_{\theta'} H(\pi(s, \theta'))\\
                  & = d\theta' + \nabla_{\theta'} (\log \pi(a|s, \theta')(R - \hat{v}(s, \mathbf{w}')) + \beta H(\pi(s, \theta')))
-    \end{aliegned}
+    \end{aligned}
 \end{equation}
 
 The advantages of the A3C algorithm compared to the regular Actor-Critic method
