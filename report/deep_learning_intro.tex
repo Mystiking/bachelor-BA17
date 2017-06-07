@@ -89,18 +89,24 @@ shown below.
 \end{figure}
 
 The only other activation function we will be using in this project
-is the \textit{rectified linear unit} (RELU), which is defined as
+is the \textit{rectified linear unit} (ReLU), which is defined as
 \begin{equation}
     f(x) = \max(0,x)
 \end{equation}
 This means that the all negative input values are changed to positive
-values.
+values and the the functions is visualized below.
 
+\begin{figure}[!h]
+    \centering
+    \includegraphics[width=15cm]{include/relu.png}
+    \caption{Plot of the ReLU function.}
+    \label{fig:relu}
+\end{figure}
 Thus, the role of the output of each layer is to provide some additional
 transformation from the features in order to complete the task the network
 must perform\cite{DeepLearningBook}.
 
-\subsubsection{Learning from multidimensional input}
+\subsection{Learning from multidimensional input}
 
 To process the high dimensional frames from the Atari games we will be using
 a convolutional neural network (CNN).
