@@ -70,62 +70,87 @@ from the action space.
 
 All of the games have the same resolution of $210 \times 160$ pixels.
 Each pixel contains three channels corresponding to the red, green and blue intensities of the pixel.
-\begin{figure}[!h]
-    \centering
-    \includegraphics[scale=0.35]{include/space_invaders_1.png}
-    \caption{A raw RGB frame from \textit{Space Invaders}.}
-    \label{fig:si}
+\begin{figure}[H]
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.25]{include/space_invaders_1.png}
+        \caption{Space Invaders.}
+        \label{fig:scan}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.25]{include/breakout_1.png}
+        \caption{Breakout.}
+        \label{fig:scanlike}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.25]{include/pong_1.png}
+        \caption{Pong.}
+        \label{fig:scan}
+    \end{subfigure}
+    \caption{Frames from the Atari games we will be playing, before the preprocessing step is performed.}
+     \label{fig:games}
 \end{figure}
-
 Using the raw Atari frames can be computationally demanding, so we have chosen
 to preprocess our data as described in \cite{dqn}. 
 The first step of the preprocessing is to reduce the amount of channels used to
 represent the image.
-To do this we gray-scale the RGB representation of the frames that only a single channel is used.
-In our approach, the gray-scaling is calculated based on the relative luminance\cite{luminance} of each pixel,
-for which the formula is given in equation \ref{eq:lum}.
-\begin{equation}\label{eq:lum}
-    L(R, G, B) = 0.2126*R + 0.7152*G + 0.0722*B
-\end{equation}
-
-We further reduce the dimensions of the gray-scaled images by a downsampling, where
-we simply ignore every second pixel, effectively halving the resolution of the frames 
-in both dimensions.
-To avoid the scoreboard influencing the training, we crop the downsampled image by removing
-15 rows of pixels from the top of the screen.
-This step is only possible because we have selected games, where only the scoreboard is
-removed by this method.
-\begin{figure}[h!]
-    \begin{subfigure}[t]{.5\textwidth}
+We achieve this by taking the mean over the three channels, which results
+in a naive grayscaling of the images.
+\begin{figure}[H]
+    \begin{subfigure}{.3\textwidth}
         \centering
-        \includegraphics[scale=0.35]{include/space_invaders_1_gray.png}
-        \caption{The gray-scaled frame from figure \ref{fig:si}.}
-        \label{fig:sig}
+        \includegraphics[scale=0.25]{include/space_invaders_1_gray.png}
+        \caption{Space Invaders.}
+        \label{fig:scan}
     \end{subfigure}
-    \begin{subfigure}[t]{.5\textwidth}
+    \begin{subfigure}{.3\textwidth}
         \centering
-        \includegraphics[scale=0.35]{include/space_invaders_1_gray_resized.png}
-        \caption{The result of resizing the gray-scaled frame from figure \ref{fig:sig}.}
+        \includegraphics[scale=0.25]{include/breakout_1_gray.png}
+        \caption{Breakout.}
         \label{fig:scanlike}
     \end{subfigure}
-    \caption{The two steps of the preprocessing applied to the raw frame from figure \ref{fig:si}.}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.25]{include/pong_1_gray.png}
+        \caption{Pong.}
+        \label{fig:scan}
+    \end{subfigure}
+    \caption{The frames from \ref{fig:games} after being grayscaled.}
+     \label{fig:grays}
 \end{figure}
 
+We further reduce the dimensions of the gray-scaled images
+to $84 \times 84$ pixels, containing a single value.
+The aim of this resized frame is to represent the game state
+using fewer pixels, without losing information about the objects
+in the frame.
 
-The final output of the preprocessing step is a $90 \times 80$ pixel gray-scaled
-image.
-By preprocessing the data, the remaining featuer extraction becomes computationally much
-cheaper, as the dimensions have been significantly reduced compared to the raw Atari frames.
+\begin{figure}[H]
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.23]{include/space_invaders_1_gray_resized.png}
+        \caption{Space Invaders.}
+        \label{fig:scan}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.23]{include/breakout_1_gray_resized.png}
+        \caption{Breakout.}
+        \label{fig:scanlike}
+    \end{subfigure}
+    \begin{subfigure}{.3\textwidth}
+        \centering
+        \includegraphics[scale=0.23]{include/pong_1_gray_resized.png}
+        \caption{Pong.}
+        \label{fig:scan}
+    \end{subfigure}
+    \caption{The grayscaled frames from \ref{fig:grays} resized.}
+     \label{fig:rez}
+\end{figure}
 
-In the articles \cite{a3c} and \cite{dqn} one more preprocessingstep is performed.
-Instead of only resizing the gray-scaled frames, they are also cropped to $84 \times 84$ images.
-This is done to meet a condition in their implementation of 2d convolutions,
-since they could only process square input\cite{dqn-nature}.
-Our cropping scheme difers from their, due to the purpose being another.
-
-Due to the time limitations of this project we will only be testing our
-implementation of the A3C algorithm on certain games;
-namely \textit{Pong}, \textit{Breakout}, \textit{Space Invaders} and
-\textit{Pacman}.
+By preprocessing the data the remaining feature extraction becomes computationally 
+cheaper, as the dimensions have been significantly reduced compared to the raw Atari RGB frames.
 
 \end{document}

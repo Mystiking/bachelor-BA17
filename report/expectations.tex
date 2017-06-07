@@ -12,7 +12,7 @@ To acheive this we have solved both simple and advanced problems to investigate
 the benefits and disadvantages of asynchronous training in two very different
 settings.
 
-\subsection{Solving CartPole using an Actor-Critic method with eligibility traces}
+\subsection{Playing CartPole - Actor-Critic with eligibility traces}
 
 As a proof of concept we have implemented the method described in section
 \ref{sec:actor_critic_el} for which the pseudo-code
@@ -49,7 +49,7 @@ be small, which might cause the results of the
 experiment being at a disadvantage, compared to our A3C implementation, since the learning happend
 at a slower pace than could be achieved with a better implementation.
 
-\subsection{Solving CartPole using the A3C algorithm}
+\subsection{Playing CartPole - A3C}
 
 To examine the effect of asynchronous training in a simpler setting than
 the Atari games, we have implemented the A3C algorithm presented
@@ -92,44 +92,47 @@ Due to the time limitations of the project we haven't performed
 a more sophisticated selection of the parameters, which might
 influence the results of the experiments.
 
-\subsection{Solving Atari Games}
+\subsection{Playing Atari Games}
 
 To make sure the advantages and disadvantages of asynchronous training
-is thouroughly inverstigated we have also implemented the A3C algorithm
-to learn in the more advanced setting of Atari games.
-
+is thoroughly investigated we have also implemented the A3C algorithm
+in the more advanced setting of Atari games.
 We will be examining the effect of different amounts of threads
-in Space Invader and Breakout.
+in Space Invader and Breakout, and compare it to the results
+of the Cartpole experiments.
+
 The main difference between this implementation of A3C
 and the one we used to play CartPole is the structure of the
-policy and value estimators.
-Again we have used a single network with two output layers,
-but for this setting we have used the setup presented
-in detail in \cite{dqn-nature}.
-Thus the network consists of an input layer, that takes a $84 \times 84 \times 4$
+policy and value estimator.
+We used a single network with two output layers,
+based on the setup presented in \cite{dqn-nature}, with the
+exception that the input layer of the network takes an $84 \times 84 \times 4$
 image-stack as input.
-Instead of feeding the network a single frame from an Atari game,
+Instead of feeding the network a single frame from the games,
 we stack the four latest frames in an attempt to let the network
-experience the movement of objects in the frame.
+experience the movement of objects.
 This layers is followed by a convolutional layer that reduces the dimensions
-of the input in both directions by a factor of four.
-The layer produces 16 $21 \times 21$ feature maps using 16 kernel filters,
-which is then set to another convolutional layer..
-This layer halves the size of the image, and produces 32 $11 \times 11$
-feature maps.
-Both of the convolutional layers activated their input using the
-RELU function.
-After the second convolution, we flatten the output resulting in
-$11 * 11 * 32 = 3872$ neurons, which are fully connected to
+of each element in the stack by a factor of four in both dimensions.
+Using 16 kernel filters, the layer produces 16
+$21 \times 21$ feature maps.
+In the next layer the size of each of the 16 feature maps is
+halved.
+This convolution produces 32 $11 \times 11$ new feature maps
+from 32 kernel filters and both of the convolutional layers activates
+their input using the RELU function.
+After the second convolution, we flatten the output.
+We perform this step to allow the network to output a numerical value and
+probability vector instead of a multichannel matrix.
+The flattening results in $3872$ neurons, that are fully connected to
 a layer with 256 neurons.
-In this layer the input is again activated using the RELU and
-the output is then sent to two different layers.
+In this layer the input is again activated using the RELU, but
+the output is sent to two different layers.
 One of the layers consists of only a single neuron
 and simply outputs the weighted sum of its input as the estimated value
-of the image-stack the network was originally presented.
+of the “state” the network was originally presented.
 The other output layer activates its input using the softmax function,
-using as many neurons as there are actions available, with the output of
-each neuron representing the probability of taking an action.
+with as many neurons as there are actions available, where
+the output of each neuron represens the probability of taking an action.
 A representation of the network is shown below.
 
 \begin{figure}[H]
@@ -141,7 +144,7 @@ A representation of the network is shown below.
     \label{fig:atari_network}
 \end{figure}
 
-Taking an action using the OpenAI framework only leads to a small change in states,
+Taking an action using the OpenAI framework only leads to a relatively small state change,
 since it is only performed for two to four frames.
 To increase the impact of taking an action we have used the same \textit{action repeat}
 stategy as described in \cite{a3c}, which means that an action is performed four times
@@ -151,17 +154,19 @@ the fourth state as the one the action lead to, but we accumulate the rewards th
 we are given during the action repeat, since they are a product of the action.
 
 In Space Invaders we perform two additional preprocessing steps before
-the network is fed any state.
-The rewards that can be obtained vary based on what the learning agent “hits”
-in the environment.
+the states are fed to the network.
+The obtainable rewards that can be vary based on which aliens the learning agent
+hits.
 The optimal strategy is however to shoot all aliens in a level, and not focus on
 hitting only the ones that produce the greatest reward.
 Therefore we have chosen to clip the rewards returned by the environment, such that
-the rewards always lie between $-1$ and $1$.
-
-A problem with Space Invaders is that the screen sometimes flicker.
-Thus some of the frames might not contain a “player”.
-To avoid this issue we always define a state as the pixel-wise maximum
+the rewards always lie between $-1$ and $1$, with an expectation that it should increase
+the pace of the learning.
+The other issue in Space Invaders is that the screen sometimes flicker.
+This can cause the the frame to be missing some objects, and
+to avoid this issue we always define a state as the pixel-wise maximum
 between the previous frame and the current frame.
+The extra preprocessing should speed the learning, but
+the clipping of the rewards might result in a suboptimal strategy.
 
 \end{document}
