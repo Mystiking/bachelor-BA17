@@ -4,10 +4,10 @@
 
 % Max 
 
-\section{Experiments and Expectations}
+\section{Experiments}
 
-The aim of this project is to examine the effect of different amounts of threads
-on the stability of deep reinforcement learning.
+The aim of this project is to examine the effect of threading
+in stability of deep reinforcement learning.
 To acheive this we have solved both simple and advanced problems to investigate
 the benefits and disadvantages of asynchronous training in two very different
 settings.
@@ -22,7 +22,7 @@ traditional Reinforcement Learning algorithm
 is able to learn how to solve the CartPole problem, as well as provide a
 baseline performance for the A3C algorithm.
 I.e as a measure to test if A3C is performing at least as good
-as the traditional/un-threaded Actor-Critic approach.
+as the single-threaded Actor-Critic approach.
 
 For this experiment we used two separate neural networks, with no
 shared weights, as policy and state-value estimators.
@@ -30,9 +30,8 @@ The network that estimates the state-value function consisted of an
 input layer with four entries, corresponding to the format of a state in CartPole,
 followed by a single hidden layer with eight neurons, and an output layer of a single
 neuron.
-We used the RELU to activate the input to the
-hidden layer and used a linear activation for the output neuron,
-which means the neuron produced the weighted sum of its input as output.
+We used the ReLU to activate the input to the
+hidden layer and no activation for the output neuron.
 
 For estimating the policy we used a network with the same structure,
 with the only exception being that the output layer consists of two
@@ -40,9 +39,9 @@ neurons, each corresponding to the probability of picking an action.
 To emulate the probability distribution we used the softmax function
 to activate the final layer.
 
-When we implemented the algorithm, we ran into some trouble with
-the state-value estimator sometimes becoming too large, resulting
-in both the probabilties and state-value estimates throwing a \texttt{NaN} error,
+Through the implementation of the algorithm, we encountered a problem with
+the state-value estimates sometimes becoming too large.
+This resulted in both the probabilties of the policy and state-value estimates throwing a \texttt{NaN} error,
 meaning they couldn't be represented using the bits they were assigned.
 Therefore we had to restrict the parameters of the algorithm to
 be small, which might cause the results of the
@@ -67,9 +66,9 @@ the final results.
 
 To estimate the policy and state-value functions we used a single
 neural network.
-The structure of the network resembles the structure used in the traditional
-Actor-Critic method, with the key difference being that the network has
-two output layers
+The structure of the network resembles the structure descrubed in the previous section, 
+with the key difference being that the network has two output layers -
+one output layer for the policy and another for the value.
 
 \begin{figure}[H]
     \centering
@@ -95,8 +94,10 @@ influence the results of the experiments.
 \subsection{Playing Atari Games}
 
 To make sure the advantages and disadvantages of asynchronous training
-is thoroughly investigated we have also implemented the A3C algorithm
-in the more advanced setting of Atari games.
+is thoroughly investigated 
+To investigating how the asynchronous training performs in
+a more advanced setting, we have also implemented the A3C algorithm
+to play Atari games.
 We will be examining the effect of different amounts of threads
 in Space Invader and Breakout, and compare it to the results
 of the Cartpole experiments.
@@ -113,26 +114,27 @@ we stack the four latest frames in an attempt to let the network
 experience the movement of objects.
 This layers is followed by a convolutional layer that reduces the dimensions
 of each element in the stack by a factor of four in both dimensions.
-Using 16 kernel filters, the layer produces 16
+Using 16 kernel filters, the layer produces 16 different
 $21 \times 21$ feature maps.
 In the next layer the size of each of the 16 feature maps is
 halved.
-This convolution produces 32 $11 \times 11$ new feature maps
-from 32 kernel filters and both of the convolutional layers activates
-their input using the RELU function.
+This convolution produces 32 new feature maps consisting of $11 \times 11$ values,
+using 32 kernel filters.
+Both of the convolutional layers activates
+their input using the ReLU function.
 After the second convolution, we flatten the output.
 We perform this step to allow the network to output a numerical value and
 probability vector instead of a multichannel matrix.
 The flattening results in $3872$ neurons, that are fully connected to
 a layer with 256 neurons.
-In this layer the input is again activated using the RELU, but
-the output is sent to two different layers.
-One of the layers consists of only a single neuron
+In this layer the input is again activated by a ReLU function,
+and the output is sent to two different layers.
+One of the layers consists of a single neuron
 and simply outputs the weighted sum of its input as the estimated value
-of the “state” the network was originally presented.
+of the “state”.
 The other output layer activates its input using the softmax function,
-with as many neurons as there are actions available, where
-the output of each neuron represens the probability of taking an action.
+with as many neurons as actions available, where
+the output of each neuron represents the probability of taking an action.
 A representation of the network is shown below.
 
 \begin{figure}[H]
@@ -149,24 +151,21 @@ since it is only performed for two to four frames.
 To increase the impact of taking an action we have used the same \textit{action repeat}
 stategy as described in \cite{a3c}, which means that an action is performed four times
 after being sampled.
-Even though openAI returns a new state every time the action is taken, we only consider
-the fourth state as the one the action lead to, but we accumulate the rewards that
+We only consider the fourth frame as the one the action produced, but we accumulate the rewards that
 we are given during the action repeat, since they are a product of the action.
 
 In Space Invaders we perform two additional preprocessing steps before
 the states are fed to the network.
-The obtainable rewards that can be vary based on which aliens the learning agent
+The obtainable rewards vary based on which aliens the learning agent
 hits.
 The optimal strategy is however to shoot all aliens in a level, and not focus on
-hitting only the ones that produce the greatest reward.
+shooting only the ones that produce the greatest reward.
 Therefore we have chosen to clip the rewards returned by the environment, such that
-the rewards always lie between $-1$ and $1$, with an expectation that it should increase
+the rewards always lie between $-1$ and $1$, with the expectation that it should increase
 the pace of the learning.
 The other issue in Space Invaders is that the screen sometimes flicker.
 This can cause the the frame to be missing some objects, and
 to avoid this issue we always define a state as the pixel-wise maximum
 between the previous frame and the current frame.
-The extra preprocessing should speed the learning, but
-the clipping of the rewards might result in a suboptimal strategy.
 
 \end{document}
