@@ -39,7 +39,7 @@ neurons, each corresponding to the probability of picking an action.
 To emulate the probability distribution we used the softmax function
 to activate the final layer.
 
-Through the implementation of the algorithm, we encountered a problem with
+During the implementation of the algorithm, we encountered a problem with
 the state-value estimates sometimes becoming too large.
 This resulted in both the probabilties of the policy and state-value estimates throwing a \texttt{NaN} error,
 meaning they couldn't be represented using the bits they were assigned.
