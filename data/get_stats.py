@@ -95,7 +95,7 @@ def pretty_plot(xs, ys, title, xlabel, ylabel, name_of_file, ymax = None):
     plt.yticks(range(0, int(y_max), int(50)), [str(x) for x in range(0, int(y_max), 50)], fontsize=30)
     plt.xticks(fontsize=30)
     for x in range(len(xs)):
-        plt.plot(xs[x], ys[x], color=tableau20[2], lw=1.5)
+        plt.plot(xs[x], ys[x], color=tableau20[10], lw=1.5)
 
     for y in range(0, int(y_max) + 1, int(50)):
         plt.plot(range(0, int(x_max), 10), [y for x in range(0, int(x_max), 10)], color="black", lw=2.5, alpha=0.3)
@@ -111,11 +111,11 @@ def pretty_plot(xs, ys, title, xlabel, ylabel, name_of_file, ymax = None):
 
 
 #files = (get_matching_files('spaceInvaders/spaceInvaders_16_threads/', 'space.+'))
-files = (get_matching_files('eligibility/', 'one.+'))
+files = (get_matching_files('cartpole_true/cartpole_8_threads/', 'cartpole.+'))
 l = combine_files(files)
 #print(l)
 r1, r2 = (get_k_mean_score(l, 5))
-pretty_plot([r2], [r1], "CartPole", "Global timesteps", "Score", "cartpole_.png", 201)
+pretty_plot([r2], [r1], "CartPole", "Timesteps", "Score", "cartpole_.png", 201)
 #r1, r2 = (get_k_mean_time(l, 5))
 #print(r2)
 #pretty_plot([r2], [r1], "CartPole", "Time in seconds", "Score", "test.png", 200)
