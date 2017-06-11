@@ -22,7 +22,7 @@ plot_score_run_graph_cart_pole('cartpole_16_threads', 201, 200000, 12, 'cartpole
 
 #plot_score_all_run_graph_cart_pole(201, 200000, 2, 'cartpole_true', 6, 'cartpole_compare_k5')
 #plot_score_all_run_graph_cart_pole(201, 200000, 2, 'cartpole_true', 10, 'cartpole_compare_k10')
-#plot_score_all_run_graph_cart_pole(201, 200000, 2, 'cartpole_true', 50, 'cartpole_compare_k50')
+#plot_score_all_run_graph_cart_pole(201, 200000, 2, 'cartpole_true', 50, 'cartpole_compare_k502')
 #plot_score_all_run_graph_cart_pole(201, 200000, 2, 'cartpole_true', 100, 'cartpole_compare_k100')
 
 #plot_score_all_run_graph_cart_pole_time(201, 650, 2, 'cartpole_true', 50, 'cartpole_compare_k50')
@@ -54,7 +54,7 @@ plot_score_all_run_graph_cart_pole_eligibilty_time(201, 1515, 2, 500, 'eligibili
 
 
 
-#plot_score_eligibilty_vs_A3C(201, 200000, 2, 'cartpole_true', 6, 'cartpole_compare')
+#plot_score_eligibilty_vs_A3C(201, 200000, 2, 'cartpole_true', 50, 'cartpole_compare')
 
 #plot_score_eligibilty_vs_A3C_time(201, 2000, 2, 'cartpole_true', 6, 'cartpole_compare_time')
 
@@ -65,7 +65,15 @@ plot_score_all_run_graph_cart_pole_eligibilty_time(201, 1515, 2, 500, 'eligibili
 
 
 
-plot_score_all_run_graph_spcaeinvaders_counter_score(1000, 9504462, 2, 'space', 1, 'cartpole_compare_k50')
+#plot_score_all_run_graph_spcaeinvaders_counter_score_aliens(32, 9504462, 2, 'space', 50, 'breakout_compare_k50')
+
+#plot_score_all_run_graph_atari_counter(17, 57600, 2, 'breakout_11_06', 500, 'breakout_compare_k50')
+
+#plot_score_all_run_graph_spcaeinvaders_counter_score(1000, 9504462, 2, 'space', 50, 'cartpole_compare_k50')
+#plot_score_all_run_graph_spcaeinvaders_counter_score(1000, 9504462, 2, 'space', 50, 'cartpole_compare_k50')
+#plot_score_all_run_graph_spcaeinvaders_counter_score(1000, 9504462, 2, 'space', 50, 'cartpole_compare_k50')
+#plot_score_all_run_graph_spcaeinvaders_counter_score(1000, 9504462, 2, 'space', 50, 'cartpole_compare_k50')
+#plot_score_all_run_graph_spcaeinvaders_counter_score(1000, 9504462, 2, 'space', 50, 'cartpole_compare_k50')
 
 
 
