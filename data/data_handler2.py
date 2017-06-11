@@ -203,7 +203,7 @@ def get_score_and_counter_all_agents_spaceinvaders_aliens(folder):
     agent_folders = get_files_containing_regex(filenames, '.+agent' + '.+')
     all_data = []
     for s in agent_folders:
-        data = get_score_and_counter_one_agent_spaceinvaders_score(folder, s)
+        data = get_score_and_counter_one_agent_spaceinvaders_aliens_killed(folder, s)
         all_data = sum([all_data, data], [])
     all_data.sort(key=lambda tup:tup[0])
     return all_data
@@ -215,7 +215,7 @@ def get_score_and_time_all_agents_spaceinvaders_aliens(folder):
     agent_folders = get_files_containing_regex(filenames, '.+agent' + '.+')
     all_data = []
     for s in agent_folders:
-        data = get_score_and_time_one_agent_spaceinvaders_score(folder, s)
+        data = get_score_and_time_one_agent_spaceinvaders_aliens_killed(folder, s)
         all_data = sum([all_data, data], [])
     all_data.sort(key=lambda tup:tup[0])
     return all_data
@@ -657,11 +657,11 @@ def plot_score_all_run_graph_cart_pole(y_max, x_max ,colour_num, atari_game, k, 
         np.insert(x_points, 0, 0)
         np.insert(y_points, 0, 0)
 
-        plt.plot(x_points, y_points, color=tableau20[colour_num * j])
+        plt.plot(x_points, y_points, color=tableau20[4 + (colour_num * j)])
         if j == 2:
-            plt.text(200000+ 0.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[colour_num * j])
+            plt.text(200000+ 0.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
         else:
-            plt.text(200000+ 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[colour_num * j])
+            plt.text(200000+ 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
 
     plt.title('CartPole', y=1.02, fontsize=20)
     plt.xlabel('Global time steps', fontsize=20)
@@ -1029,19 +1029,23 @@ def plot_score_all_run_graph_cart_pole_time(y_max, x_max ,colour_num, atari_game
         np.insert(x_points, 0, 0)
         np.insert(y_points, 0, 0)
 
-        plt.plot(x_points, y_points, color=tableau20[colour_num * j])
-        if j == 3:
-            plt.text(x_max+ 5.5, int(y_points[-1] + 7), amount_of_agents[j], fontsize=20, color=tableau20[colour_num * j])
-        elif j == 2:
-            plt.text(x_max+ 5.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[colour_num * j])
-        else:
-            plt.text(x_max+ 5.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[colour_num * j])
+        plt.plot(x_points, y_points, color=tableau20[4 + (colour_num * j)])
+        #if j == 3:
+        #   plt.text(x_max+ 5.5, int(y_points[-1] + 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        #elif j == 2:
+        #    plt.text(x_max+ 5.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        #else:
+        plt.text(x_max+ 5.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
 
-    plt.title('CartPole', y=1.02, fontsize=20)
-    plt.xlabel('Time in seconds', fontsize=20)
-    plt.ylabel('Score', fontsize=20)
-    plt.savefig(name_of_file, bbox_inches="tight")
+        plt.title('CartPole', y=1.02, fontsize=20)
+        plt.xlabel('Time in seconds', fontsize=20)
+        plt.ylabel('Score', fontsize=20)
+        plt.savefig(name_of_file, bbox_inches="tight")
     #plt.show()
+
+
+
+
 
 
 
@@ -1112,10 +1116,10 @@ def plot_score_all_run_graph_spcaeinvaders_counter_score(y_max, x_max ,colour_nu
     
     for i in range(len(tableau20)):
         r, g, b = tableau20[i]
-        tableau20[i] = (r / 255., g / 255., b / 255.)    
- 
+        tableau20[i] = (r / 255., g / 255., b / 255.)
+
     plt.figure(figsize=(16, 10))
-          
+              
     ax = plt.subplot(111)
     ax.spines["top"].set_visible(False)
     ax.spines["bottom"].set_visible(False)
@@ -1131,26 +1135,148 @@ def plot_score_all_run_graph_spcaeinvaders_counter_score(y_max, x_max ,colour_nu
     print(y_max)
     plt.yticks(range(0, y_max, int(50)), [str(x) for x in range(0, y_max, 50)], fontsize=20)
     plt.xticks(fontsize=20)
-      
+  
     # Provide tick lines across the plot to help your viewers trace along    
     # the axis ticks. Make sure that the lines are light and small so they    
     # don't obscure the primary data lines.
 
-    for y in range(0, y_max + 1, int(200)):
-        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=0.5, color="black", alpha=0.3)
-        #plt.plot(range(0, x_points[-1]), [y] * len(range(0, x_points[-1])), "-", lw=0.5, color="black", alpha=0.3)
-      
-    # Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
+    for y in range(0, y_max + 1, int(50)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.0, color="black", alpha=0.3)
+    #plt.plot(range(0, x_points[-1]), [y] * len(range(0, x_points[-1])), "-", lw=0.5, color="black", alpha=0.3)
+  
+# Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
     plt.tick_params(axis="both", which="both", bottom="off", top="off",
                     labelbottom="on", left="off", right="off", labelleft="on")
+    for y in range(0, y_max + 1, int(200)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
 
     #plt.plot(range(1000), a3c_2_agents_scores, color=tableau20[0])
     #plt.plot(range(1000), a3c_2_agents_scores[0], color=tableau20[0])
     amount_of_agents = ['1 threads', '2 threads', '4 threads', '8 threads', '16 threads']
-    folders = ['spaceInvaders_16_threads']
+    folders = ['spaceInvaders_1_threads', 'spaceInvaders_2_threads', 'spaceInvaders_4_threads', 'spaceInvaders_8_threads', 'spaceInvaders_16_threads']
+
 
     for j in range(len(folders)):
-        data = get_score_and_counter_all_agents_spaceinvaders_aliens(atari_game + '/' + folders[j])
+        plt.figure(figsize=(16, 10))
+              
+        ax = plt.subplot(111)
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+            
+        ax.get_xaxis().tick_bottom()
+        ax.get_yaxis().tick_left()
+
+        plt.ylim(0, y_max)
+        plt.xlim(0, x_max + 5)
+
+        print(y_max)
+        plt.yticks(range(0, y_max, int(50)), [str(x) for x in range(0, y_max, 50)], fontsize=20)
+        plt.xticks(fontsize=20)
+      
+        # Provide tick lines across the plot to help your viewers trace along    
+        # the axis ticks. Make sure that the lines are light and small so they    
+        # don't obscure the primary data lines.
+
+        for y in range(0, y_max + 1, int(50)):
+            plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.0, color="black", alpha=0.3)
+        #plt.plot(range(0, x_points[-1]), [y] * len(range(0, x_points[-1])), "-", lw=0.5, color="black", alpha=0.3)
+      
+    # Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
+        plt.tick_params(axis="both", which="both", bottom="off", top="off",
+                        labelbottom="on", left="off", right="off", labelleft="on")
+        for y in range(0, y_max + 1, int(200)):
+            plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+            data = get_score_and_time_all_agents_spaceinvaders_aliens(atari_game + '/' + folders[j])
+            data = remove_last_elements(data, k)
+            split_data = list(map(list, zip(*data)))
+            x_points = split_data[0]
+            if k != 1:
+                x_points = x_points[::int(k / 2)]
+                x_points = x_points[1::2]
+            y_points = split_data[1]
+            if k != 1:
+                y_points = get_average_score(y_points, k)
+            np.insert(x_points, 0, 0)
+            np.insert(y_points, 0, 0)
+
+        plt.plot(x_points, y_points, color=tableau20[4 + (colour_num * j)], lw=1.5)
+
+        #if j == 1:
+        #    plt.text(x_max+ 5.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        #if j == 3:
+        #    plt.text(x_max+ 5.5, int(y_points[-1] + 9), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        #else:
+        plt.text(x_max+ 5.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        #plt.text(x_max + 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+
+        plt.title('SpaceInvaders', y=1.02, fontsize=20)
+        plt.xlabel('Time in seconds', fontsize=20)
+        plt.ylabel('Score', fontsize=20)
+        plt.savefig(name_of_file + str(j), bbox_inches="tight")
+        plt.clf()
+        #plt.show()
+
+
+
+
+def plot_score_all_run_graph_spcaeinvaders_counter_score_aliens(y_max, x_max ,colour_num, atari_game, k, name_of_file):
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    
+    for i in range(len(tableau20)):
+        r, g, b = tableau20[i]
+        tableau20[i] = (r / 255., g / 255., b / 255.)
+
+
+    plt.figure(figsize=(16, 10))
+          
+    ax = plt.subplot(111)
+    ax.spines["top"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+        
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
+    plt.ylim(0, y_max)
+    plt.xlim(0, x_max + 5)
+
+    print(y_max)
+    plt.yticks(range(0, y_max, int(5)), [str(x) for x in range(0, y_max, 5)], fontsize=20)
+    plt.xticks(fontsize=20)
+  
+    # Provide tick lines across the plot to help your viewers trace along    
+    # the axis ticks. Make sure that the lines are light and small so they    
+    # don't obscure the primary data lines.
+
+    for y in range(0, y_max + 1, int(5)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.0, color="black", alpha=0.3)
+    #plt.plot(range(0, x_points[-1]), [y] * len(range(0, x_points[-1])), "-", lw=0.5, color="black", alpha=0.3)
+  
+# Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
+    plt.tick_params(axis="both", which="both", bottom="off", top="off",
+                    labelbottom="on", left="off", right="off", labelleft="on")
+    for y in range(0, y_max + 1, int(10)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+
+
+    for y in range(0, y_max + 1, int(10)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+
+    #plt.plot(range(1000), a3c_2_agents_scores, color=tableau20[0])
+    #plt.plot(range(1000), a3c_2_agents_scores[0], color=tableau20[0])
+    amount_of_agents = ['1 threads', '2 threads', '4 threads', '8 threads', '16 threads']
+    folders = ['spaceInvaders_1_threads', 'spaceInvaders_2_threads', 'spaceInvaders_4_threads', 'spaceInvaders_8_threads', 'spaceInvaders_16_threads']
+
+
+    for j in range(len(folders)):
+        data = get_aliens_and_time_all_agents_spaceinvaders_aliens(atari_game + '/' + folders[j])
         data = remove_last_elements(data, k)
         split_data = list(map(list, zip(*data)))
         x_points = split_data[0]
@@ -1163,20 +1289,204 @@ def plot_score_all_run_graph_spcaeinvaders_counter_score(y_max, x_max ,colour_nu
         np.insert(x_points, 0, 0)
         np.insert(y_points, 0, 0)
 
-        plt.plot(x_points, y_points, color=tableau20[colour_num * j])
+        plt.plot(x_points, y_points, color=tableau20[4 + (colour_num * j)], lw=1.5)
 
-        plt.text(x_max + 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[colour_num * j])
+    #if j == 1:
+    #    plt.text(x_max+ 5.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        if j == 3:
+            plt.text(x_max+ 5.5, int(y_points[-1] + 2), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        else:
+            plt.text(x_max+ 5.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+    #plt.text(x_max + 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
 
     plt.title('SpaceInvaders', y=1.02, fontsize=20)
-    plt.xlabel('Global time steps', fontsize=20)
-    plt.ylabel('Score', fontsize=20)
-    plt.savefig(name_of_file, bbox_inches="tight")
+    plt.xlabel('Time in seconds', fontsize=20)
+    plt.ylabel('Aliens killed', fontsize=20)
+    plt.savefig(name_of_file + str(j), bbox_inches="tight")
+    plt.clf()
+    #plt.show()
+
+
+
+
+def plot_score_all_run_graph_atari_counter(y_max, x_max ,colour_num, atari_game, k, name_of_file):
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    
+    for i in range(len(tableau20)):
+        r, g, b = tableau20[i]
+        tableau20[i] = (r / 255., g / 255., b / 255.)
+
+
+    plt.figure(figsize=(16, 10))
+          
+    ax = plt.subplot(111)
+    ax.spines["top"].set_visible(False)
+    ax.spines["bottom"].set_visible(False)
+    ax.spines["right"].set_visible(False)
+    ax.spines["left"].set_visible(False)
+        
+    ax.get_xaxis().tick_bottom()
+    ax.get_yaxis().tick_left()
+
+    plt.ylim(0, y_max)
+    plt.xlim(0, x_max + 5)
+
+    print(y_max)
+    plt.yticks(range(0, y_max, int(5)), [str(x) for x in range(0, y_max, 5)], fontsize=40)
+    plt.xticks(fontsize=40)
+  
+    # Provide tick lines across the plot to help your viewers trace along    
+    # the axis ticks. Make sure that the lines are light and small so they    
+    # don't obscure the primary data lines.
+
+    for y in range(0, y_max + 1, int(5)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.0, color="black", alpha=0.3)
+    #plt.plot(range(0, x_points[-1]), [y] * len(range(0, x_points[-1])), "-", lw=0.5, color="black", alpha=0.3)
+  
+# Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
+    plt.tick_params(axis="both", which="both", bottom="off", top="off",
+                    labelbottom="on", left="off", right="off", labelleft="on")
+    for y in range(0, y_max + 1, int(10)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+
+
+    for y in range(0, y_max + 1, int(10)):
+        plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+
+    #plt.plot(range(1000), a3c_2_agents_scores, color=tableau20[0])
+    #plt.plot(range(1000), a3c_2_agents_scores[0], color=tableau20[0])
+    amount_of_agents = ['1 threads', '2 threads', '4 threads', '8 threads', '16 threads']
+    folders = ['1_threads', '2_threads', '4_threads', '8_threads', '16_threads']
+
+
+    for j in range(len(folders)):
+        data = get_aliens_and_time_all_agents_spaceinvaders_aliens(atari_game + '/' + folders[j])
+        data = remove_last_elements(data, k)
+        split_data = list(map(list, zip(*data)))
+        x_points = split_data[0]
+        if k != 1:
+            x_points = x_points[::int(k / 2)]
+            x_points = x_points[1::2]
+        y_points = split_data[1]
+        if k != 1:
+            y_points = get_average_score(y_points, k)
+        np.insert(x_points, 0, 0)
+        np.insert(y_points, 0, 0)
+
+        plt.plot(x_points, y_points, color=tableau20[4 + (colour_num * j)], lw=4.5)
+
+    #if j == 1:
+    #    plt.text(x_max+ 5.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        if j == 2:
+            plt.text(x_max+ 5.5, int(y_points[-1] + 1), amount_of_agents[j], fontsize=40, color=tableau20[4 + (colour_num * j)])
+        elif j == 3:
+            plt.text(x_max+ 5.5, int(y_points[-1]+ 1), amount_of_agents[j], fontsize=40, color=tableau20[4 + (colour_num * j)])
+        elif j == 4:
+            plt.text(x_max+ 5.5, int(y_points[-1]+ 1), amount_of_agents[j], fontsize=40, color=tableau20[4 + (colour_num * j)])
+        else:
+            plt.text(x_max+ 5.5, int(y_points[-1]), amount_of_agents[j], fontsize=40, color=tableau20[4 + (colour_num * j)])
+    #plt.text(x_max + 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+
+    plt.title('Breakout', y=1.02, fontsize=40)
+    plt.xlabel('Time in seconds', fontsize=40)
+    plt.ylabel('Score', fontsize=40)
+    plt.savefig(name_of_file + str(j), bbox_inches="tight")
+    plt.clf()
     #plt.show()
 
 
 
 
 
+def plot_score_all_run_graph_atari_counter_every(y_max, x_max ,colour_num, atari_game, k, name_of_file):
+    tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
+                 (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
+                 (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
+                 (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
+                 (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+    
+    for i in range(len(tableau20)):
+        r, g, b = tableau20[i]
+        tableau20[i] = (r / 255., g / 255., b / 255.)
+
+
+    #plt.plot(range(1000), a3c_2_agents_scores, color=tableau20[0])
+    #plt.plot(range(1000), a3c_2_agents_scores[0], color=tableau20[0])
+    amount_of_agents = ['1 threads', '2 threads', '4 threads', '8 threads', '16 threads']
+    folders = ['1_threads', '2_threads', '4_threads', '8_threads', '16_threads']
+
+
+    for j in range(len(folders)):
+        plt.figure(figsize=(16, 10))
+          
+        ax = plt.subplot(111)
+        ax.spines["top"].set_visible(False)
+        ax.spines["bottom"].set_visible(False)
+        ax.spines["right"].set_visible(False)
+        ax.spines["left"].set_visible(False)
+            
+        ax.get_xaxis().tick_bottom()
+        ax.get_yaxis().tick_left()
+
+        plt.ylim(0, y_max)
+        plt.xlim(0, x_max + 5)
+
+        print(y_max)
+        plt.yticks(range(0, y_max, int(5)), [str(x) for x in range(0, y_max, 5)], fontsize=20)
+        plt.xticks(fontsize=20)
+      
+        # Provide tick lines across the plot to help your viewers trace along    
+        # the axis ticks. Make sure that the lines are light and small so they    
+        # don't obscure the primary data lines.
+
+        for y in range(0, y_max + 1, int(5)):
+            plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.0, color="black", alpha=0.3)
+        #plt.plot(range(0, x_points[-1]), [y] * len(range(0, x_points[-1])), "-", lw=0.5, color="black", alpha=0.3)
+      
+    # Remove the tick marks; they are unnecessary with the tick lines we just plotted.    
+        plt.tick_params(axis="both", which="both", bottom="off", top="off",
+                        labelbottom="on", left="off", right="off", labelleft="on")
+        for y in range(0, y_max + 1, int(10)):
+            plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+
+
+        for y in range(0, y_max + 1, int(10)):
+            plt.plot(range(0, int(x_max)), [y] * len(range(0, int(x_max))), "-", lw=1.5, color="black", alpha=0.5)
+
+
+        data = get_aliens_and_time_all_agents_spaceinvaders_aliens(atari_game + '/' + folders[j])
+        data = remove_last_elements(data, k)
+        split_data = list(map(list, zip(*data)))
+        x_points = split_data[0]
+        if k != 1:
+            x_points = x_points[::int(k / 2)]
+            x_points = x_points[1::2]
+        y_points = split_data[1]
+        if k != 1:
+            y_points = get_average_score(y_points, k)
+        np.insert(x_points, 0, 0)
+        np.insert(y_points, 0, 0)
+
+        plt.plot(x_points, y_points, color=tableau20[4 + (colour_num * j)], lw=1.5)
+
+    #if j == 1:
+    #    plt.text(x_max+ 5.5, int(y_points[-1] - 7), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        if j == 2:
+            plt.text(x_max+ 5.5, int(y_points[-1] + 1), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+        else:
+            plt.text(x_max+ 5.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+    #plt.text(x_max + 0.5, int(y_points[-1]), amount_of_agents[j], fontsize=20, color=tableau20[4 + (colour_num * j)])
+
+        plt.title('Breakout', y=1.02, fontsize=20)
+        plt.xlabel('Time in seconds', fontsize=20)
+        plt.ylabel('Score', fontsize=20)
+        plt.savefig(name_of_file + str(j), bbox_inches="tight")
+        plt.clf()
+        #plt.show()
 
 
 

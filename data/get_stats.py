@@ -11,6 +11,7 @@ def combine_files(filenames):
     for ts, s, t, ak in total:
         result.append((ts, s, t, ak))
 
+    #print(result)
     return sorted(result, key=lambda a: a[3])
 
 def get_k_mean_score(l, k):
@@ -30,6 +31,23 @@ def get_k_mean_score(l, k):
         c += 1
     return result_scores, result_timesteps
 
+def get_k_mean_time(l, k):
+    c = 0
+    result_scores = []
+    result_times = []
+    scores = []
+    times= []
+    for ts, s, t, ak in l:
+        scores.append(s)
+        times.append(t)
+        if c % k == 0:
+            result_scores.append(sum(scores) / len(scores))
+            result_times.append(sum(times) / len(times))
+            scores = []
+            times = []
+        c += 1
+    return result_scores, result_times
+
 
 def get_matching_files(folder, regex):
     files = os.listdir(folder)
@@ -43,7 +61,7 @@ def get_matching_files(folder, regex):
             pass
     return result
 
-def pretty_plot(xs, ys, title, xlabel, ylabel, ymax = None):
+def pretty_plot(xs, ys, title, xlabel, ylabel, name_of_file, ymax = None):
     tableau20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
                  (44, 160, 44), (152, 223, 138), (214, 39, 40), (255, 152, 150),
                  (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
@@ -74,26 +92,30 @@ def pretty_plot(xs, ys, title, xlabel, ylabel, ymax = None):
     plt.ylim(0, y_max)
     plt.xlim(0, x_max + 5)
 
-    plt.yticks(range(0, int(y_max), int(50)), [str(x) for x in range(0, int(y_max), 50)], fontsize=20)
-    plt.xticks(fontsize=20)
+    plt.yticks(range(0, int(y_max), int(50)), [str(x) for x in range(0, int(y_max), 50)], fontsize=30)
+    plt.xticks(fontsize=30)
     for x in range(len(xs)):
-        plt.plot(xs[x], ys[x], color=tableau20[x])
+        plt.plot(xs[x], ys[x], color=tableau20[2], lw=1.5)
 
     for y in range(0, int(y_max) + 1, int(50)):
-        plt.plot(range(0, int(x_max), 10), [y for x in range(0, int(x_max), 10)], color="black", lw=0.5, alpha=0.3)
+        plt.plot(range(0, int(x_max), 10), [y for x in range(0, int(x_max), 10)], color="black", lw=2.5, alpha=0.3)
       
     plt.tick_params(axis="both", which="both", bottom="off", top="off",
                     labelbottom="on", left="off", right="off", labelleft="on")
 
-    plt.xlabel(xlabel, fontsize=20)
-    plt.ylabel(ylabel, fontsize=20)
-    plt.title(title)
-    #plt.savefig(name_of_file, bbox_inches="tight")
-    plt.show()
+    plt.xlabel(xlabel, fontsize=30)
+    plt.ylabel(ylabel, fontsize=30)
+    plt.title(title, fontsize=30)
+    plt.savefig(name_of_file, bbox_inches="tight")
+    #plt.show()
 
 
 #files = (get_matching_files('spaceInvaders/spaceInvaders_16_threads/', 'space.+'))
 files = (get_matching_files('eligibility/', 'one.+'))
 l = combine_files(files)
+#print(l)
 r1, r2 = (get_k_mean_score(l, 5))
-pretty_plot([r2], [r1], "CartPole", "Timesteps", "Score", 200)
+pretty_plot([r2], [r1], "CartPole", "Global timesteps", "Score", "cartpole_.png", 201)
+#r1, r2 = (get_k_mean_time(l, 5))
+#print(r2)
+#pretty_plot([r2], [r1], "CartPole", "Time in seconds", "Score", "test.png", 200)
