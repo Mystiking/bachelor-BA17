@@ -80,14 +80,20 @@ result.
     of the number of timesteps the algorithm have been running.}
     \label{fig:a3c_time_steps}
 \end{figure}
+ 
 
+When looking at figure \ref{fig:a3c_time_steps}, we how the
+performance increases over time, as we learn a optimal policy. 
+Most of the learning seems to happen in the first 120.000 timesteps,
+hereafter the gradient of the performance become smaller, which
+meas that we don't get siginifacant improvement from this point.
 For all the different amounts of threads used it the implementation
 is converging towards a constant mean score of 200 and even reaches
 it for 16 threads.
 It seems like the implementation is stable for all thread settings, with a slight
 drop in performance after roughly half the timesteps using 8 threads.
 This result was not unexpected, as the same amount of timesteps should produce similar
-scores for this relatively simple problem.
+scores for this relatively simple problem. 
 
 \begin{figure}[H]
     \centering
@@ -292,8 +298,9 @@ The same trend can be seen for Breakout, which is shown in figure
      \label{fig:a3c_breakout_comp}
 \end{figure}
 
-
-[ Skriv noget indledende til Pong resultater]
+We have also tested our A3C implementation on the pong enviroment, the
+training time have been the same as in Breakout and Spaceinvaders, but
+as seen below we got some significant different results.
 
 \begin{figure}[H]
   \centering   
@@ -312,9 +319,14 @@ The same trend can be seen for Breakout, which is shown in figure
   \end{tabular}
   \caption{The scores of all the different thread settings for the
     A3C implementation playing CartPole as a function of timesteps taken.}
-     \label{fig:a3c_breakout_comp}
+     \label{fig:a3c_pong_comp}
 \end{figure}
 
-[ Skriv noget her om resultaterne ]
-
+At the results from figure \ref{a3c_pong_comp}, we general see no improving on
+the performance for playing Poing for any of the threads settings. If
+we look closely at the results when comparing number of timesteps with
+the score, it seems that the 16 threads setting, have a very small
+improvment after 900.000 timesteps compared to the start. In section \ref{sec:discussion}
+we will discuss why we learn to solve problem, and other don't, and
+which difference there are between the games.
 \end{document}
