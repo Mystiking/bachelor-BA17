@@ -7,26 +7,29 @@
 
 \subsection{Estimating the value of states}\label{est_vals}
 
-Now that we have introduced the goal of the learning agent as
-maximising the total reward, we want to extend this goal to
-maximising the obtainable reward from a state.
-This quantity is called the \textit{return} from state $S_t$ and is
-denoted as $G_t$.
-Assuming we receive the rewards $R_{t+1}, R_{t+2}, \dots$ following from state $S_t$,
-the return can be expressed as the sum of these rewards
-\begin{equation}\label{G_t}
-    G_t \coloneqq R_{t+1} + R_{t+2} + \hdots + R_{T} = \sum\limits_{i = 1}^T R_{t+i}
+We want to be able to tell whether it is good or bad to
+perform an action in a state.
+Therefore we need a way to assign a \textit{value} to a state,
+since we can then choose which action to perform
+based on the \textit{expected} total reward the action provides.
+
+Now, to assign a value to a state we need to take the rewards
+gained from all future state transition into account.
+From a state $S_t$ this quantity is the \textit{expected} sum of
+future rewards from $S_t$,
+\begin{equation}\ref{G_t}
+    \mathds{E}[R_{t+1} + R_{t+2} + \hdots + R_{T} | S_t] = \mathds{E}[\sum\limits_{i = 1}^T R_{t+i} | S_t]
 \end{equation}
 where $T$ is the point in time where the \textit{terminal state} is reached.
-The terminal state is the last state in the problem from which
-no other states can be reached.
-I.e. in backgammon the terminal state is the state where one of the players
+The terminal state is the last state available in the problem environment and
+no other states can be reached from this state.
+That is, in backgammon the terminal state is the state where one of the players
 have removed all of their pieces from the board and the game is over.
 In this project we will only be solving \textit{episodic} problems, which
 means there will always be a terminal state.
 However, using the sum of rewards as the return of a state proves problematic.
-I.e. in a game of backgammon where a player is given reward 1 for performing a winning move
-and reward 0 for all other actions, he return of all states will be
+In a game of backgammon, for example, where a player is given reward one for performing a winning move
+and reward zero for all other actions, he return of all states will be
 the value of $R_T$ because the action performed at this time is the only one
 that can trigger a reward.
 Therefore the learning agent won't be able to tell which actions are best,
@@ -34,65 +37,57 @@ since all state transitions, except the last, will result in the same reward.
 To deal with this issue we use the \textit{discounted} sum of rewards as our return instead
 of just the sum.
 This means that for each time step further into the future
-we proportionally discredit the reward,
+we proportionally discredit the reward, which means the value
+of a state $s$, $v_\pi(s)$, can now be described as
 \begin{equation}\label{gammaG_t}
-    G_t \coloneqq R_{t+1} + \gamma R_{t+1} + \gamma^2 R_{t+3} \dots = \sum\limits_{k=0} \gamma^k R_{t+k+1}
+    \begin{aligned}
+        v_\pi(s) &= \mathds{E}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} \cdots | S_t = s]\\
+        &= \mathds{E}[ \sum\limits_{k = 0} \gamma^k R_{t+k+1} | S_t = s]\\
+        &= \mathds{E}[ G_t | S_t = s]
+    \end{aligned}
 \end{equation}
 where $ 0 \leq \gamma \leq 1$ is the rate of discount that determines how far-sighted the learning agent can be,
-with a rate of 0 meaning the return is only the most recent reward and a rate of 1 giving us equation \ref{G_t}.
+with a rate of zero meaning the return is the reward obtained in the first transition from $s$ and a rate of
+one giving us equation \ref{G_t}.
 
-Now, According to the agent-environment model (Fig. \ref{fig:agent_environment}) the response that
+According to the agent-environment model (Fig. \ref{fig:agent_environment}) the response that
 the learning agent receives for performing an action consists
-of the new state $S_{t+1} = s'$ and a corresponding reward $R_{t+1} = r$.
+of the new state $S_{t+1} = s'$ and reward $R_{t+1} = r$ earned in the transition
+to $s'$.
 Assuming the response depends on all past actions $A_{0}, A_{1}, \cdots, A_{t-1}$ and
 corresponding responses $S_{1}, R_{1}, \cdots, S_{t}, R_{t}$, the probability
 of arriving in state $S_{t+1}$ and receiving reward $R_{t+1}$ can be defined as the
 joint probability given by
-\begin{equation}
+\begin{equation}\label{eq:joint}
     \mathds{P}(S_{t+1} = s', R_{t+1} = r | S_0, A_0, R_1, \cdots, S_{t-1}, A_{t-1}, R_{t}, S_{t}, A_{t})
 \end{equation}
 where $S_0$ is the inital state and $A_0$ is the first action taken.
 
 This notation is tedious, so to avoid it, we will assume that all Reinforcement Learning tasks
-we encounter have the \textit{Markov property}.
-A task has this property if a state can summarize everything important that
-has happened up until this point in time.
-In the Cart-Pole and Atari games the Markov property is present because each state provides
-information that makes remembering previous states unnecessary.
-This property allows us to describe the joint probability for reaching state $s'$ and
-experiencing reward $r$ from state $s$ performing action $a$ as
+we encounter possess the \textit{Markov property}.
+The Markov Property is present in a task if the current state contains
+enough information to make remembering previous states unimportant.
+This property allows us to describe the joint probability from equation \ref{eq:joint}
+as
 \begin{equation}\label{joint_prob}
     \mathds{P}(S_{t+1} = s', R = r | S_t = s, A_t = a)
 \end{equation}
-since $S_t$ retains all information from states $S_0, S_1, \dots, S_{t-1}$,
-we only have to concern ourselves with the current action $A_t$.
-
-The actions taken are sampled from the probability distribution $\pi$,
-and arriving in the new state $s'$, earning reward $r$, is given by equation \ref{joint_prob}.
-In this project we will only be using non-deterministic policies - or in other words
-no action can have probability 1 for getting picked.
-The value of a state is given by its expected discounted return,
-\begin{equation}
-    \begin{aligned}
-        v_\pi(s) & = \mathds{E}_\pi[G_t | S_t = s]\\
-        & = \mathds{E}_\pi[R_{t+1} + \gamma R_{t+2} + \dots | S_t = s]\\
-        & = \mathds{E}_\pi[R_{t+1} + \gamma \sum\limits_{k=0} \gamma^k R_{t+k+2} | S_t = s]
-    \end{aligned}
-\end{equation}
-which is called the \textit{state-value} function.
+since having the information from $S_t$ makes retaining information about previous states
+and state transitions unnecessary.
 
 The expectation of the return depends on the probabilities of taking action $a$,
 encountering the new state $s'$ and receiving reward $r$.
-Therefore the state-value function can be defined recursively as
+Therefore the \textit{state-value function}, $v_\pi(s)$ can be defined recursively as
 \begin{equation}
     \begin{aligned}
-        v_\pi(s) & = \mathds{E}_\pi[R_{t+1} + \gamma \sum\limits_{k=0} \gamma^k R_{t+k+2} | S_t = s]\\
+        v_\pi(s) &= \mathds{E}[ G_t | S_t = s]\\
+        & = \mathds{E}_\pi[R_{t+1} + \gamma \sum\limits_{k=0} \gamma^k R_{t+k+2} | S_t = s]\\
         & = \sum\limits_{a} \pi(a|s) \sum\limits_{s', r} p(s', r | s, a) [r + \gamma \mathds{E}_\pi[\sum\limits_{k=0} \gamma^k R_{t+k+2} | S_{t+1} = s']\\
         & =  \sum\limits_{a} \pi(a|s) \sum\limits_{s', r} p(s', r | s, a) [r + \gamma \mathds{E}_\pi[G_{t+1} | S_{t+1} = s']\\
         & =   \sum\limits_{a} \pi(a|s) \sum\limits_{s', r} p(s', r | s, a) [r + \gamma v_\pi(s')]
     \end{aligned}
 \end{equation}
-where $p(s', r | s, a)$ is the joint probability from equation \ref{joint_prob} and $\pi(a|s)$ is the
+where $p(s', r | s, a)$ is the shorthand notation for the joint probability from equation \ref{joint_prob} and $\pi(a|s)$ is the
 probability of taking action $a$ in state $s$ following policy $\pi$.
 
 %\printbibliography

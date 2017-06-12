@@ -10,8 +10,9 @@ We now have a way to describe the value of a state, but we seldomly know the
 value function $v_\pi$ before we begin solving a problem.
 Even with the knowledge of the entire state space and all available actions
 it is difficult to compute the true value function.
-Instead it is possible to construct an estimator $V(S_t)$ that
-approximates $v_\pi(S_t)$.
+Instead we can construct an estimator $V(S_t)$ that
+approximates $v_\pi(S_t)$, which means we need a way
+to measure how close the estimator is to the true value.
 
 When a learning agent solves a problem, it gains experience
 about the states it encounters and the rewards earned through its transitions.
@@ -20,15 +21,16 @@ of the state-value function,
 \begin{equation}
     V(S_t) = V(S_t) + \alpha [G_t - V(S_t)]
 \end{equation}
-where $0 \leq \alpha \leq 1$ is a step-size parameter, 
-which defines how much each update is able to change the estimate
-of the value in state $S_t$.
+where $0 \leq \alpha \leq 1$ is a step-size parameter and
+$G_t = \sum\limits_{k=0} \gamma^k R_{t+k+1}$.
 
-This estimator only allows us to update the estimate, when an epsiode
-has ended, since this is the time at which $G_t$ is known.
-Updating this way is inefficient because it would take the estimator
-a lot of episodes to converge towards the true state-value function,
-due to it being updated seldomly. 
+This estimator only allows us to update the estimate, when a
+terminal state is reached, since this is the time at which $G_t$ is known.
+Such an approach is called an \textit{episodic} update scheme, since it only
+updates when a task is completed - or in other words when an episode
+is over.
+Updating this way is inefficient because it takes the estimator
+a lot of episodes to converge towards the true state-value function.
 
 Instead of only updating the estimator $V(S_t)$ when an episode has
 ended, there is a different approach which updates
@@ -45,7 +47,7 @@ of \textit{temporal difference learning}(TD) and the quantity $R_{t+1} + \gamma 
 is defined as the \textit{one-step TD-error}.
 This error describes the difference between the current estimate
 and the estimate of the next state with the reward experienced from the
-transition the new state.
+transition to the new state.
 
 Generally we want to minimize the TD-error, as the function $V(S_t)$
 would then be as close to $v_\pi(S_t)$ as possible.
@@ -59,9 +61,12 @@ $V(S_t) = v_\pi(S_t)$ because
     \end{aligned}
 \end{equation}
 
+Thus, using the TD-error we now have a way to measure the performance of
+the value estimator based on experienced returns.
+
 \subsubsection{Multi-step TD learning}\label{sec:multi}
 
-The benefit of the updating scheme from equation \ref{eq:up}, is that we are able to base
+A benefit of the updating scheme from equation \ref{eq:up}, is that we are able to base
 part of our estimate on an already existing estimate.
 It can be useful to update the estimate after very state transitions, but sometimes
 the changes over a single time step can be small and maybe even insignificant.
@@ -83,8 +88,8 @@ rewards, which means it is more likely to experience a significant change than t
         & = V(S_t) + \alpha [R_{t+1} + \gamma R_{t+2} + \dots + \gamma^n V(S_{t+n}) - V(S_t)]
     \end{aligned}
 \end{equation}
-This way of updating the estimate is especially beneficial in tasks that only sometimes returns a reward.lot 
-E.g. in most Atari games a score is only given to the player when an objective has been completed.
+This way of updating the estimate is especially beneficial in tasks that only sometimes returns a reward. 
+For example in most Atari games a score is only given to the player when an objective has been completed.
 We want to find these significant changes because the entire chain of estimates 
 will be affected, making the estimate converge faster towards the real value function.
 
@@ -98,9 +103,8 @@ To estimate the state-value function in a continous state space we can use a
 parameterized function $\hat{v}(s, \mathbf{w})$ with weights $\mathbf{w} \in \R^d$.
 Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \mathbf{w})$
 only needs to keep track of the weight vector $\mathbf{w}$, which can be seen as a long-term memory.
-There are many ways to construct $\hat{v}(s, \mathbf{w})$, but in this project we will only
-be using \textit{deep neural networks} as function approximators,
-which will be discussed in detail in section \ref{sec:deep_learning}.
+There are many ways to construct $\hat{v}(s, \mathbf{w})$, and in this project we use \textit{deep neural networks}
+as function approximators, which will be discussed in detail in section \ref{sec:deep_learning}.
 
 In section \ref{sec:multi} we estimated the value function based on the n-step return, but
 since the value function now depends on the weights, $\mathbf{w}$, we need to find a way
@@ -128,12 +132,11 @@ we update the weights proportionally to the one-step TD-error discussed in secti
 A low TD-error means that we don't have to change much, since the value estimator is
 close to a maximum, while a high error means that we need to take a larger step
 in the directions of the elegibility trace as we are still far from the maximum.
-An update based on this approach would look like this
+An update based on this approach is defined as
 \begin{equation}
     \mathbf{w} = \mathbf{w} + \eta \delta \nabla e^\mathbf{w}
 \end{equation}
 where $\eta$ determines how much the weights can change each step.
-
 
 
 \end{document}
