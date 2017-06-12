@@ -4,6 +4,100 @@
 
 \section{Discussion and further work}
 
-//TODO
+It seems evident that the methods used in this project were able
+to solve the CartPole problem and several Atari games successfully,
+with the exception of Pong.
+Our preprocessing step uses the mean of the surrounding pixels
+to describe the three channels of the RGB Atari frames into a single
+value.
+For both Space Invaders and Breakout a lot of the background pixels are
+black, which means a lot of the values in the grayscaled images
+are zero.
+When we resize these images, a lot of the zero values are retained
+and when they are fed to the neural network these values don't have any
+influence on the final outcome.
+For Pong this is not the case, since the background is orange.
+Therefore a possible reason for the A3C methods inability to learn
+how to play Pong is that more values needs to be taken into account
+for every weights update.
+However, we believe that the method would be able to converge if
+it had been given more time to train, but due to the time limitations
+of this project we haven't been able to test it.
+
+In the CartPole experiments it is notable that the A3C method converged
+towards a mean score of 200 faster than the Actor-Critic method with
+eligibility traces for all thread settings.
+A possible reason for the difference in performance is that we were able to
+take larger gradient steps using the A3C method compared to the
+size of the steps in the Actor-Critic method.
+Taking larger steps in the latter resulted in our implementation
+throwing an exception, but we are confident that if more
+time was available we should be able to find more suitable parameters
+that could speed up the learning.
+
+From figure \ref{fig:a3c_time_steps} and \ref{fig:a3c_time} we can see
+that there was no significant speedup in improvement of performance by
+using multiple threads.
+We expected a speedup in regards to real-time, since we should be able
+to perform more time steps in the same amount of time.
+During training we updated the global model after each timestep,
+such that the updating scheme of the A3C method resembled the one
+used in the Actor-Critic method more.
+The results could be a consequence of updating the network requiring
+approximately the same amount of time as it took to sample and perform
+an action.
+Hence, the local agents are waiting in line for their turn to
+perform the asynchronous update of the global model, which means
+more threads will simply result in a larger queue.
+
+The results of the Atari games behaved a lot more as expected.
+More threads resulted in a higher amount completed timesteps,
+which suggests that the same bottleneck isn't present in
+the implementation for the Atari games.
+Here we used an action repeat as well as a replay memory,
+which means we spent more time interacting with the environment
+between the asynchronous updates and from figure \ref{fig:a3c_spaceinvaders}-\ref{fig:a3c_pong_comp}
+it is clear that more threads result in a larger amount of completed timesteps
+in the same amount of real-time.
+However it is notable that it seems like all the different thread
+settings converge if they allowed to complete the same amount of timesteps.
+This means that the A3C algorithm is stable, since the learning
+doesn't collapse, even though multiple agents update the same global model
+while being situated in different states.
+
+%%In \cite{a3c} multiple different optimization schemes for performing
+%%the aynchronous update was discussed, and presented results showing
+%%RMSProp with shared statistics performed the best.
+%%We have chosen to test our implementation using the RMSPropagation
+%%with shared statistics as optimizer, due to the reasons discussed in
+%%section \ref{sec:a3c} and the results presented in the article.
+%%This optimzer is part of the reason the A3C experiments didn't collapse
+
+For the Atari games it is unexpected that the amounts of completed timesteps
+for two, four and eight threads are very close to each other, but
+sixteen threads completes X times as many steps as the experiment using eight
+threads.
+The experiments were all performed on DIKUs GPU servers, since each of them
+has 24 CPU cores.
+A problem with this setting is that it is impossible to make sure
+the experiments is the only process running on the servers, which means
+some of the threads might have to wait for other users processes to
+free up resources.
+This would explain why there is a large gap between the timesteps
+completed using eight threads and sixteen threads, due to one
+being more “lucky” with regards to user activity and
+that the experiments have been run on servers with different CPUs.
+
+Unlike the CartPole experiments, we have only run our implementation
+of A3C for the Atari games a single time for each thread setting for each game.
+Therefore the gap might disappear if the experiments were to be run
+several times.
+However, for all the Atari games we achieved roughly the same mean
+for all thread settings after completing the same amount of timesteps.
+This seems to stress that the learning is very stable, when each model is initialized
+with the same parameters and that running a experiment again would yield
+roughly the same result.
+
+[TODO : Diskussion om algoritmen og further work]
 
 \end{document}
