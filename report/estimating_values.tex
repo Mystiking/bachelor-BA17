@@ -8,7 +8,9 @@
 \subsection{Estimating the value of states}\label{est_vals}
 
 We want to be able to tell whether it is good or bad to
-perform an action in a state.
+perform an action in a state, in order to reinforce good behaviour
+and likewise discourage the agent from taking actions that have led
+to a bad result in the past.
 Therefore we need a way to assign a \textit{value} to a state,
 since we can then choose which action to perform
 based on the \textit{expected} total reward the action provides.
