@@ -98,7 +98,7 @@ values and the the functions is visualized below.
 
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=15cm]{include/relu.png}
+    \includegraphics[width=10cm]{include/relu.png}
     \caption{Plot of the ReLU function.}
     \label{fig:relu}
 \end{figure}
@@ -148,7 +148,8 @@ would be given by
     \caption{A 2d convolution on an image which produces a \textit{feature} map.}
     \label{fig:conv}
 \end{figure}
-A problem with the convolution shown in figure \ref{conv2} is that
+\newpage
+A problem with the convolution shown in figure \ref{fig:conv2} is that
 pixels at the boundary of the image are lost.
 To deal with this issue we make use of zero padding.
 By adding zeros to the border of each image, until the kernel
@@ -183,6 +184,7 @@ every element of the input, but instead every \textit{n'th} element,
              the convolution is skipping every second element.}
     \label{fig:conv}
 \end{figure}
+\newpage
 Here the convolution skips every second element, resulting in a downsampling
 of the input.
 In two dimensions a convolution can be seen as the kernel moving across
