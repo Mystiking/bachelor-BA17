@@ -95,9 +95,66 @@ several times.
 However, for all the Atari games we achieved roughly the same mean
 for all thread settings after completing the same amount of timesteps.
 This seems to stress that the learning is very stable, when each model is initialized
-with the same parameters and that running a experiment again would yield
+with the same parameters, and that running an experiment again would yield
 roughly the same result.
 
-[TODO : Diskussion om algoritmen og further work]
+The result of the experiments for Breakout and Space Invaders
+seem to indicate that once the method has reached a certain point
+the performance becomes stale.
+In most Atari games the level of difficulty increases as the
+player progresses thorugh the game.
+In Breakout the speed of the ball increases after
+four hits and again after twelve.
+This explains why the performance decreaes first after
+approxiately half a million timesteps and again after
+roughly 2.5 million - the points in time where they
+consistently produce a mean score of aroung 4 and 12,
+respectively.
+For Space Invaders the same scenario is present, since
+the aliens progressively increase their speed as they
+descent upon the player.
+This means that it is much more difficult to hit the last aliens,
+which explains the results from figure \ref{fig:a3c_spaceinvaders},
+since the mean score is just short of the score obtained by killing all aliens.
+
+From the results of the CartPole and Atari experiments for the A3C method
+it seems as if the bottleneck of the positive effects of asynchronous training
+lie in the amount of work that can be done inbetween updates to the global model.
+Hence, multiple threads only increase the pace of the learning if
+interacting with the environment takes long enough to ensure
+none of the threads will have to wait on another thread performing
+the asynchronous update.
+It would be interesting to investigate where the threshold is located
+for the speed up in regards to the number of threads used in the Atari games,
+and if we have reached it already, but we will have to leave this for further work.
+Another possible limitation might lie in the size of the replay memory.
+In the article, \cite{a3c}, no experiments is provided that test
+the effects of different amounts of experience in the replay memory.
+Examining these effects would be interesting, since they also seem to
+play a part in deciding the effectiveness of the asynchronous training.
+
+In this project we have used Deep Reinforcement Learning to
+create a model capable of playing Atari games.
+However, the concepts and ideas discussed translates to real world
+issues as well.
+Learning from experience can be used to solve problems where the
+problem domain is either too large or too complex to
+describe as a ruleset.
+A possible application for Deep Reinforcement Learning is
+as controller of self-driving cars.
+The states of the model would in this case be information
+from the real world, e.g. images of the road ahead, 
+and the actions would be the same as those available to
+a human driver.
+Here the problem lie in picking an action given a real-world situation,
+which the Reinforcement Learning agent could do using previously
+gathered experience.
+However, unique and unfamiliar situations might occur too rarely
+for the agent to be able to select the best action to perform
+in the given situation.
+Therefore Deep Reinforcement Learning can only be applied
+to real world issues if a “safety net” is in place
+to handle critical situations that doesn't occur
+very often in the training, as descrinbed in \cite{BILER}.
 
 \end{document}
