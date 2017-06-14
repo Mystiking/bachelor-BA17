@@ -5,7 +5,7 @@
 \subsection{Improving policies}
 \label{sec:improv}
 Now that we can update and maintain an estimator of the value function, we want
-to focus on improving our policy.
+to focus on improving the policy.
 As for the value estimator, we learn the policy as a parameterized function $\pi(a, s, \theta_t)$
 , which given an action $a$ and a state $s$ returns the probability
 of taking action $a$ in state $s$ using the weights $\theta_t$.
@@ -15,19 +15,18 @@ To examine how well a policy is doing, we use a \textit{performance measure}, $\
 the policy based on the policy weights $\theta_t$.
 We want to maximize the performance measure, since the policy is then optimal with
 respect to $\rho(\theta_t)$.
-Like in section \ref{sec:td}
+As in section \ref{sec:td}
 we perform gradient ascent to find the optimal weights of the performance measure,
-and thus, updating the policy weights is defined as
+and therefore, updating the policy weights is defined as
 \begin{equation}
-    \theta_{t+1} = \theta_t + \alpha \nabla_{\theta_t} \rho(\theta_t)
+    \theta_{t+1} = \theta_t + \alpha \nabla_{\theta} \rho(\theta_t)
 \end{equation}
-where $\alpha$ is a parameter determining the step size of the gradient ascent.
+where $0 < \alpha$ is a parameter determining the step size of the gradient ascent.
 
 We want the performance measure to take all actions equally into account.
 If an action has a high probability of being sampled, the weights are
-updated more often with respect to that action, than they are with respect to an
-action with a low probability of being sampled.
-We make up for this update imbalance by choosing a performance measure
+updated more often with respect to that action, than for actions with a low probability of being sampled.
+We make up for this imbalance by choosing a performance measure
 that scales the gradient based on the probability of an action being sampled.
 Such a performance measure can be constructed as
 \begin{equation}
@@ -38,7 +37,7 @@ Such a performance measure can be constructed as
 since taking the gradient would then result in
 \begin{equation}\label{per_mes}
     \begin{aligned}
-        \nabla_{\theta_t} \log\pi(a|s, \theta_t) = \frac{\nabla_{\theta_t}\pi(a|s, \theta_t)}{\pi(a|s,\theta)}
+        \nabla_{\theta} \log\pi(a|s, \theta_t) = \frac{\nabla_{\theta}\pi(a|s, \theta_t)}{\pi(a|s,\theta)}
     \end{aligned}
 \end{equation}
 which means the probability of taking an action increases the magnitude of the gradient,
@@ -47,7 +46,7 @@ such that all actions should influence the weights the same over time.
 Using this performance measure means we can't allow policies to become \textit{deterministic},
 since having probability one for picking a single action would make the probabilities
 of sampling the other actions zero, which means we would be dividing by zero
-in equation \label{per_mes}.
+in equation \ref{per_mes}.
 
 We can solve this problem by choosing our policy in a way that doesn't allow probabilities that are zero or one.
 In this project we will be using the \textit{softmax} function to achieve this,
