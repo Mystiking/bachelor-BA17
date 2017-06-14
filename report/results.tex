@@ -126,20 +126,23 @@ It is also notable that the plots of real-time and timesteps are almost identica
 over all thread settings, which is surprising since the usage of more
 threads didn't achieve a significant speedup
 in time consumed by the implementation.
-
-\begin{tabular}{ |l|l| }
-    \label{tab:time}
+\begin{table}[H]
+    \centering
+ \begin{tabular}{ |l|l| }
   \hline
   \multicolumn{2}{|c|}{Median time spent completing 200.000 timesteps} \\
   \hline
-  1 thread & 726,46 sec \\
-  2 threads & 705,28 sec\\
-  4 threads & 660,11 sec\\
-  8 threads & 631,20 sec\\
-  16 threads & 702,85 sec\\
+  1 thread & 726,46 seconds \\
+  2 threads & 705,28 seconds \\
+  4 threads & 660,11 seconds \\
+  8 threads & 631,20 seconds \\
+  16 threads & 702,85 seconds \\
   \hline
-\end{tabular}
-
+ \end{tabular}
+ \caption{Table describing the median time spent completing 200.000 timesteps
+ for all thread settings used in the CartPole experiments with the A3C method.}
+    \label{tab:time}
+\end{table}
 %\begin{figure}[H]
 %    \begin{tabular}[c]{c}
 %    \begin{subfigure}{\textwidth}
