@@ -98,27 +98,27 @@ So far we have described the state-value function as a mapping from states to va
 A problem with this approach is that it becomes infeasable to maintain 
 when the state space is continuous, since there is an infinite number of states.
 To estimate the state-value function in a continous state space we can use a
-parameterized function $\hat{v}(s, \mathbf{w})$ with weights $\mathbf{w} \in \R^d$.
-Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \mathbf{w})$
-only needs to keep track of the weight vector $\mathbf{w}$.
-There are many ways to construct $\hat{v}(s, \mathbf{w})$, and in this project we use \textit{deep neural networks}
+parameterized function $\hat{v}(s, \mathbf{w}_t)$ with weights $\mathbf{w}_t \in \R^d$.
+Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \mathbf{w}_t)$
+only needs to keep track of the weight vector $\mathbf{w}_t$.
+There are many ways to construct $\hat{v}(s, \mathbf{w}_t)$, and in this project we use \textit{deep neural networks}
 as function approximators - a topic that will be discussed in details in section \ref{sec:deep_learning}.
 
 In section \ref{sec:multi} we estimated the value function based on the n-step return, but
-since the value function now depends on the weights, $\mathbf{w}$, we need to find a way
+since the value function now depends on the weights, $\mathbf{w}_t$, we need to find a way
 to measure how much each component of the weight vector is influencing the
 current estimate.
 To do so we can use an \textit{eligibility trace}, $\mathbf{e}^{\mathbf{w}} \in \R^d$, that
 has exactly as many components as the weight vector.
 
 Generally we want to use the elegibility trace to improve the value function by
-updating its weights, $\mathbf{w}$, using gradient ascent.
-The eligibility trace describes the elegibility of its corresponding component in $\mathbf{w}$
+updating its weights, $\mathbf{w}_t$, using gradient ascent.
+The eligibility trace describes the elegibility of its corresponding component in $\mathbf{w}_t$
 - in other words it describes the recent tendency in directional changes needed to be made
-to maximize $\hat{v}(s, \mathbf{w})$.
+to maximize $\hat{v}(s, \mathbf{w}_t)$.
 Thus an elegibility trace for the value estimator can be updated as
 \begin{equation}
-    \mathbf{e}^\mathbf{w} = \lambda \mathbf{e}^\mathbf{w} + \nabla_\mathbf{w} \hat{v}(s, \mathbf{w})
+    \mathbf{e}^\mathbf{w} = \lambda \mathbf{e}^\mathbf{w} + \nabla_\mathbf{w} \hat{v}(s, \mathbf{w}_t)
 \end{equation}
 where $0 \leq \lambda \leq 1$ is a discounting factor used to decrease the elegibility of a component
 over time.
@@ -131,7 +131,7 @@ close to a maximum, while a high error means that we need to take a larger step
 in the direction of the elegibility trace as we are still far from the maximum.
 An update based on this approach is defined as
 \begin{equation}
-    \mathbf{w} = \mathbf{w} + \eta \delta \nabla e^\mathbf{w}
+    \mathbf{w}_{t+1} = \mathbf{w}_t + \eta \delta \nabla e^\mathbf{w}
 \end{equation}
 where $0 < \eta$ determines how much the weights can change each step.
 
