@@ -13,10 +13,13 @@ actions with outcomes.
 In the context of machine learning, the same principles can be used to find the
 sequence of actions that provide the best outcome for a given task
 - a technique known as \textit{Reinforcement Learning}.
-The goal of this project is to investigate the advantages of asynchronous Reinforcement
-Learning in an advanced setting - playing Atari 2600 games\cite{openAIEnvs}.
+The goal of this project is to investigate the effects of asynchronous Reinforcement
+Learning in an advanced setting - playing games from the Atari 2600 system\cite{openAIEnvs}.
+To gain an understanding of the topics discussed in this paper it is recommended
+that the reader has a basic understanding of calculus and
+probability theory.
 
-Solving a task this way consists of being in a certain state and making a decision,
+Solving a task using Reinforcement Learning consists of being in a certain state and making a decision,
 which leads to a new state with a new set of decisions to be made, until
 a terminal state is reached.
 The terminal state is reached when there are no more decisions to be made
@@ -26,7 +29,8 @@ Thus a task can be seen as a \textit{decision tree}, with actions connecting sta
 \begin{figure}[H]
     \centering
     \includegraphics[scale=0.5]{include/decision_tree.png}
-    \caption{A decision tree for solving a task.}
+    \caption{A decision tree describing the workflow for a Reinforcement Leaning
+    method.}
     \label{fig:dec_tree}
 \end{figure}
 
@@ -54,12 +58,12 @@ Reinforcement Learning have made it possible.
 An emerging problem with learning to play advanced games, is the computational time and
 resources it takes to train the algorithm.
 Thus a general approach used to solve Reinforcement Learning problems is to
-play through a game and continuously evaluate and update the way actions are picked
+play through a game, and continuously evaluate and update the way actions are picked
 while playing the game.
 Choosing the best actions depends on what state the player is in, but it is difficult to
 know which action is best before every option is explored.
-A solution to the resource problems of Reinforcement Learning,
-is to play a game many times in parallel,
+A solution to the time consumption problem of Reinforcement Learning,
+is to play a game in parallel,
 allowing multiple paths in the decision tree to be explored at the same time -
 a method called \textit{asynchronous training}.
 
@@ -80,33 +84,32 @@ to evaluate and change its own strategy if another thread
 has found a better one.
 
 The team responsible for the Deep Q-Networks approach collaborated with
-the Montreal Institute for Learning Algorithms (MILA) in June 2016 article
-\cite{a3c} where multiple Reinforcement Learning methods were implemented to
+the Montreal Institute for Learning Algorithms (MILA) and published
+an article, \cite{a3c}, in June 2016, where multiple Reinforcement Learning methods were implemented to
 take advantage of asynchronous training.
 
 \subsection{Methods}
 
-With the results of the Google DeepMind team in mind\cite{a3c}, the scope of the project we present in
+With the results of the Google DeepMind team in mind, the scope of the project we present in
 this paper, will be to implement the \textit{Actor-Critic} algortihm according to \cite{RLbook}
-with a deep learning approach, for learning how to play the simple game of \textit{Cart-Pole}\cite{cart_pole}
+with a deep learning approach, for learning how to play the simple game of \textit{CartPole}, \cite{cart_pole},
 as a proof of concept.
 We will then extend this idea to the \textit{Asynchronous Advantage Actor-Critic} (A3C)
 method presented in \cite{a3c} and examine the effects of different amounts of threads
-on the A3C algorithm as it learns to play the Cart-Pole problem and selected Atari games.
+on the A3C algorithm as it learns how to solve the CartPole problem and play selected Atari games.
 
-A3C is a Reinforcement Learning method that is able to learn
-how to solve a problem solely from experience.
-The algorithm uses two separate Convolutional Neural Networks
- - one to extract information about the algorithms performance 
-and the other to select which action to perform.
-These two networks can be seen as the body and the brain of a human.
+The A3C algorithm is a Reinforcement Learning method that is able to learn
+how to solve a problem exclusively from experience.
+The algorithm uses a single Convolutional Neural Network to extract information
+about the algorithms performance and select an action to perform.
+The network can be seen as the body and the brain of a human.
 The body performs actions which are evaluated by the brain and if
 the action leads to a good result, the brain reinforces the idea
 of repeating the action in the future, if it should ever be in a similar
 situation.
 
 We use CNN's since they have proved to work well on extracting features
-of Atari frames in previous projects (\cite{dqn}, \cite{a3c}).
+from images in previous projects (\cite{dqn}, \cite{a3c}).
 They are computationally expensive to update though,
 so to decrease the amount of necessary computations we will limit
 the input by preprocessing the frames before feeding them
@@ -115,18 +118,18 @@ In \cite{a3c} more than one optimization scheme
 is suggested, but the focus in this project is on the effect of
 different amounts of threads so we won't be tuning hyperparameters
 and testing different optimization strategies.
-Thus, this project will not focus on playing Atari games really well,
-but instead on how asynchronous training affects 
-Reinforcement Learning methods.
+Thus, the main focus of this project is to examine how different levels of asynchronous
+training affects Reinforcement Learning methods.
 
 In the remainder of this paper we review the 
-Cart-Pole and Atari environments available to us in
+CartPole and Atari environments available to us in
 the OpenAI Gym framework and examine the theory behind the
 Reinforcement and Deep Learning methods we will be using
 - i.e. the Actor-Critic algorithm and the asynchronous strategy of A3C.
-We will also provide the results of the Actor-Critic algorithm
-on the Cart-Pole game compared to the A3C method, as well as the
-results of the A3C algorithm playing Atari games, with different 
+We will provide the results of the Actor-Critic algorithm
+solving the CartPole game and compare them to the results achieved by the A3C method
+for the same problem.
+We will also provide the results of the A3C algorithm playing Atari games, with different 
 amounts of threads. 
 Lastly the implementation and experimental setup will be presented and
 a discussion of the results will be given as well as ideas for further
