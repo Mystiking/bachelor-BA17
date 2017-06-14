@@ -6,60 +6,89 @@
 
 \section{Experiments}
 
-The aim of this project is to examine the effect of threading
-in stability of deep reinforcement learning.
-To acheive this we have solved both simple and advanced problems to investigate
-the benefits and disadvantages of asynchronous training in two very different
-settings.
+The aim of this project is to examine the effect of asynchronous training
+in Deep Reinforcement Learning.
+To compare the aynchronous method, A3C, to a single-threaded approach,
+we have implemented the Actor-Critic method with eligibility traces.
+This the results of this approach will work as a baseline for the
+CartPole problem as well as a proof of concept for Actor-Critic based
+methods.
+To measure the advantages and disadvantages in using the A3C algorithm
+compared to a single-threaded approach, we have also implemented the algorithm
+to solve the CartPole problem.
+Both of these methods were allowed to perform the same amount of state transitions,
+on a designated CPU cluster that consisted of 40 Inter Xeon E5-2670 2.5GHz CPUs.
+This setting meant that we could be sure no one else could influence the results
+of our experiments, since each experiment was assigned a number of CPUs
+that only itself was allowed to use during the experiment.
+
+To further test effect of different amounts of threads in the A3C algorithm,
+we have also implemented the method in the more advanced setting of
+games from the Ataru 2600 system.
+The experiments were performed on several \textbf{GPU} clusters, but only had access to
+the \textbf{CPUs} available on each cluster.
+Unfortunately we weren't able to ensure the same controlled
+setting as before, which means we can't be completely sure
+no outside factors can have influenced the final results.
+Due to a lack of time we couldn't wait for the same cluster to
+run all the experiments, so we have had to use different hardware
+for some of the experiments.
+The servers each consisted of 24 CPUs belonging to the Intel Xeon
+E5-2600 series, with the subversions ranging from model E5-2620 to
+E5-2695.
 
 \subsection{Playing CartPole - Actor-Critic with eligibility traces}
 
-As a proof of concept we have implemented the method described in section
-\ref{sec:actor_critic_el} for which the pseudo-code
-can be found in appendix \ref{a:pseudo_code_et}.
+For our first experiment we have implemented the Actor-Critic method
+with eligibility traces as described in section \ref{sec:actor_critic_el}.
+The pseudocode for the algorithm can be found in
+appendix \ref{a:pseudo_code_et} and the actual code in appendix ??.
 The goal of this experiment is to show that a 
 traditional Reinforcement Learning algorithm
 is able to learn how to solve the CartPole problem, as well as provide a
 baseline performance for the A3C algorithm.
-I.e as a measure to test if A3C is performing at least as good
+That is as a measure to test if A3C is performing at least as good
 as the single-threaded Actor-Critic approach.
 
 For this experiment we used two separate neural networks, with no
 shared weights, as policy and state-value estimators.
-The network that estimates the state-value function consisted of an
+The network that estimated the state-value function consisted of an
 input layer with four entries, corresponding to the format of a state in CartPole,
 followed by a single hidden layer with eight neurons, and an output layer of a single
 neuron.
-We used the ReLU to activate the input to the
+We used a ReLU to activate the input to the
 hidden layer and no activation for the output neuron.
 
 For estimating the policy we used a network with the same structure,
 with the only exception being that the output layer consists of two
 neurons, each corresponding to the probability of picking an action.
-To emulate the probability distribution we used the softmax function
+To emulate a policy we used the softmax function
 to activate the final layer.
+For all of the experiments the networks were initialized with the same uniform
+weights.
 
-During the implementation of the algorithm, we encountered a problem with
-the state-value estimates sometimes becoming too large.
-This resulted in both the probabilties of the policy and state-value estimates throwing a \texttt{NaN} error,
+During the implementation of the algorithm, we occasionally encountered a problem with the
+state-value network estimating a too large value.
+This resulted in the probabilties of the policy and state-value estimates throwing a \texttt{NaN} error,
 meaning they couldn't be represented using the bits they were assigned.
 Therefore we had to restrict the parameters of the algorithm to
 be small, which might cause the results of the
-experiment being at a disadvantage, compared to our A3C implementation, since the learning happend
-at a slower pace than could be achieved with a better implementation.
+experiment being at a disadvantage, compared to our A3C implementation, since the learning
+might happen at a slower pace than could be achieved with a better implementation.
 
 \subsection{Playing CartPole - A3C}
 
-To examine the effect of asynchronous training in a simpler setting than
-the Atari games, we have implemented the A3C algorithm presented
-in \cite{a3c} and given by the pseudo-code from appendix \ref{a:pseudo_code_a3c}.
+To examine the effect of asynchronous training in the CartPole problem,
+we have implemented the A3C algorithm discussed in section \ref{sec:a3c},
+which we compare to the Actor-Critic method with eligibility traces.
+The pseudo-code for the algorithm is given in appendix \ref{a:pseudo_code_a3c}
+and the actual code can be found in appendix ??.
 
 We have chosen to also solve the CartPole problem with this approach, as a way to
-investigate how asynchronous training influences the stability of the algorithm,
-compared to the more traditional Actor-Critic approach, and 
+investigate how asynchronous training influences the stability and performance of the algorithm,
+compared to the more traditional Actor-Critic approach, as well as 
 to itself with different amounts of threads.
-
-As in the previous implementation we ecnountered the \texttt{NaN} error,
+As in the previous implementation we ocassionaly encountered the same \texttt{NaN} error,
 but to a much lesser degree.
 This means that the error should have little to no impact on
 the final results.
@@ -80,44 +109,49 @@ one output layer for the policy and another for the value.
 
 For both the CartPole problem and the Atari games we will be using the same asynchronous setup
 as described in \cite{a3c}.
-This means that we will be using a single global network, whose only
+This means that we use a single global network, whose only
 purpose is to keep track of a set of global weights, and a local network
 for each thread.
 To perform the asynchronous update of the global weights we will be using
-RMSpropagation as described in section \ref{sec:a3c}.
-The parameters of the RMSpropagation, and the algorithm in general, have
-been chosen because they provide decent test results.
+RMSProp as described in section \ref{sec:a3c}.
+The parameters of the RMSProp, and the algorithm in general, have
+been chosen because they provided decent test results during implementation
+of the algorith.
 Due to the time limitations of the project we haven't performed
 a more sophisticated selection of the parameters, which might
 influence the results of the experiments.
 
 \subsection{Playing Atari Games}
 
-To make sure the advantages and disadvantages of asynchronous training
-is thoroughly investigated 
 To investigating how the asynchronous training performs in
 a more advanced setting, we have also implemented the A3C algorithm
 to play Atari games.
-We will be examining the effect of different amounts of threads
-in Space Invader and Breakout, and compare it to the results
-of the Cartpole experiments.
+We will be examining the effect different amounts of threads
+have on the performance and learning pace in the games Space Invader, Breakout
+and Pong, as well as compare the results to those of the Cartpole experiment
+using the A3C method.
 
-The main difference between this implementation of A3C
-and the one we used to play CartPole is the structure of the
-policy and value estimator.
-We used a single network with two output layers,
-based on the setup presented in \cite{dqn-nature}, with the
-exception that the input layer of the network takes an $84 \times 84 \times 4$
+Taking an action in an Atari game only leads to a relatively small state change,
+since it is only performed for two to four frames.
+To increase the impact of taking an action we have used the same \textit{action repeat}
+stategy as described in \cite{a3c}, which means that an action is performed four times
+after being sampled.
+Instead of feeding the network a single frame from the games as a state,
+we stack the four latest frames, which means it recieves information about the responses to
+all the repeated actions.
+We also accumulate the rewards that we are given during the action repeat,
+since they are a product of the action.
+
+For this experiment we used a single network with two separate
+output layers as described in \cite{a3c}, with the exception that
+the input layer of the network takes an $84 \times 84 \times 4$
 image-stack as input.
-Instead of feeding the network a single frame from the games,
-we stack the four latest frames in an attempt to let the network
-experience the movement of objects.
-This layers is followed by a convolutional layer that reduces the dimensions
+This layer is followed by a convolutional layer that reduces the dimensions
 of each element in the stack by a factor of four in both dimensions.
 Using 16 kernel filters, the layer produces 16 different
 $21 \times 21$ feature maps.
 In the next layer the size of each of the 16 feature maps is
-halved.
+cut in half.
 This convolution produces 32 new feature maps consisting of $11 \times 11$ values,
 using 32 kernel filters.
 Both of the convolutional layers activates
@@ -131,7 +165,7 @@ In this layer the input is again activated by a ReLU function,
 and the output is sent to two different layers.
 One of the layers consists of a single neuron
 and simply outputs the weighted sum of its input as the estimated value
-of the “state”.
+of the state.
 The other output layer activates its input using the softmax function,
 with as many neurons as actions available, where
 the output of each neuron represents the probability of taking an action.
@@ -145,14 +179,6 @@ A representation of the network is shown below.
              is used on Space Invaders which means it has to assign each of three actions a probability.}
     \label{fig:atari_network}
 \end{figure}
-
-Taking an action using the OpenAI framework only leads to a relatively small state change,
-since it is only performed for two to four frames.
-To increase the impact of taking an action we have used the same \textit{action repeat}
-stategy as described in \cite{a3c}, which means that an action is performed four times
-after being sampled.
-We only consider the fourth frame as the one the action produced, but we accumulate the rewards that
-we are given during the action repeat, since they are a product of the action.
 
 In Space Invaders we perform two additional preprocessing steps before
 the states are fed to the network.
