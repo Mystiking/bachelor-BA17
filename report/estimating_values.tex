@@ -49,9 +49,10 @@ of a state $s$, denoted as $v_\pi(s)$ and called the state-value function, can n
         &= \mathds{E}[ G_t | S_t = s]
     \end{aligned}
 \end{equation}
-where $ 0 \leq \gamma \leq 1$ is the discount rate, which determines how far-sighted the learning agent can be,
-with a rate of zero meaning the return is the reward obtained in the first transition from $s$ and a rate of
-one giving us equation \ref{G_t}.
+where $ 0 \leq \gamma \leq 1$ is the discount rate, which determines how far-sighted the learning agent can be
+and $G_t$ is the \textit{return} from state $S_t$.
+A discount rate of zero means the return is the reward obtained in the first transition from $s$ and a rate of
+one equals equation \ref{G_t}.
 
 According to the agent-environment model (Fig. \ref{fig:agent_environment}) the response that
 the learning agent receives for performing an action consists

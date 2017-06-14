@@ -6,13 +6,13 @@
 
 \subsection{Temporal Difference Learning}\label{sec:td}
 
-We now have a way to describe the value of a state, but we seldomly know the
-value function $v_\pi$ before we begin solving a problem.
-Even with the knowledge of the entire state space and all available actions
+We now have a way to describe the value of a state, but we rarely know the
+value function $v_\pi$ before beginning to solve a problem.
+Even with knowledge of the entire state space and all available actions,
 it is difficult to compute the true value function.
 Instead we can construct an estimator $V(S_t)$ that
-approximates $v_\pi(S_t)$, which means we need a way
-to measure how close the estimator is to the true value.
+approximates $v_\pi(S_t)$. However, this means we need a way
+to measure how close the estimator is to the true value function.
 
 When a learning agent solves a problem, it gains experience
 about the states it encounters and the rewards earned through its transitions.
@@ -26,15 +26,13 @@ $G_t = \sum\limits_{k=0} \gamma^k R_{t+k+1}$.
 
 This estimator only allows us to update the estimate, when a
 terminal state is reached, since this is the time at which $G_t$ is known.
-Such an approach is called an \textit{episodic} update scheme, since it only
-updates when a task is completed - or in other words when an episode
-is over.
-Updating this way is inefficient because it takes the estimator
+Such an approach is called an \textit{episodic} update scheme, since the
+state-value estimator is only updated when a task is completed -
+or in other words when an \textit{episode} is over.
+Updating this way is inefficient because the estimator needs to complete
 a lot of episodes to converge towards the true state-value function.
 
-Instead of only updating the estimator $V(S_t)$ when an episode has
-ended, there is a different approach which updates
-every time a new state is reached.
+A different approach to estimating $V(S_t)$ everytime a new state is encountered.
 From equation \ref{eq:sv} we know that the value function is partly based on its future
 estimate, which we can extend to form an update scheme,
 \begin{equation}\label{eq:up}
@@ -46,8 +44,8 @@ Updating the value estimator based on future results is the basis
 of \textit{temporal difference learning}(TD) and the quantity $R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)$
 is defined as the \textit{one-step TD-error}.
 This error describes the difference between the current estimate
-and the estimate of the next state with the reward experienced from the
-transition to the new state.
+and the estimate of the next state using the reward experienced after
+transitioning to the new state.
 
 Generally we want to minimize the TD-error, as the function $V(S_t)$
 would then be as close to $v_\pi(S_t)$ as possible.
@@ -61,7 +59,7 @@ $V(S_t) = v_\pi(S_t)$ because
     \end{aligned}
 \end{equation}
 
-Thus, using the TD-error we now have a way to measure the performance of
+Thus, the TD-error provides us with a way to measure the performance of
 the value estimator based on experienced returns.
 
 \subsubsection{Multi-step TD learning}\label{sec:multi}
