@@ -7,40 +7,41 @@
 
 \subsection{Estimating the value of states}\label{est_vals}
 
-We want to be able to tell whether it is good or bad to
+We want to be able to determine whether it is good or bad to
 perform an action in a state, in order to reinforce good behaviour
 and likewise discourage the agent from taking actions that have led
 to a bad result in the past.
-Therefore we need a way to assign a \textit{value} to a state,
+Therefore we need a way to express the \textit{value} of a state,
 since we can then choose which action to perform
-based on the \textit{expected} total reward the action provides.
+based on the value of the state it leads to. 
 
-Now, to assign a value to a state we need to take the rewards
+To assign a value to a state we need to take the rewards
 gained from all future state transition into account.
-From a state $S_t$ this quantity is the \textit{expected} sum of
-future rewards from $S_t$,
-\begin{equation}\ref{G_t}
-    \mathds{E}[R_{t+1} + R_{t+2} + \hdots + R_{T} | S_t] = \mathds{E}[\sum\limits_{i = 1}^T R_{t+i} | S_t]
+From a state $s$ this quantity is the expected sum of
+future rewards from $s$, since the action performed are
+sampled from a probability distribution,
+\begin{equation}\label{G_t}
+    \mathds{E}[R_{t+1} + R_{t+2} + \hdots + R_{T} | S_t = s] = \mathds{E}[\sum\limits_{i = 1}^T R_{t+i} | S_t = s]
 \end{equation}
 where $T$ is the point in time where the \textit{terminal state} is reached.
 The terminal state is the last state available in the problem environment and
 no other states can be reached from this state.
-That is, in backgammon the terminal state is the state where one of the players
+In the backgammon example the terminal state is the state where one of the players
 have removed all of their pieces from the board and the game is over.
 In this project we will only be solving \textit{episodic} problems, which
 means there will always be a terminal state.
 However, using the sum of rewards as the return of a state proves problematic.
-In a game of backgammon, for example, where a player is given reward one for performing a winning move
-and reward zero for all other actions, he return of all states will be
-the value of $R_T$ because the action performed at this time is the only one
+In a game of backgammon, if a player is only given a reward for performing the winning move
+and no reward for any other actions, the return of all states will be
+the value of $R_T$, because the action performed at this time is the only one
 that can trigger a reward.
 Therefore the learning agent won't be able to tell which actions are best,
 since all state transitions, except the last, will result in the same reward.
 To deal with this issue we use the \textit{discounted} sum of rewards as our return instead
 of just the sum.
-This means that for each time step further into the future
-we proportionally discredit the reward, which means the value
-of a state $s$, $v_\pi(s)$, can now be described as
+For each time step further into the future
+we proportionally discount the reward, which means the value
+of a state $s$, denoted as $v_\pi(s)$ and called the state-value function, can now be described as
 \begin{equation}\label{gammaG_t}
     \begin{aligned}
         v_\pi(s) &= \mathds{E}[R_{t+1} + \gamma R_{t+2} + \gamma^2 R_{t+3} \cdots | S_t = s]\\
@@ -48,7 +49,7 @@ of a state $s$, $v_\pi(s)$, can now be described as
         &= \mathds{E}[ G_t | S_t = s]
     \end{aligned}
 \end{equation}
-where $ 0 \leq \gamma \leq 1$ is the rate of discount that determines how far-sighted the learning agent can be,
+where $ 0 \leq \gamma \leq 1$ is the discount rate, which determines how far-sighted the learning agent can be,
 with a rate of zero meaning the return is the reward obtained in the first transition from $s$ and a rate of
 one giving us equation \ref{G_t}.
 
@@ -74,7 +75,7 @@ as
 \begin{equation}\label{joint_prob}
     \mathds{P}(S_{t+1} = s', R = r | S_t = s, A_t = a)
 \end{equation}
-since having the information from $S_t$ makes retaining information about previous states
+since the information from $S_t$ makes retaining information about previous states
 and state transitions unnecessary.
 
 The expectation of the return depends on the probabilities of taking action $a$,
