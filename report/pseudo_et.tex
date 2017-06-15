@@ -19,7 +19,7 @@ $A \sim \pi(\cdot | S, \theta)$ \\
 Take action $A$, observe $S'$, $R$ \\
 $\delta \leftarrow R + \gamma \hat{v} (S', \mathbf{w}) - \hat{v}(S, \mathbf{w})$ \\
 $\mathbf{e}^{\mathbf{w}} \leftarrow \lambda^{\mathbf{w}} \mathbf{e}^{\mathbf{w}} + I \nabla_{\mathbf{w}} \hat{v} (S, \mathbf{w})$ \\
-$\mathbf{e}^{\theta} \leftarrow \lambda^{\theta} \mathbf{e}^{\theta} + I  \nabla_{\theta} log \pi (A | S, \theta)$ :\\
+$\mathbf{e}^{\theta} \leftarrow \lambda^{\theta} \mathbf{e}^{\theta} + I  \nabla_{\theta} \log \pi (A | S, \theta)$\\
 $\mathbf{w} \leftarrow \mathbf{w} + \beta \delta \mathbf{e}^{\mathbf{w}}$ \\
 $\theta \leftarrow \theta + \alpha \delta \mathbf{e}^{\theta}$ \\
 $I \leftarrow \gamma I$ \\
