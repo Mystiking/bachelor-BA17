@@ -68,8 +68,8 @@ To avoid updating without taking the rewards into account, we can
 use the value function to evaluate the policy.
 Combining the parameterized value function, $\hat{v}(s, \mathbf{w}_t)$,
 and the parameterized policy, $\pi(a|s, \theta_t)$ is the basis of \textit{Actor-Critc} methods.
-From the agent-environment model, we interaction as the agent performing an action
-and receiving a reward and new state from the environment.
+In the agent-environment model, the agent interacted with the environment
+by performing actions and transitioning to new states.
 For Actor-Critic methods the agent-environment model is extended such that the agent,
 or \textit{actor}, is still interacting with the environment, but
 instead of only receiving the reward and new state, it also receives
@@ -86,7 +86,7 @@ a \textit{critique} of its performance - the TD-error.
 \end{figure}
 
 This means that after an action sampled from $\pi(a|s,\theta_t)$ is performed,
-the reward following the action is used by the value estimator to
+the reward obtained for performing the action is used by the value estimator to
 compute the one-step TD-error from section \ref{sec:td}.
 \begin{equation*}
     \delta_t =  R_t + \gamma \hat{v} (S_{t+1}, \mathbf{w_t}) - \hat{v}(S_t, \mathbf{w_t})
@@ -100,8 +100,8 @@ the gradient step should be small, and vice versa.
 This way of using the value function and policy is called an
 \textit{Actor-Critic} method, where the policy can be seen as an actor
 which is able to interact with the environment, while the value function
-is the critic, evaluating the actions of the actor and thus
-influencing the policy.
+is the critic, evaluating the actions of the actor and 
+influencing the policy accordingly.
 
 %An advantage of using Actor-Critic methods is that the split into a actor and critic, reduces the variance of the function approximation, because the update step size for the policy parameters is defined relative to estimated value from critic.\cite{actCrit}
 
@@ -121,14 +121,14 @@ and
 \end{equation}
 
 This has a stabilizing effect since it handles the problem of delayed reward.
-I.e in most Atari games performing an action doesn't immediately return a reward,
+For example in most Atari games performing an action doesn't immediately return a reward,
 which means that the wrong actions might be reinforced due to the illusion
 of those actions being responsible for the gained reward.
 In section \ref{sec:et} the weight update of the value estimator
 using an eligibility trace was presented as the trace weighted by
 the one-step TD-error.
 To gain more control of the gradient steps, the step-size parameters $\alpha$ and $\beta$ are used,
-as a mean to avoid traversing too far in the direction of the gradient.
+to avoid traversing too far in the direction of the gradient.
 \begin{equation*}
     \mathbf{w}_{t+1}= \mathbf{w}_t + \alpha \delta \mathbf{e}^{\mathbf{w}}
 \end{equation*}
@@ -137,9 +137,14 @@ Equivalently the weights of the policy estimator can be updated in the same fash
     \theta_{t+1} = \theta_t + \beta \delta \mathbf{e}^\theta
 \end{equation}
 
-Thus, we now have a way to learn how to solve a problem from experience gained
-by the actor interacting with the environment, while having its performance
-measured by the critic.
+Now we have a way to solve a problem solely from experience.
+The Actor-Critic model, and Reinforcement Learning in general, is well suited
+to solve problems with domains that are difficult to describe, since
+they need no prior knowledge of the environment.
+Extending the Actor-Critic model to use eligiblity traces 
+increases the usability of the method, since the model is 
+influenced less by poor decisions, which is especially helpful
+when the actor explores the effects of actions with a low probability.
 
 %\printbibliography
 %\bibliography{citations}
