@@ -31,11 +31,11 @@ and \cite{DeepLearningBook}.
 
 Consider a network consisting of $d$ input neurons, $M$ hidden neurons and $K$ output neurons,
 estimating the function $f : \R^d \to \R^K$.
-Each neuron can be denoted as $z_i$, where neurons for which $i < d$ are the input neurons, $d < i \leq M + d$ are the hiden neurons
+Each neuron can be denoted as $z_i$, where neurons for which $i \leq d$ are the input neurons, $d < i \leq M + d$ are the hiden neurons
 and $M + d < i \leq M + d + K$ are the output neurons.
 As described in section \ref{sec:lnc} each neuron $z_i$ can be seen as a weighted activation of its input.
 For the neurons in the hidden layers and the output layer, this means $z_i = h(a_i)$, where 
-$a_i = \sum_{j} w_{ij} * z_{j}$ is the weighted sum of the input to the ith neuron and $h$ is an arbitrary
+$a_i = \sum_{j} w_{ij} * z_{j}$ is the weighted sum of the input to the i'th neuron and $h$ is an arbitrary
 activation function.
 
 Previously we updated the weights of an estimator with regards to some performance measure $\rho$ 
@@ -74,7 +74,7 @@ an output neuron can be found as
 \begin{equation}
     \frac{\partial \rho}{\partial w_{ij}} = h'(a_i) \frac{\partial \rho}{\partial z_i} * z_j
 \end{equation}
-Now, this only holds for the output neurons because their output isn't
+This only holds for the output neurons because their output isn't
 used by any other neuron.
 For the hidden neurons we have to take all subsequent neurons into account as
 well, since their output is propagated forward through the network.
@@ -82,7 +82,7 @@ Thus,
 \begin{equation}
     \delta_i = \sum\limits_{k=i+1}^{M + d + K} \frac{\partial \rho}{\partial a_k} \frac{\partial a_k}{\partial a_i} 
 \end{equation}
-for all $d > i \leq M + d + K$ - the hidden neurons.
+for all hidden neurons, $z_i$, for which $d > i \leq M + d + K$.
 Since $\frac{\partial \rho}{\partial a_k} = \delta_k$ and
 $\frac{\partial a_k}{\partial a_i} = \frac{\partial a_k}{\partial z_i} \frac{\partial z_i}{\partial a_i}$ we
 can derive $\delta_i$ as
@@ -97,17 +97,15 @@ because $\frac{\partial a_k}{\partial z_i} = \frac{\partial}{\partial z_i} \sum_
 Using these equations, we can then compute the partial derivatives for all output and hidden neurons
 by computing $\delta$, since we already have access to the value of $z_j$.
 However, it is important to note that the partial derivatives have to be computed in the reverse order,
-since each derivative in each neuron, $z_j$, is dependant of all derivatives of all later neurons $z_i$ for $j > i$.
+since each derivative in each neuron, $z_j$, is dependant of all derivatives of all later neurons $z_i$ for $j < i$.
 
 
 %%%% AFSLUTNING %%%%
 
-Now that we have an understanding of the underlying principles of Deep
-Reinforcement Learning we can apply it to real problems.
-We have discussed/presented a lot of details/information in
-the last sections, with the most important aspects being the theory behind
-Actor-Critic methods and how Deep Learning can be used to estimate
-a policy and the state-value function.
-
+Now that we have an understanding of the underlying principles of Deep Reinforcement Learning, we can apply it to real problems.
+We have presented a lot of theory in the last sections,
+with most important aspects being the fundamentals of the Actor-Critic method and how eligibility have a stabilizing effect on learning,
+as well as the idea of using asynchronous training to speed up the training process, and lastly
+how Deep Learning can be used to estimate a policy and the state-value function
 
 \end{document}
