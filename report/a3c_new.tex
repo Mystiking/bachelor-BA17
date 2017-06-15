@@ -11,13 +11,13 @@ when it is solving challenging tasks such as Atari games.
 To speed up the training process it is possible to use 
 multiple Actor-Critic models to 
 solve the problem locally in parallel.
-These models share a set of parameters, $\thata$ and $\mathbf{w}$, which they update asynchronously,
+These models share a set of parameters, $\theta$ and $\mathbf{w}$, which they update asynchronously,
 and thus, each model can benefit from the experience gained by the other models.
 
 The approach presented in \cite{a3c}, called the \textit{Asynchronous Advantage Actor Critic} (A3C) method,
 use several local models and a single global model, whose only purpose is to keep track of the global parameters,
 to train asynchronously.
-Each of the local models use a copy of the global parameters, $\thata'$ and $\mathbf{w}'$, to run through a problem
+Each of the local models use a copy of the global parameters, $\theta'$ and $\mathbf{w}'$, to run through a problem
 and update the global parameters based on the local experience.
 The global update should be performed such that
 the elegibility of each component of the gradient determines the size of the
