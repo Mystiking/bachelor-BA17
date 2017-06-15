@@ -8,7 +8,7 @@
 
 In section \ref{sec:et} we mentioned that
 a \textit{neural network} can be used as a function approximator.
-Thus, a neural network can be seen as a function $f^\sim(x)$ that approximates a
+This means the neural network can be seen as a function $f^\sim(x)$ that approximates a
 function $f(x)$ and we will be using neural networks to estimate
 both the state-value function and the policy.
 We will present Deep Learning in this section with regards to the book \cite{DeepLearningBook} and the slides, \cite{IgelConv}, by Christian Igel
@@ -36,34 +36,35 @@ Each layer consists of a number of \textit{neurons} that are connected to the
 neurons of the next layer.
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=10cm]{include/layers.png}
-    \caption{A series of layers in a fully connected neural network.}
+    \includegraphics[width=12cm]{include/layers.png}
+    \caption{A series of layers in a fully connected neural network, where each layer consists of three neurons.}
     \label{fig:layers}
 \end{figure}
 
-A neuron is a construct that transforms a series of input signals into a single output signal.
+A neuron is a unit that transforms a series of input signals into a single output signal.
 Each of the input signals are sent through a \textit{weighted connection}, which means
-that the input $a_i$ to neuron $z_i$ is given by
+that the input $a_i$ to a neuron $z_i$ is given by
 \begin{equation}
     a_i = \sum\limits_{j} w_{ij}* z_j
 \end{equation}
 for all neurons $z_j$ in the previous layer with a connection to $z_i$.
 
 The purpose of each of the hidden layers is to extract some features from the input.
-By using an \textit{activation function}, $h : \R^d \to \R$, on the
-weighted input it receives, a layer can either highlight or dampen
+To achieve this an \textit{activation function}, $h: \R^d \to \R$, is used on the weighted
+input, that can either highlight or dampen
 certain properties of the input.
-Combining the features extracted by the hidden layers is what allows the network
+Combining the features extracted by the hidden layers is what enables the network
 to approximate $f(x)$.
 The only way to change the network is by altering the weighted connections
 between the neurons, and the general idea is to change the weights such that
 $f^\sim(x)$ varies the least from $f(x)$ for all $x$.
-To update the weights of the networks we will be using the gradient approaches
-for both the Actor-Critic and A3C methods, presented in section \ref{sec:actor_critic_el} and \ref{sec:a3c}.
+To update the weights of the networks we will be using gradient ascent
+for the Actor-Critic method and RMSpropagation for the A3C algorithm,
+as presented in section \ref{sec:actor_critic_el} and \ref{sec:a3c}.
 %%%% A drawing of a neuron “up close”
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=10cm]{include/neuron.png}
+    \includegraphics[width=12cm]{include/neuron.png}
     \caption{The structure of a single neuron with activation function $h$.}
     \label{fig:neuron}
 \end{figure}
@@ -71,12 +72,13 @@ for both the Actor-Critic and A3C methods, presented in section \ref{sec:actor_c
 The choice of activation function depends on the task the
 network is supposed to solve.
 In our case we wish to learn a policy and estimate the value of a state.
-The policy is a probability distribution, and we will be using a softmax
-to emulate this, as described in section \ref{sec:improv}, in the final layer
+The policy is a probability distribution, and we will be using a softmax function
+to emulate this, as described in section \ref{sec:improv}, in the final layer.
+The softmax function is defined as
 \begin{equation}
-    \text{softmax}(x) = \frac{e^(h(a_i))}{\sum\limits_{j} e^(h(a_j))}
+    \text{softmax}(x) = \frac{e^{h(a_i)}}{\sum\limits_{\ell} e^{h(a_\ell)}}
 \end{equation}
-for each of the $j$ actions we wish to assign a probability.
+for each of the $\ell$ actions we wish to assign a probability.
 Here the weighted connection from the previous layer, works as
 a numerical preference for each of the actions.
 The softmax function is a generalization of the sigmoid function, $\frac{1}{1 + e^{-x}}$,
@@ -92,20 +94,19 @@ The value estimate should only be a single output, and therefore we have chosen 
 let the output of the neural network that approximates $v_\pi(s)$ be given
 as the sum of the output of the neurons in the second to last layer.
 
-To promote sparsity in the hidden layers, we will be using the \textit{Rectified
+In the hidden layers we will be using the \textit{Rectified
 Linear Unit} (ReLU) as an activator.
 The ReLU is defined as
 \begin{equation}
     f(x) = \max(0,x)
 \end{equation}
-Since all negatie values are removed, the following layer will recieve less
-input, which lightens the computational burden of the layer.
-Another benefit of the ReLU is that the gradient is always constant.
+A benefit of the ReLU is that the gradient is always constant - 
+if $x \leq 0$ then the gradient is 0, and if $x > 0$ the gradient is 1.
 This can result in faster learning, since the gradient won't change even
 though the weights of the network changes.
 \begin{figure}[!h]
     \centering
-    \includegraphics[width=10cm]{include/relu.png}
+    \includegraphics[width=15cm]{include/relu.png}
     \caption{Plot of the ReLU function.}
     \label{fig:relu}
 \end{figure}
@@ -120,10 +121,10 @@ features to make a prediction of the output.
 To process the high dimensional frames from the Atari games we will be using
 a \textit{Convolutional} Neural Network (CNN).
 In addition to the activation performed in a neural network, a CNN
-also performs a \textit{convolution} and a \textit{pooling} of the input.
+also performs a \textit{convolution} and a \textit{pooling} of the input in each convolutional layer.
 
 In this project, the input to the CNN will be a two dimensional input with a single
-channel - the grayscaled and resized Atari frames.
+channel - a grayscaled and resized Atari frame.
 A convolution in two dimensions of a discrete image $I$ with filter kernel $K$
 is given by 
 \begin{equation}
@@ -131,9 +132,9 @@ is given by
 \end{equation}
 where the kernel filter $K$ is a function $K : \R^{(d, k)} \to \R$.
 A 2D convolutional layer takes advantage of the spatial structure in the input data to contruct a feature map
-using the linear filter $K$.
+using the filter.
 In a classic Neural Network each neuron has its own weighted connection to each neuron in the subsequent layer,
-but in a convolutional layer the neurons share a kernel of weights - the filter $K$, which can be represented as
+but in a convolutional layer the neurons share a kernel of weights - the filter $K$ -  which can be represented as
 a $d \times k$ dimensional matrix.
 $$
 K =
@@ -147,55 +148,57 @@ $$
 Each element in the resulting feature map describes the weighted sum of its neighbouring
 pixels.
 Due to the spatial structure found in images, performing a neighbourhood operation
-can be seen as extracting features from the original input - e.g. find the
+can be seen as extracting features from the original input - e.g. finding the
 edges in an image by performing a finite center differencing.
 
 For a $4 \times 4$ input image and a $3 \times 3$ kernel filter the convolution
 would be given by
 %%% 2d convolution
-\begin{figure}[!h]\label{fig:conv2}
+\begin{figure}[!h]
     \centering
     \includegraphics[width=10cm]{include/conv_2.png}
-    \caption{A 2D convolution on an image which produces a \textit{feature} map.}
+    \caption{A 2D convolution on an image which produces a feature map.}
     \label{fig:conv}
 \end{figure}
 \newpage
-A problem with the convolution shown in figure \ref{fig:conv2} is that
+A problem with the convolution shown in figure \ref{fig:conv} is that
 pixels at the boundary of the image are lost.
 To deal with this issue we make use of zero padding.
 By adding zeros to the border of each image, until the kernel
-filter fits around each pixel, the image can maintain its dimensions, since the
-padding is all that is lost now.
+filter fits around each pixel, the image can maintain its dimensions, since
+only the padding will be list in the convolution.
 %%% Zero padded 2d convolution
 \begin{figure}[H]
     \centering
     \includegraphics[width=10cm]{include/conv_2_zero_pad.png}
-    \caption{The effect of zero padding the input image.}
-    \label{fig:conv}
+    \caption{The effect of using zero padding on the input image,
+             before performing the convolution.}
+    \label{fig:conv2}
 \end{figure}
 Each element in the resulting feature map contains information about
-its neighbouring pixels, which means we can more safely reduce the dimensionality
-without losing as much information as if we were to reduce it before the convolution.
+its neighbouring pixels, which means we can reduce the dimensionality
+without losing as much information as if we reduced it before performing the convolution.
 The reduction performed is called a \textit{pooling} and attempts to retain
-as much information as possible after the reduction.
+as much information as possible, from the feature map produced by the previous convolution. 
 A common pooling scheme is to let every resulting element be the maximum
 or average value of an area of the input.
 \begin{figure}[H]
     \centering
     \includegraphics[width=10cm]{include/pooling.png}
-    \caption{A max-pooling of an input image $I$.}
-    \label{fig:conv}
+    \caption{A max-pooling performed on an image.}
 \end{figure}
 The pooling is performed to support \textit{translation invariance},
-which is used to make sure the features of the network are able to
+which is used to make sure the features of the input are able to
 be extracted, regardless of their position in the feature map.
-In an Atari game most objects move, while maintaining their original shape so being able to
+In an Atari game most objects move, while maintaining their original shape.
+Thus, being able to
 extract information about objects independent of their position is very useful.
 
 Instead of performing both a pooling and a convolutions in two separate steps,
 we will be using convolutions \textit{with stride}.
-This means we won't be applying the convolution to 
-every element of the input, but instead every \textit{nth} element,
+The stride determines the movement of the kernel filter, which means that
+using a stride of $n$, results in the kernel filter skipping $n$ elements 
+while computing the convolution.
 %%%%% Strides
 \begin{figure}[!h]\label{con2}
     \centering
@@ -205,7 +208,6 @@ every element of the input, but instead every \textit{nth} element,
              the convolution is skipping every second element.}
     \label{fig:conv}
 \end{figure}
-\newpage
 Here the convolution skips every second element, resulting in a downsampling
 of the input.
 In two dimensions a convolution can be seen as the kernel moving across
