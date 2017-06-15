@@ -146,7 +146,7 @@ class Actor(threading.Thread):
         weights_c = [weights[0], weights[1], weights[2], weights[4]]
  
         # Updating the weights of the global model
-        # The logarithm of p
+        # The logarithm of the probabilities
         log_p = tf.log(tf.clip_by_value(p, 0.000001, 0.999999))
         # The policy times the experienced advantage, -loss_actor to make the loss positive
         loss_actor = -tf.reduce_mean(tf.reduce_sum(tf.multiply(log_p, self.a_t), reduction_indices=1) * self.advantage)
@@ -282,7 +282,7 @@ class Actor(threading.Thread):
                     t_start = self.step_counter
                     memory = []
                     with graph.as_default():
-                        # Reset weights to local weights
+                        # Reset weights to global weights
                         start_weights = global_model.get_weights()
                         self.local_model.set_weights(start_weights)
             rewards.append(total_reward)
@@ -292,9 +292,9 @@ class Actor(threading.Thread):
                 avg_vals = sum(values) / len(values)
                 rewards = []
                 values = []
-                print("T:", global_step_counter, "Average reward:", avg_reward, "Probs:", probabilities, "Avg val:", avg_vals, "Aliens killed:", aliens_killed)
+                print("Timesteps:", global_step_counter, "Average reward:", avg_reward, "Probs:", probabilities, "Avg val:", avg_vals, "Aliens killed:", aliens_killed)
             now = time.time()
-            # Write to lof file
+            # Write to result file
             self.result_file.write("{},{},{},{}\n".format(global_step_counter, total_reward, now - start_time, aliens_killed))
         self.result_file.close()
 
