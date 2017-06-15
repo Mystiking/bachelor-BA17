@@ -7,63 +7,64 @@
 It seems evident that the methods used in this project were able
 to solve the CartPole problem and several Atari games successfully,
 with the exception of Pong.
-Our preprocessing step uses the mean of the surrounding pixels
-to describe the three channels of the RGB Atari frames into a single
+The reason for this may be rooted in the preproccessing step.
+Our preprocessing step computes the mean of the surrounding pixels
+to represent the three channels of the RGB Atari frames as a single
 value.
-For both Space Invaders and Breakout a lot of the background pixels are
+For both Space Invaders and Breakout most of the background pixels are
 black, which means a lot of the values in the grayscaled images
-are zero.
+are also zero.
 When we resize these images, a lot of the zero values are retained
-and when they are fed to the neural network these values don't have any
+and when they are fed to the neural network, they won't have any
 influence on the final outcome.
 For Pong this is not the case, since the background is orange.
-Therefore a possible reason for the A3C methods inability to learn
-how to play Pong is that more values needs to be taken into account
-for every weights update.
+This means that the input is less sparse for Pong, than the other games,
+which can be the reason the A3C method is unable to learn
+how to play Pong.
 However, we believe that the method would be able to converge if
-it had been given more time to train, but due to the time limitations
+it had been given more time to train,
+since there is no theoretical reason it shouldn't,
+but due to the time limitations
 of this project we haven't been able to test it.
 
 In the CartPole experiments it is notable that the A3C method converged
-towards a mean score of 200 faster than the Actor-Critic method with
+towards a mean score of 200, faster than the Actor-Critic method with
 eligibility traces for all thread settings.
 A possible reason for the difference in performance is that we were able to
-take larger gradient steps using the A3C method compared to the
-size of the steps in the Actor-Critic method.
-Taking larger steps in the latter resulted in our implementation
-throwing an exception, but we are confident that if more
-time was available we should be able to find more suitable parameters
-that could speed up the learning.
+take larger gradient steps using the A3C method,
+because a large step-size in the Actor-Critic method 
+resulted in an exception.
 
 From figure \ref{fig:a3c_time_steps} and \ref{fig:a3c_time} we can see
 that there was no significant speedup in improvement of performance by
-using multiple threads.
-We expected a speedup in regards to real-time, since we should be able
-to perform more time steps in the same amount of time.
+using multiple threads in the CartPole experiments.
+We expected a speed-up in regards to real time, since we should be able
+to perform more time steps by running multiple threads in parallel. 
 During training we updated the global model after each timestep,
-such that the updating scheme of the A3C method resembled the one
-used in the Actor-Critic method more.
-The results could be a consequence of updating the network requiring
-approximately the same amount of time as it took to sample and perform
+such that the updating scheme of the A3C method was more like the one
+used in the Actor-Critic method.
+The lack of speed-up could be a consequence of updating the network requiring
+approximately the same amount of time, as it took to sample and perform
 an action.
-Hence, the local agents are waiting in line for their turn to
-perform the asynchronous update of the global model, which means
+Hence, the local agents are waiting to
+perform the asynchronous update of the global model, which means the addition of
 more threads will simply result in a larger queue.
 
 The results of the Atari games behaved a lot more as expected.
-More threads resulted in a higher amount completed timesteps,
-which suggests that the same bottleneck isn't present in
-the implementation for the Atari games.
-Here we used an action repeat as well as a replay memory,
+More threads resulted in a higher amount of completed timesteps,
+which suggests that the bottleneck form the Cartpole experiment isn't present in
+the A3C implementation for the Atari games.
+For this method, we used an action repeat as well as a replay memory,
 which means we spent more time interacting with the environment
-between the asynchronous updates and from figure \ref{fig:a3c_spaceinvaders}-\ref{fig:a3c_pong_comp}
+between the asynchronous updates.
+From figure \ref{fig:a3c_spaceinvaders} to \ref{fig:a3c_pong_comp}
 it is clear that more threads result in a larger amount of completed timesteps
-in the same amount of real-time.
-However it is notable that it seems like all the different thread
-settings converge if they allowed to complete the same amount of timesteps.
+in the same amount of time,
+however, it is notable that it seems like all the different thread
+settings converge in the same amount of timesteps.
 This means that the A3C algorithm is stable, since the learning
-doesn't collapse, even though multiple agents update the same global model
-while being situated in different states.
+doesn't collapse, even though multiple agents update the global parameters at the same time 
+while being situated in vastly different states.
 
 %%In \cite{a3c} multiple different optimization schemes for performing
 %%the aynchronous update was discussed, and presented results showing
@@ -73,85 +74,87 @@ while being situated in different states.
 %%section \ref{sec:a3c} and the results presented in the article.
 %%This optimzer is part of the reason the A3C experiments didn't collapse
 
-For the Atari games it is unexpected that the amounts of completed timesteps
+For the Atari games it is unexpected that the amount of completed timesteps
 for two, four and eight threads are very close to each other, but
-sixteen threads completes X times as many steps as the experiment using eight
-threads.
+sixteen threads completes 2.45 more timesteps than the experiment using eight
+threads on average over all of the games.
 The experiments were all performed on DIKUs GPU servers, since each of them
 has 24 CPU cores.
-A problem with this setting is that it is impossible to make sure
-the experiments is the only process running on the servers, which means
-some of the threads might have to wait for other users processes to
-free up resources.
+A problem with this setting is that we can't be sure 
+the experiments are the only processes running on the servers, which means
+some of the threads might have to wait for other users to
+give up resources.
 This would explain why there is a large gap between the timesteps
-completed using eight threads and sixteen threads, due to one
-being more “lucky” with regards to user activity and
-that the experiments have been run on servers with different CPUs.
+completed using eight and sixteen threads, due to one
+being luckier with regards to user activity.
+Another problem is that the experiments have been performed on servers with different CPUs,
+which means that there is no guarantee that the difference isn't due to
+varying hardware quality.
 
 Unlike the CartPole experiments, we have only run our implementation
 of A3C for the Atari games a single time for each thread setting for each game.
-Therefore the gap might disappear if the experiments were to be run
+Therefore the gap might even out if the experiments were allowed to run
 several times.
 However, for all the Atari games we achieved roughly the same mean
-for all thread settings after completing the same amount of timesteps.
-This seems to stress that the learning is very stable, when each model is initialized
-with the same parameters, and that running an experiment again would yield
+for all thread settings after the same amount of timesteps,
+which seems to imply that the learning is stable, when each model is initialized
+with the same parameters, and that running an experiment an additional time would yield
 roughly the same result.
 
 The result of the experiments for Breakout and Space Invaders
-seem to indicate that once the method has reached a certain point
-the performance becomes stale.
+seem to indicate that once the method reaches a certain point
+the improvement in performance becomes stale.
 In most Atari games the level of difficulty increases as the
 player progresses thorugh the game.
 In Breakout the speed of the ball increases after
 four hits and again after twelve.
-This explains why the performance decreaes first after
+This explains why the increase in performance becomes lower after
 approxiately half a million timesteps and again after
-roughly 2.5 million - the points in time where they
-consistently produce a mean score of aroung 4 and 12,
-respectively.
+roughly 2.5 million - the points in time where a mean score around 4 and 12
+is consistently produced, respectively.
 For Space Invaders the same scenario is present, since
 the aliens progressively increase their speed as they
 descent upon the player.
 This means that it is much more difficult to hit the last aliens,
 which explains the results from figure \ref{fig:a3c_spaceinvaders},
-since the mean score is just short of the score obtained by killing all aliens.
+since the mean score is just short of the score obtained by killing all aliens (630 points).
 
-From the results of the CartPole and Atari experiments for the A3C method
+Overall
 it seems as if the bottleneck of the positive effects of asynchronous training
 lie in the amount of work that can be done inbetween updates to the global model.
-Hence, multiple threads only increase the pace of the learning if
+Hence, multiple threads only increase the pace of learning if
 interacting with the environment takes long enough to ensure
-none of the threads will have to wait on another thread performing
-the asynchronous update.
+none of the threads will have to wait to perform
+its asynchronous update.
 It would be interesting to investigate where the threshold is located
 for the speed up in regards to the number of threads used in the Atari games,
-and if we have reached it already, but we will have to leave this for further work.
+and if we have reached it already, but we will have to leave this for future work.
 Another possible limitation might lie in the size of the replay memory.
-In the article, \cite{a3c}, no experiments is provided that test
-the effects of different amounts of experience in the replay memory.
-Examining these effects would be interesting, since they also seem to
-play a part in deciding the effectiveness of the asynchronous training.
+In the article, \cite{a3c}, no experiments are provided which test
+the effects of different sizes of the replay memory.
+It would be interesting to examine these effects, since a larger replay memory
+in theory should make it possible to use a lot of threads, but at the same time
+the accumulated gradient updates will become larger, which might result in
+more variance in the final result.
 
 In this project we have used Deep Reinforcement Learning to
 create a model capable of playing Atari games.
-However, the concepts and ideas discussed translates to real world
+However, the concepts and ideas discussed can be translated to real world
 issues as well.
 Learning from experience can be used to solve problems where the
-problem domain is either too large or too complex to
-describe as a ruleset.
+domain is either too large or too complex to
+describe with a set of rules.
 A possible application for Deep Reinforcement Learning is
 as controller of self-driving cars.
 The states of the model would in this case be information
 from the real world, e.g. images of the road ahead, 
 and the actions would be the same as those available to
 a human driver.
-Here the problem lie in picking an action given a real-world situation,
-which the Reinforcement Learning agent could do using previously
-gathered experience.
-However, unique and unfamiliar situations might occur too rarely
-for the agent to be able to select the best action to perform
-in the given situation.
+The Reinforcement Learning agent would in this case pick the most
+optimal action to perform in a real-world situation.
+However, when unique and unfamiliar situations occur 
+the agent needs to select the best action based on limited to no
+experience.
 Therefore Deep Reinforcement Learning can only be applied
 to real world issues if a “safety net” is in place
 to handle critical situations that doesn't occur
