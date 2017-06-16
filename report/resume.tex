@@ -6,17 +6,17 @@
 
 
 I dette projekt fremlægger vi effekterne af brugen af asynkron træning
-i Deep Reinforcement Learning metoder.
+til Deep Reinforcement Learning metoder.
 Vi implementerede en Actor-Critic metode med eligibility traces til at løse
 CartPole problemet, samt
 Asynchronous Advantage Actor-Critic (A3C) algoritmen, som vi brugte
-til at løse både CartPole problemet og til at spille Atari spil.
-Vores resultater viser at det er muligt at opnå en forøgelse i
-antallet af udførte handlinger på 631,27\% i flere Atari spil,
+til at løse både CartPole problemet og spille Atari spil.
+Vores resultater viser at det er muligt at opnå en forøgelse, i
+antallet af udførte handlinger, på 631,27\% i flere Atari spil,
 mens stabiliteten af læring vedligeholdes.
 Til gengæld, var vi kun i stand til at opnå en formindskelse på 15,09\% for tiden
-brugt på at spille Cartpole.
-Resultaterne tyder på at fordelene ved asynkron træning kun fremtræder
+brugt på at udføre Cartpole eksperimentet.
+Resultaterne tyder på at fordelene ved asynkron træning kun fremtræder,
 hvis det er muligt for de enkelte tråde, at udføre nok arbejde mellem hver asynkron opdatering.
 
 \end{document}
