@@ -10,26 +10,25 @@ To train and test our Actor-Critic and Asynchronous Advantage Actor-Critic imple
 the OpenAI Gym framework\cite{openAIGym}.
 This framework provides an interface to 118 Atari 2600 games,
 that can be used by developers to compare and test their reinforcement learning algorithms.
-
  
-In the Atari enviroments there is always a finite \textit{action space} and continous \textit{state space}.
-The state space is continous because a \textit{state} is represented as a RGB image - a screenshot from a game
+In the Atari environments, there is always a finite \textit{action space} and continuous \textit{state space}.
+The state space is continuous because a \textit{state} is represented as an RGB image - a screenshot from a game
 at the given time. The action space is finite because there is a fixed amount of
 actions available to the player in each game.
 
 Simulating an action in a game takes the player into a new state
 and returns information about the new state,
-the \textit{reward} the action trigered and a \textit{binary signal} which indicates whether the 
+the \textit{reward} the action triggered and a \textit{binary signal} which indicates whether the 
 game is done or not.
 The reward is the score gained from transitioning to the new state and
-it is not uncommon for this reward to be zero, as many of the players actions do not immediately produce rewards.
+it is not uncommon for this reward to be zero, as many of the player's actions do not immediately produce rewards.
 In most of the Atari games performing an action for a single frame have limited impact on the game,
-so instead taking a single action using the OpenAI Gym framework
+so instead, taking a single action using the OpenAI Gym framework
 results in that action being repeated $x$ times, where $x$ is uniformly sampled from $\{2, 3, 4\}$.
 
 \subsection{Cart-Pole}
 
-Among a lot of other game types OpenAI gym also supports an interface
+Among a lot of other game types, OpenAI gym also supports an interface
 to the Cart-Pole problem.
 A player can win the Cart-Pole game if they manage to balance a pole connected to the top of a moving cart for
 200 consecutive time steps.
@@ -43,17 +42,17 @@ either direction or if the cart exits the frame.
     \label{fig:cartpole}
 \end{figure}
 
-Unlike the Atari environments a state in Cart-Pole consits of only four elements - the position and velocity of the cart, and the
+Unlike the Atari environments a state in Cart-Pole consists of only four elements - the position and velocity of the cart, and the
 angle and angular velocity of the pole.
-Each time step, corresponding to a new frame, the player has to chose between moving the cart to the right or to the left and it is not possible
+Each time step, corresponding to a new frame, the player has to choose between moving the cart to the right or to the left and it is not possible
 to do nothing.
-For every time step the pole hasn't moved more than 15 degrees from the starting position and
+For every time step, the pole hasn't moved more than 15 degrees from the starting position and
 the cart has stayed inside the frame, the player is awarded a single point.
 
 We will be using the Cart-Pole problem as a proof of concept for our Actor-Critic implementation and
 compare it to the A3C algorithm used on the same problem.
 The reason for using the Cart-Pole problem is that it should be easier
-to solve, because each state consists of fewer dimensions than a state
+to solve because each state consists of fewer dimensions than a state
 from an Atari game.
 
 
@@ -89,9 +88,9 @@ Each pixel contains three channels corresponding to the red, green and blue inte
 \end{figure}
 Using the raw Atari frames can be computationally demanding, so we have chosen
 to preprocess our data as described in \cite{dqn}. 
-The first step of the preprocessing is to reduce the amount of channels used to
+The first step of the preprocessing is to reduce the number of channels used to
 represent a frame.
-We achieve this by taking the mean over the three channels, which results
+We achieve this by taking the mean of the three channels, which results
 in a naive grayscaling of the images.
 \begin{figure}[H]
     \begin{subfigure}{.3\textwidth}
@@ -149,10 +148,10 @@ in the frame.
 By preprocessing the data the remaining feature extraction becomes computationally 
 cheaper, as the dimensions have been significantly reduced compared to the raw Atari RGB frames.
 In the CartPole environment the player only had to take four elements into consideration when picking an action,
-but in the Atari environments the player is faced with a much more complex view. 
+but in the Atari environments, the player is faced with a much more complex view. 
 
-In general we want the learning agent to be able to pick an action from all
-the available actions, but in some of the Atari games there are duplicate actions.
+In general, we want the learning agent to be able to pick an action from all
+the available actions, but in some of the Atari games, there are duplicate actions.
 To speed up the training we have chosen to remove duplicates of the same action
 from the action space.
 
