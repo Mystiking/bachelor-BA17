@@ -4,26 +4,22 @@
 
 \section{Conclusion}
 
-\begin{itemize}
-    \item[--] Hvad var målet med projektet
-    \item[--] Hvad skete der i projektet?
-    \item[--] Resultater
-    \item[--] Pointe om balance mellem tid brugt på interaction og opdateringer
-    \item[--] I fremtiden kunne det være fedt at prøve at finde ud af hvor mange agenter man kan bruge og stadig beholde stabiliteten.
-\end{itemize}
-
-
 The aim of this project was to investigate the effects of asynchronous
-training in Reinforcement Learning.
-A basic Actor-Critic method was presented, extended by the use of eligibility traces,
+training in Deep Reinforcement Learning.
+A basic Actor-Critic method was presented,
 as well as the more recent Asynchronous Advantage Actor-Critic algorithm.
 We were able to solve the Cartpole problem and some of the games from the
-Atari 2600 system, and show that it was possible to obtain a
-speed-up of 697,94\% by using 16 learning agents in parallel, compared to
+Atari 2600 system, and showed that it was possible to obtain a
+speed-up of 631,27\% on average by using 16 learning agents in parallel, compared to
 using only a single thread, in the games from the Atari 2600 system.
 However, we only saw a speed-up of 15,06\% in the time it took for the CartPole problem
 to complete 200.000 timesteps for the best amount of threads, eight, compared to the
-worst, one.
-This indicates [pointe om balance].
+single-threaded experiment.
+This indicates that the advantages of asynchronous training are only present, when
+there is a balance between the amount of time used interacting with the environment
+and the time spent performing the asynchronous update.
+Thus, in further work, it would be interesting to examine how increasing both the
+amount of work each thread can perform between the asynchronous update, as
+well as the number of threads, can influence the pace of learning for the A3C method.
 
 \end{document}

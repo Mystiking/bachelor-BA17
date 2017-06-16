@@ -121,13 +121,7 @@ The plot has been cut off because the different thread settings didn't require t
 same amount of time to complete 200.000 timesteps.
 The time consumed can be more easily seen in table \ref{tab:time}, which shows that
 the experiment using 8 threads was the first to complete all the timesteps.
-It is unexpected that the experiment using 16 threads wasn't the first,
-since a major advantage of the A3C method,
-should be that using more threads should result in a higher amount of overall timesteps completed.
-It is also notable that the plots of real-time and timesteps are almost identical
-over all thread settings, which is surprising since the usage of more
-threads didn't achieve a significant speedup
-in time consumed by the implementation.
+
 \begin{table}[H]
     \centering
  \begin{tabular}{ |l|c| }
@@ -148,6 +142,36 @@ in time consumed by the implementation.
  \caption{The median time used to complete 200.000 timesteps
  for all thread settings over all the CartPole experiments using the A3C method.}
     \label{tab:time}
+\end{table}
+
+It is unexpected that the experiment using 16 threads wasn't the first,
+since a major advantage of the A3C method,
+should be that using more threads should result in a higher amount of overall timesteps completed.
+It is also notable that the plots of real-time and timesteps are almost identical
+over all thread settings, which is surprising since the usage of more
+threads didn't achieve a significant speedup
+in time consumed by the implementation.
+The speed-up in time consumed by the experiments to complete the 200.000
+timesteps is given in percentage in table \ref{tab:cp_compare}
+
+\begin{table}[H]
+    \centering
+ \begin{tabular}{ |l|c| }
+  \hline
+  \multicolumn{2}{|c|}{Speed-up in percentage for each of the thread settings} \\
+  \hline
+  2 threads & 3,00\%\\
+  \hline
+  4 threads & 10,05\%\\
+  \hline
+  8 threads & 15,09\% \\
+  \hline
+  16 threads & 3,36\% \\
+  \hline
+ \end{tabular}
+ \caption{The speed-up in regards to the decrease in median runtime compared to
+ the experiment using a single thread.}
+    \label{tab:cp_compare}
 \end{table}
 
 
@@ -262,8 +286,8 @@ each point represents the mean of the 500 surrounding points.
         consumed real-time.}
     \end{subfigure}
   \end{tabular}
-  \label{fig:all_atari}
   \caption{Results for the three games the A3C algorithm have been used to play.}
+  \label{fig:all_atari}
 \end{figure}
 
 From these results it seems that the implementation is able to learn
@@ -371,32 +395,57 @@ in the end, but it is too small a change to conclude that the method learned to 
 game.
 However, with regards to the number of timesteps completed,
 the trend is the same as the one in the Breakout and Space Invaders
-experiments, and in table \ref{table:compare_timesteps} we see the number of timesteps performed
-for each of the 3 atari games, for all combination of thread setting,
+experiments.
+In table \ref{table:compare_timesteps} the number of timesteps performed
+for each of the three Atari games can be seen, for all thread settings.
 \begin{table}[H]
 \centering
 \begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|  }
  \hline
- \multicolumn{4}{|c|}{List of performed timesteps per game per thread setting} \\
+ \multicolumn{4}{|c|}{Number of performed timesteps for each game} \\
  \hline
       Game & Space invaders  & Breakout & Pong\\
  \hline
- 1 thread   & 1180992    & 1013501&   1767981\\
+ 1 thread   & 1.180.992    & 1.013.501&   1.767.981\\
  \hline
- 2 thread&   1973523  & 1736310   & 2943234\\
+ 2 thread&   1.973.523  & 1.736.310   & 2.943.234\\
  \hline
- 4 thread& 2832194 & 2552435&  3993197\\
+ 4 thread& 2.832.194 & 2.552.435&  3.993.197\\
  \hline
- 8 thread   & 3349505 & 3076753 &  4585687\\
+ 8 thread   & 3.349.505 & 3.076.753 &  4.585.687\\
  \hline
- 16 thread&   9504462  & 8047646 & 8751365\\
+ 16 thread&   9.504.462  & 8.047.646 & 8.751.365\\
  \hline
 \end{tabular}
+\caption{Amount of timesteps completed for each of the thread settings, for each of the Atari games}
 \label{table:compare_timesteps}
 \end{table}
+For a closer comparison, table \ref{table:compare_timesteps} has been to used
+to compute the speed-up in regards to amount of timesteps completed,
+which is given in table \ref{tab:speed-up} below.
 
-as we see at table \ref{table:compare_timesteps}, the more threads
-used for the experiments results in more timesteps performed in 16 hours.
+\begin{table}[H]
+\centering
+\begin{tabular}{ |p{2.5cm}||p{2.5cm}|p{2.5cm}|p{2.5cm}|p{2.5cm}|  }
+ \hline
+ \multicolumn{5}{|c|}{Speed-up in percentage for all games} \\
+ \hline
+      Game & Space invaders  & Breakout & Pong & Average\\
+ \hline
+ 2 thread&   67,11\%  & 71,32\%   & 66,47\% & 68,30\%\\
+ \hline
+ 4 thread& 139,81\% & 151,84\% &  125,86\% & 139,17\%\\
+ \hline
+ 8 thread   & 183,62\% & 203,48\% &  159,37\% & 182,16\%\\
+ \hline
+ 16 thread&   704,79\%  & 794,04\% & 394,99\% & 631,27\%\\
+ \hline
+\end{tabular}
+\caption{The achieved speed-up in percentage compared the amount of timesteps completed using
+a single thread, for each of the Atari games.}
+\label{tab:speed-up}
+\end{table}
+
 We have seen some varying results from the different experiments, with
 the most notable result being that the advantages of using multiple threads in the A3C method
 seems to only be present in the Atari experiments.
