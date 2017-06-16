@@ -20,7 +20,7 @@ that the reader has a basic understanding of calculus and
 probability theory.
 
 Solving a task using Reinforcement Learning consists of being in a certain state and making a decision,
-which leads to a new state with a new set of decisions to be made, until
+which leads to a new state with a new set of decisions to be made until
 a terminal state is reached.
 The terminal state is reached when there are no more decisions to be made
 and the task is finished.
@@ -34,7 +34,7 @@ Thus a task can be seen as a \textit{decision tree}, with actions connecting sta
     \label{fig:dec_tree}
 \end{figure}
 
-In a typical Reinforcement Learning setting we try to solve a problem
+In a typical Reinforcement Learning setting, we try to solve a problem
 by moving downwards through the decision tree until a terminal state is reached.
 The result of taking this exact path is then
 taken into account the next time the algorithm tries to solve the problem.
@@ -42,7 +42,7 @@ taken into account the next time the algorithm tries to solve the problem.
 \subsection{Inspiration}
 
 In December 2013 the DeepMind Technologies team published an article
-describing an approach on how to learn from a high dimensional sensory input -
+describing an approach on how to learn from a high-dimensional sensory input -
 frames from an Atari environment -
 using deep Reinforcement Learning\cite{dqn}.
 With a combination of \textit{Convolutional Neural Networks} (CNN) and
@@ -55,14 +55,14 @@ Previous Reinforcement Learning methods haven't been able to succeed at learning
 advanced games, but the combination of neural networks and
 Reinforcement Learning have made it possible.
 
-An emerging problem with learning to play advanced games, is the computational time and
+An emerging problem with learning to play advanced games is the computational time and
 resources it takes to train the algorithm.
 Thus a general approach used to solve Reinforcement Learning problems is to
 play through a game, and continuously evaluate and update the way actions are picked
 while playing the game.
 Choosing the best actions depends on what state the player is in, but it is difficult to
 know which action is best before every option is explored.
-A solution to the time consumption problem of Reinforcement Learning,
+A solution to the time consumption problem of Reinforcement Learning
 is to play a game in parallel,
 allowing multiple paths in the decision tree to be explored at the same time -
 a method called \textit{asynchronous training}.
@@ -91,7 +91,7 @@ take advantage of asynchronous training.
 \subsection{Methods}
 
 With the results of the Google DeepMind team in mind, the scope of the project we present in
-this paper, will be to implement the \textit{Actor-Critic} algortihm according to \cite{RLbook}
+this paper, will be to implement the \textit{Actor-Critic} algorithm according to \cite{RLbook}
 with a deep learning approach, for learning how to play the simple game of \textit{CartPole}, \cite{cart_pole},
 as a proof of concept.
 We will then extend this idea to the \textit{Asynchronous Advantage Actor-Critic} (A3C)
@@ -101,7 +101,7 @@ on the A3C algorithm as it learns how to solve the CartPole problem and play sel
 The A3C algorithm is a Reinforcement Learning method that is able to learn
 how to solve a problem exclusively from experience.
 The algorithm uses a single Convolutional Neural Network to extract information
-about the algorithms performance and select an action to perform.
+about the performance of the algorithm and select an action to perform.
 The network can be seen as the body and the brain of a human.
 The body performs actions which are evaluated by the brain and if
 the action leads to a good result, the brain reinforces the idea
@@ -111,17 +111,17 @@ situation.
 We use CNN's since they have proved to work well on extracting features
 from images in previous projects (\cite{dqn}, \cite{a3c}).
 They are computationally expensive to update though,
-so to decrease the amount of necessary computations we will limit
+so to decrease the number of necessary computations we will limit
 the input by preprocessing the frames before feeding them
 to the networks, following the approach suggested in \cite{dqn-nature}.
-In \cite{a3c} more than one optimization scheme
+In \cite{a3c} more than one optimisation scheme
 is suggested, but the focus in this project is on the effect of
 different amounts of threads so we won't be tuning hyperparameters
-and testing different optimization strategies.
+and testing different optimisation strategies.
 Thus, the main focus of this project is to examine how different levels of asynchronous
 training affects Reinforcement Learning methods.
 
-In the remainder of this paper we review the 
+In the remainder of this paper, we review the 
 CartPole and Atari environments available to us in
 the OpenAI Gym framework and examine the theory behind the
 Reinforcement and Deep Learning methods we will be using
@@ -131,7 +131,7 @@ solving the CartPole game and compare them to the results achieved by the A3C me
 for the same problem.
 We will also provide the results of the A3C algorithm playing Atari games, with different 
 amounts of threads. 
-Lastly the implementation and experimental setup will be presented and
+Lastly, the implementation and experimental setup will be presented and
 a discussion of the results will be given as well as ideas for further
 work.
 
