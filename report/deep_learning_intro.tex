@@ -17,17 +17,17 @@ from the University of Copenhagen.
 \subsection{Layers, Neurons and Connections}\label{sec:lnc}
 
 To approximate $f(x)$ the network uses a combination of simpler functions.
-More formally, a neural network consists of a number of \textit{layers},
-that each represent a function $f^i : \R^{d} \to \R^k$.
+More formally, a neural network consists of a number of \textit{layers}
+that each represents a function $f^i : \R^{d} \to \R^k$.
 This means the network can be seen as a composition of the functions
 \begin{equation}\label{eq:layers}
     f^\sim(x) = f^n(f^{n-1}( \cdots f^1(x) \cdots))
 \end{equation}
 for a network with $n$ layers.
-The layers of the network inbetween the input and output layer, are called
+The layers of the network between the input and output layer, are called
 \textit{hidden layers}, because we won't be directly seeing their output.
 
-In equation \ref{eq:layers}, each of the layers describe a simple function
+In equation \ref{eq:layers}, each of the layers describes a simple function
 and by combining the results of the simpler functions, the neural network
 is able to solve complex problems.
 This structure is a \textit{hierarchy of concepts}, where each concept can be described in terms
@@ -71,17 +71,17 @@ as presented in section \ref{sec:actor_critic_el} and \ref{sec:a3c}.
 
 The choice of activation function depends on the task the
 network is supposed to solve.
-In our case we wish to learn a policy and estimate the value of a state.
+In our case, we wish to learn a policy and estimate the value of a state.
 The policy is a probability distribution, and we will be using a softmax function
 to emulate this, as described in section \ref{sec:improv}, in the final layer.
 The softmax function is defined as
 \begin{equation}
     \text{softmax}(x) = \frac{e^{h(a_i)}}{\sum\limits_{\ell} e^{h(a_\ell)}}
 \end{equation}
-for each of the $\ell$ actions we wish to assign a probability.
-Here the weighted connection from the previous layer, works as
+for each of the $\ell$ actions, we wish to assign a probability.
+Here the weighted connection from the previous layer works as
 a numerical preference for each of the actions.
-The softmax function is a generalization of the sigmoid function, $\frac{1}{1 + e^{-x}}$,
+The softmax function is a generalisation of the sigmoid function, $\frac{1}{1 + e^{-x}}$,
 which is shown below.
 \begin{figure}[!h]
     \centering
@@ -92,9 +92,9 @@ which is shown below.
 
 The value estimate should only be a single output, and therefore we have chosen to
 let the output of the neural network that approximates $v_\pi(s)$ be given
-as the sum of the output of the neurons in the second to last layer.
+as the sum of the output of the neurons in the second-to-last layer.
 
-In the hidden layers we will be using the \textit{Rectified
+In the hidden layers, we will be using the \textit{Rectified
 Linear Unit} (ReLU) as an activator.
 The ReLU is defined as
 \begin{equation}
@@ -102,7 +102,7 @@ The ReLU is defined as
 \end{equation}
 A benefit of the ReLU is that the gradient is always constant - 
 if $x \leq 0$ then the gradient is 0, and if $x > 0$ the gradient is 1.
-This can result in faster learning, since the gradient won't change even
+This can result in faster learning since the gradient won't change even
 though the weights of the network changes.
 \begin{figure}[!h]
     \centering
@@ -113,7 +113,7 @@ though the weights of the network changes.
 
 The choice of activation function defines the role of each layer,
 with the overall goal being to perform ongoing transformations
-to the input, until the network is able to use the extracted
+to the input until the network is able to use the extracted
 features to make a prediction of the output.
 
 \subsection{Learning from Multidimensional Input}
@@ -123,7 +123,7 @@ a \textit{Convolutional} Neural Network (CNN).
 In addition to the activation performed in a neural network, a CNN
 also performs a \textit{convolution} and a \textit{pooling} of the input in each convolutional layer.
 
-In this project, the input to the CNN will be a two dimensional input with a single
+In this project, the input to the CNN will be a two-dimensional input with a single
 channel - a grayscaled and resized Atari frame.
 A convolution in two dimensions of a discrete image $I$ with filter kernel $K$
 is given by 
@@ -131,10 +131,10 @@ is given by
     S(i, j) = (I \ast K)(i, j) = \sum\limits_m \sum\limits_n I(m, n) * K(i - m, j - n)
 \end{equation}
 where the kernel filter $K$ is a function $K : \R^{(d, k)} \to \R$.
-A 2D convolutional layer takes advantage of the spatial structure in the input data to contruct a feature map
+A 2D convolutional layer takes advantage of the spatial structure in the input data to construct a feature map
 using the filter.
 In a classic Neural Network each neuron has its own weighted connection to each neuron in the subsequent layer,
-but in a convolutional layer the neurons share a kernel of weights - the filter $K$ -  which can be represented as
+but in a convolutional layer, the neurons share a kernel of weights - the filter $K$ -  which can be represented as
 a $d \times k$ dimensional matrix.
 $$
 K =
@@ -149,7 +149,7 @@ Each element in the resulting feature map describes the weighted sum of its neig
 pixels.
 Due to the spatial structure found in images, performing a neighbourhood operation
 can be seen as extracting features from the original input - e.g. finding the
-edges in an image by performing a finite center differencing.
+edges in an image by performing a finite centre differencing.
 
 For a $4 \times 4$ input image and a $3 \times 3$ kernel filter the convolution
 would be given by
@@ -166,7 +166,7 @@ pixels at the boundary of the image are lost.
 To deal with this issue we make use of zero padding.
 By adding zeros to the border of each image, until the kernel
 filter fits around each pixel, the image can maintain its dimensions, since
-only the padding will be list in the convolution.
+only the padding will be lost in the convolution.
 %%% Zero padded 2d convolution
 \begin{figure}[H]
     \centering
@@ -190,11 +190,11 @@ or average value of an area of the input.
 The pooling is performed to support \textit{translation invariance},
 which is used to make sure the features of the input are able to
 be extracted, regardless of their position in the feature map.
-In an Atari game most objects move, while maintaining their original shape.
+In an Atari game, most objects move while maintaining their original shape.
 Thus, being able to
 extract information about objects independent of their position is very useful.
 
-Instead of performing both a pooling and a convolutions in two separate steps,
+Instead of performing both a pooling and a convolution in two separate steps,
 we will be using convolutions \textit{with stride}.
 The stride determines the movement of the kernel filter, which means that
 using a stride of $n$, results in the kernel filter skipping $n$ elements 
@@ -204,14 +204,14 @@ while computing the convolution.
     \centering
     \includegraphics[width=10cm]{include/strides.png}
     \caption{A convolution in one dimension, using a stride of 2.
-             This is effectively halving the size of the input, since
+             This is effectively halving the size of the input since
              the convolution is skipping every second element.}
     \label{fig:conv}
 \end{figure}
 Here the convolution skips every second element, resulting in a downsampling
 of the input.
 In two dimensions a convolution can be seen as the kernel moving across
-an image, which means the stride is the amount of pixels the filter is moved.
+an image, which means the stride is the number of pixels the filter is moved.
 Therefore the dimensions of an image can be halved by using a stride of $(2, 2)$, meaning
 the stride is performed in both dimensions.
 

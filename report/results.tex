@@ -5,13 +5,13 @@
 \section{Results}
 
 For each of the experiments described in the previous section, we will be comparing the
-scores achieved to the amount of \textit{timesteps}. 
-A timestep in CartPole corresponds to performing a single action and recieveing a response
+scores achieved to the number of \textit{timesteps} completed by the experiment. 
+A timestep in CartPole corresponds to performing a single action and receiving a response
 from the environment, while a timestep in the Atari games corresponds to repeating an action
 four times.
 For the CartPole problem, we will be using the completed timesteps as a constraint for
 how long the experiments are allowed to run.
-This approach makes it more fair for each thread setting, as we expect 
+This approach makes it fairer for each thread setting, as we expect 
 that we should be able to complete more timesteps using the same amount of real time
 with multiple threads.
 
@@ -22,11 +22,11 @@ due to the time and resource limitations of this project.
 
 \subsection{Playing CartPole - Actor-Critic with Eligibility Traces}
 
-For this experiment our implementation was allowed to perform at most 200.000 timesteps.
+For this experiment, our implementation was allowed to perform at most 200.000 timesteps.
 The pace of learning depends on the experience obtained during exploration,
 and we ran the experiment five times to find the average performance of
 the implementation.
-In figure \ref{fig:cp_et} the results of the experiment is shown
+In figure \ref{fig:cp_et} the results of the experiment are shown
 as a function of timesteps(\ref{fig:cp_et_ts}) and real-time(\ref{fig:cp_et_t}).
 The Actor-Critic method with eligibility traces is a single-threaded
 approach and therefore the plots should roughly show the same tendency.
@@ -59,7 +59,7 @@ approach and therefore the plots should roughly show the same tendency.
 
 Unlike the Atari games, CartPole can be won if the player reaches a score of 200.
 The results of our experiments indicate that
-the method isn't able to learn how to solve the game completely,
+the method isn't able to learn how to solve the game completely
 since the highest mean score is 138,8, which is achieved after 139.688 timesteps.
 However, the fact that the score increases over time
 shows that it was able to learn how to play the game -
@@ -98,7 +98,7 @@ From figure \ref{fig:a3c_time_steps}, it is clear that the
 performance increases as more timesteps are completed, which means
 the policy is improving.
 The learning seems to happen in intervals, which might suggest
-that there exists certain thresholds in the game, where
+that there exist certain thresholds in the game, where
 suboptimal policies can still lead to decent scores.
 Most of the learning seems to happen during the first 120.000 timesteps,
 and afterwards the slope of the performance curve
@@ -106,7 +106,7 @@ is flattened until it has finished converging towards a mean score
 of 200, which it does for the experiment using 16 threads.
 It seems like the implementation is stable for all thread settings, with a slight
 drop in performance after roughly 100.000 timesteps using 8 threads.
-However the drop is too insignificant to be classified as anything other than variance.
+However, the drop is too insignificant to be classified as anything other than variance.
 The overall result was not unexpected, as the same amount of timesteps should produce similar
 scores regardless of the thread setting. 
 
@@ -124,7 +124,7 @@ Figure \ref{fig:a3c_time} shows the mean scores achieved over real time in secon
 The plot has been cut off because the different thread settings didn't require the
 same amount of time to complete 200.000 timesteps.
 The exact amount of time used to perform the 200.000 timesteps can be seen in
-table \ref{tab:time}, which shows that
+Table \ref{tab:time}, which shows that
 the experiment using 8 threads was the first to complete all the timesteps.
 
 \begin{table}[H]
@@ -145,7 +145,7 @@ the experiment using 8 threads was the first to complete all the timesteps.
   \hline
  \end{tabular}
  \caption{The median time used to complete 200.000 timesteps
- for all thread settings over all the CartPole experiments using the A3C method.}
+ for all thread settings from all the CartPole experiments using the A3C method.}
     \label{tab:time}
 \end{table}
 
@@ -153,11 +153,11 @@ It is unexpected that the experiment using 16 threads wasn't the first to finish
 since a major advantage of the A3C method,
 should be that using more threads would result in a higher amount of timesteps completed.
 It is also notable that the plots of real-time and timesteps are almost identical
-over all thread settings, which is surprising since the usage of more
+for all thread settings, which is surprising since the usage of more
 threads didn't achieve a significant speedup
 in time consumed by the implementation.
 The speed-up in time consumed by the experiments
-is given in percentage in table \ref{tab:cp_compare}
+is given in percentage in Table \ref{tab:cp_compare}
 
 \begin{table}[H]
     \centering
@@ -227,7 +227,7 @@ timesteps five times for each thread setting.
      \label{fig:a3c_comp_steps}
 \end{figure}
 
-Upon closer inspectation of the results, it seems that the scores
+Upon closer inspection of the results, it seems that the scores
 converge at roughly the same pace.
 It is again notable that the variance of the scores is approximately
 the same for all thread settings, even though only the experiment using 16 threads
@@ -250,9 +250,9 @@ points.
     \label{fig:a3c_comp_eligibility}
 \end{figure}
 
-From the comparison it seems evident that the A3C algorithm is performing
+From the comparison, it seems evident that the A3C algorithm is performing
 better in regards to pace of learning and overall final mean for all thread settings.
-However, the Actor-Critic with eligibity traces seem to present less variance
+However, the Actor-Critic with eligibility traces seem to present less variance
 in its mean scores and learning curve.
 Even using only a single thread, it seems that the A3C algorithm
 is better suited for solving the CartPole problem, but it should
@@ -263,14 +263,14 @@ at a significantly lower pace.
 
 \subsection{Playing Atari Games}
 
-In the CartPole experiment we allowed our implementation to run for 200.000 timesteps.
+In the CartPole experiment, we allowed our implementation to run for 200.000 timesteps.
 However, due to the high amount of time required to
 learn how to play Atari games, we have had to define the limit of the
 Atari experiments based on the real time spent training instead.
 The experiments were allowed to run for 16 hours (57.600 seconds)
 for all thread settings, and only a single run was performed for
 each of the games.
-We have provided a brief overview of the results, for every games, in figure \ref{fig:all_atari},
+We have provided a brief overview of the results, for every game, in figure \ref{fig:all_atari},
 which shows the scores as a function of real time spent for all
 thread settings.
 To make the plots readable, they have been smoothed such that
@@ -298,7 +298,7 @@ each point represents the mean of the 500 surrounding points.
   \label{fig:all_atari}
 \end{figure}
 
-From these results it seems that the implementation was able to learn
+From these results, it seems that the implementation was able to learn
 a decent policy for both Space Invaders and Breakout, but fails
 to learn how to play Pong.
 Upon closer inspection, the results from Space Invaders seem to indicate 
@@ -318,7 +318,7 @@ The plot has been smoothed such that each point represents the mean of the
 
 Unlike the CartPole experiments for the A3C method, using multiple threads
 led to a higher learning pace.
-This seems odd, but upon examining the amount of timesteps performed,
+This seems odd, but upon examining the number of timesteps performed,
 the result makes more sense.
 Figure \ref{fig:a3c_spaceinvaders_ts} shows the same plot as
 figure \ref{fig:a3c_spaceinvaders}, with the
@@ -333,11 +333,11 @@ during the experiment.
 \end{figure}
 
 The plot indicates that the result of the A3C implementation
-on Space Invaders behaves the same way as the results from the CartPole experiment,
+on Space Invaders behaves the same way as the results from the CartPole experiment
 if the threads are allowed to complete the same amount of timesteps.
 This is the result we expected, but it is notable that the amount
 of completed timesteps doesn't seem to scale directly with
-the amount of threads used.
+the number of threads used.
 It is especially curious that the difference in timesteps is very small
 between four and eight threads, compared to the difference between sixteen and eight.
 The same trend can be seen for Breakout, which is shown in figure
@@ -369,9 +369,9 @@ the same way as it did for the CartPole experiments, with the exception
 that we are able to complete a lot more timesteps 
 in the Atari games for each additional thread used.
 
-We have also tested our A3C implementation on the Pong enviroment.
-The setup of the training was the same as for the Breakout and Spaceinvaders experiments,
-but as shown below the results difer significantly in regards
+We have also tested our A3C implementation on the Pong environment.
+The setup of the training was the same as for the Breakout and Space Invaders experiments,
+but as shown below the results differ significantly in regards
 to improvement of the mean score. 
 
 \begin{figure}[H]
@@ -397,13 +397,13 @@ point describes the mean of the surrounding 50.}
 \end{figure}
 
 Generally, we see no improvement in performance while playing Pong for any of the threads settings.
-Upon closer examination it seems that the experiment using 16 threads improves a little
+Upon closer examination, it seems that the experiment using 16 threads improves a little
 in the end, but it is too small a change to conclude that the method learned how to play the 
 game.
 However, with regards to the number of timesteps completed,
 the trend is the same as the one in the Breakout and Space Invaders
 experiments.
-In table \ref{table:compare_timesteps} the number of timesteps performed
+In Table \ref{table:compare_timesteps} the number of timesteps performed
 for each of the three Atari games can be seen, for all thread settings.
 \begin{table}[H]
 \centering
@@ -428,10 +428,10 @@ for each of the three Atari games can be seen, for all thread settings.
 \label{table:compare_timesteps}
 \end{table}
 
-For a more detailed comparison, table \ref{table:compare_timesteps} has been used
-to compute the speed-up in regards to amount of timesteps completed,
+For a more detailed comparison, Table \ref{table:compare_timesteps} has been used
+to compute the speed-up in regards to the amount of timesteps completed,
 where the experiments using one thread has been used as a baseline.
-The resulting speed-ups are given in table \ref{tab:speed-up} below.
+The resulting speed-ups are given in Table \ref{tab:speed-up} below.
 
 \begin{table}[H]
 \centering
@@ -450,14 +450,14 @@ The resulting speed-ups are given in table \ref{tab:speed-up} below.
  \textbf{16 threads}&   704,79\%  & 794,04\% & 394,99\% & 631,27\%\\
  \hline
 \end{tabular}
-\caption{The achieved speed-up in percentage compared the amount of timesteps completed using
+\caption{The achieved speed-up in percentage compared the number of timesteps completed using
 a single thread, for each of the Atari games.}
 \label{tab:speed-up}
 \end{table}
 
 The results have been varying for the different experiments, with
 the most notable result being that the advantages of using multiple threads in the A3C method
-seems to only be present in the Atari experiments.
+seem to only be present in the Atari experiments.
 We expected the results for the Actor-Critic method using eligibility traces
 to be worse than those generated by the A3C experiments, 
 but the difference was more prominent than expected.

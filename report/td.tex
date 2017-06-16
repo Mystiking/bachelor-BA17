@@ -10,7 +10,7 @@ We now have a way to describe the value of a state, but we rarely know the
 value function $v_\pi$ before beginning to solve a problem.
 Even with knowledge of the entire state space and all available actions,
 it is difficult to compute the true value function.
-Instead we can construct an estimator $V(S_t)$ that
+Instead, we can construct an estimator $V(S_t)$ that
 approximates $v_\pi(S_t)$. However, this means we need a way
 to measure how close the estimator is to the true value function.
 
@@ -24,16 +24,16 @@ of the state-value function,
 where $0 \leq \alpha \leq 1$ is a step-size parameter and
 $G_t = \sum\limits_{k=0} \gamma^k R_{t+k+1}$.
 
-This estimator only allows us to update the estimate, when a
+This estimator only allows us to update the estimate when a
 terminal state is reached, since this is the time at which $G_t$ is known.
-Such an approach is called an \textit{episodic} update scheme, since the
+Such an approach is called an \textit{episodic} update scheme since the
 state-value estimator is only updated when a task is completed -
 or in other words when an \textit{episode} is over.
 Updating this way is inefficient because the estimator needs to complete
 a lot of episodes to converge towards the true state-value function.
 
-A different approach to estimating $V(S_t)$ everytime a new state is encountered.
-From equation \ref{eq:sv} we know that the value function is partly based on its future
+A different approach to estimating $V(S_t)$ every time a new state is encountered.
+From Equation \ref{eq:sv} we know that the value function is partly based on its future
 estimate, which we can extend to form an update scheme,
 \begin{equation}\label{eq:up}
     V(S_t) = V(S_t) + \alpha  [R_{t+1} + \gamma  V(S_{t+1}) - V(S_t)]
@@ -47,9 +47,9 @@ This error describes the difference between the current estimate
 and the estimate of the next state using the reward experienced after
 transitioning to the new state.
 
-Generally we want to minimize the TD-error, as the function $V(S_t)$
+Generally, we want to minimise the TD-error, as the function $V(S_t)$
 would then be as close to $v_\pi(S_t)$ as possible.
-In particular if this error was 0 for all states, then
+In particular, if this error was zero for all states, then
 $V(S_t) = v_\pi(S_t)$ because 
 \begin{equation}
     \begin{aligned}
@@ -75,7 +75,7 @@ into account, which is defined as the \textit{n-step} return,
 \begin{equation}
     G^{(n)}_t = R_{t+1} + \gamma R_{t+2} + \dots + \gamma^n V(S_{t+n})
 \end{equation}
-where $1 \leq n$, $0 < t \leq T - n$ and $T - n$ is the n'th timestep before the terminal state
+where $1 \leq n$, $0 < t \leq T - n$ and $T - n$ is the nth timestep before the terminal state
 is reached.
 
 Using the n-step return allows the learning agent to base its update on the next $n$ experienced
@@ -87,7 +87,7 @@ rewards, which means it is more likely to experience significant changes than th
     \end{aligned}
 \end{equation}
 This way of updating the estimate is especially beneficial in tasks that only sometimes returns a reward. 
-For example in most Atari games a score is only given to the player when an objective has been completed.
+For example, in most Atari games a score is only given to the player when an objective has been completed.
 We want to find these significant changes because the entire chain of estimates 
 will be affected, resulting in the estimate converging faster towards the real value function.
 
@@ -95,13 +95,13 @@ will be affected, resulting in the estimate converging faster towards the real v
 
 % Intro til parameterized functions
 So far we have described the state-value function as a mapping from states to values.
-A problem with this approach is that it becomes infeasable to maintain 
-when the state space is continuous, since there is an infinite number of states.
-To estimate the state-value function in a continous state space we can use a
+A problem with this approach is that it becomes infeasible to maintain 
+when the state space is continuous since there is an infinite number of states.
+To estimate the state-value function in a continuous state space we can use a
 parameterized function $\hat{v}(s, \mathbf{w}_t)$ with weights $\mathbf{w}_t \in \R^d$.
 Thus, instead of keeping track of the last $n$ steps, the estimator $\hat{v}(s, \mathbf{w}_t)$
 only needs to keep track of the weight vector $\mathbf{w}_t$.
-There are many ways to construct $\hat{v}(s, \mathbf{w}_t)$, and in this project we use \textit{deep neural networks}
+There are many ways to construct $\hat{v}(s, \mathbf{w}_t)$, and in this project, we use \textit{deep neural networks}
 as function approximators - a topic that will be discussed in details in section \ref{sec:deep_learning}.
 
 In section \ref{sec:multi} we estimated the value function based on the n-step return, but
@@ -111,16 +111,16 @@ current estimate.
 To do so we can use an \textit{eligibility trace}, $\mathbf{e}^{\mathbf{w}} \in \R^d$, that
 has exactly as many components as the weight vector.
 
-Generally we want to use the elegibility trace to improve the value function by
+Generally, we want to use the eligibility trace to improve the value function by
 updating its weights, $\mathbf{w}_t$, using gradient ascent.
-The eligibility trace describes the elegibility of its corresponding component in $\mathbf{w}_t$
-- in other words it describes the recent tendency in directional changes needed to be made
-to maximize $\hat{v}(s, \mathbf{w}_t)$.
-Thus an elegibility trace for the value estimator can be updated as
+The eligibility trace describes the eligibility of its corresponding component in $\mathbf{w}_t$
+- in other words, it describes the recent tendency in directional changes needed to be made
+to maximise $\hat{v}(s, \mathbf{w}_t)$.
+Thus an eligibility trace for the value estimator can be updated as
 \begin{equation}
     \mathbf{e}^\mathbf{w} = \lambda \mathbf{e}^\mathbf{w} + \nabla_\mathbf{w} \hat{v}(s, \mathbf{w}_t)
 \end{equation}
-where $0 \leq \lambda \leq 1$ is a discounting factor used to decrease the elegibility of a component
+where $0 \leq \lambda \leq 1$ is a discounting factor used to decrease the eligibility of a component
 over time.
 We also want to base the update of the weights on the performance of the value estimate,
 since we want the estimate to improve as the effect of the actions taken is experienced.
@@ -128,7 +128,7 @@ Therefore the weights are updated proportionally to the one-step TD-error discus
 section.
 A low TD-error means that the update to the weights should be small, since the value estimator is
 close to a maximum, while a high error means that we need to take a larger step
-in the direction of the elegibility trace as we are still far from the maximum.
+in the direction of the eligibility trace as we are still far from the maximum.
 An update based on this approach is defined as
 \begin{equation}
     \mathbf{w}_{t+1} = \mathbf{w}_t + \eta \delta \nabla e^\mathbf{w}

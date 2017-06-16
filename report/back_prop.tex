@@ -22,8 +22,8 @@ some parameters $x \in \R^n$ is given by
       \end{pmatrix}
 \end{equation}
 
-Now, in a neural network it is difficult to take the gradient of the
-entire network at once, since it consists of a number of layers
+Now, in a neural network, it is difficult to take the gradient of the
+entire network at once since it consists of a number of layers
 using different activation functions and a lot of parameters.
 To solve this issue the general approach to computing the gradient of a network
 is to use \textit{back-propagation} as presented in \cite{IgelBackProp}
@@ -31,11 +31,11 @@ and \cite{DeepLearningBook}.
 
 Consider a network consisting of $d$ input neurons, $M$ hidden neurons and $K$ output neurons,
 estimating the function $f : \R^d \to \R^K$.
-Each neuron can be denoted as $z_i$, where neurons for which $i \leq d$ are the input neurons, $d < i \leq M + d$ are the hiden neurons
+Each neuron can be denoted as $z_i$, where neurons for which $i \leq d$ are the input neurons, $d < i \leq M + d$ are the hidden neurons
 and $M + d < i \leq M + d + K$ are the output neurons.
 As described in section \ref{sec:lnc} each neuron $z_i$ can be seen as a weighted activation of its input.
 For the neurons in the hidden layers and the output layer, this means $z_i = h(a_i)$, where 
-$a_i = \sum_{j} w_{ij} * z_{j}$ is the weighted sum of the input to the i'th neuron and $h$ is an arbitrary
+$a_i = \sum_{j} w_{ij} * z_{j}$ is the weighted sum of the input to the ith neuron and $h$ is an arbitrary
 activation function.
 
 Previously we updated the weights of an estimator with regards to some performance measure $\rho$ 
@@ -49,7 +49,7 @@ If all $h$ in the network are differentiable this results in the partial derivat
 describing the directional change for each weighted connection in the network from $z_j$ to $z_i$.
 
 If we start by looking at this partial derivative in the $K$ output neurons of the
-neural network, we can apply the chain rule of calculus to equation \ref{part},
+neural network, we can apply the chain rule of calculus to Equation \ref{part},
 \begin{equation}
     \frac{\partial \rho}{\partial w_{ij}} = \frac{\partial \rho}{\partial a_i} \frac{\partial a_i}{\partial w_{ij}} 
 \end{equation}
@@ -77,7 +77,7 @@ an output neuron can be found as
 This only holds for the output neurons because their output isn't
 used by any other neuron.
 For the hidden neurons we have to take all subsequent neurons into account as
-well, since their output is propagated forward through the network.
+well since their output is propagated forward through the network.
 Thus,
 \begin{equation}
     \delta_i = \sum\limits_{k=i+1}^{M + d + K} \frac{\partial \rho}{\partial a_k} \frac{\partial a_k}{\partial a_i} 
@@ -97,8 +97,7 @@ because $\frac{\partial a_k}{\partial z_i} = \frac{\partial}{\partial z_i} \sum_
 Using these equations, we can then compute the partial derivatives for all output and hidden neurons
 by computing $\delta$, since we already have access to the value of $z_j$.
 However, it is important to note that the partial derivatives have to be computed in the reverse order,
-since each derivative in each neuron, $z_j$, is dependant of all derivatives of all later neurons $z_i$ for $j < i$.
-
+since each derivative in each neuron, $z_j$, is dependent of all derivatives of all later neurons $z_i$ for $j < i$.
 
 %%%% AFSLUTNING %%%%
 

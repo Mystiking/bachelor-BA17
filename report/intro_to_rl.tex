@@ -6,14 +6,14 @@
 
 \section{Reinforcement Learning}
 
-In this project we will present Reinforcement Learning according to
+In this project, we will present Reinforcement Learning according to
 \cite{RLbook}.
 Reinforcement Learning is a machine learning technique that attempts 
 to map situations to actions.
 Learning this mapping can be achieved through interacting with the problem
 environment and thus gaining experience about actions and their consequences.
 %%%% Er det her en god formulering?
-In other words when a good action is found for a given situation,
+In other words, when a good action is found for a given situation,
 the probability of taking that action needs to be reinforced,
 to make it more likely to be
 repeated in the future if a similar situation occurs.
@@ -24,7 +24,7 @@ A state contains all available information related to the environment,
 i.e. in a game of backgammon a state could contain the position of every piece on the board at
 a given time.
 An action describes a transition from one state to another.
-In the backgammon example an action would be to move a piece, following the rules of the
+In the backgammon example, an action would be to move a piece, following the rules of the
 game.
 
 When a Reinforcement Learning algorithm learns how to solve a task, it is
@@ -32,7 +32,7 @@ interacting with the environment through a \textit{learning agent}.
 The agent decides which action should be performed in each state by creating and maintaining a \textit{policy}.
 The policy is a mapping from states in the environment to actions available to the agent.
 Policies can take many forms, such as a simple look-up table, where each state maps to a single
-action, but in this project we will be treating policies solely as probability distributions.
+action, but in this project, we will be treating policies solely as probability distributions.
 This means that a policy $\pi(A_t = a|S_t = s)$ given a state $s \in \mathcal{S}$ describes the
 probability of taking action $a \in \mathcal{A}(s)$ from state $s$ under policy $\pi$ at time $t$.
 $\mathcal{A}(s)$ denotes the \textit{action space} and $\mathcal{S}$ the \textit{state space},
@@ -51,7 +51,7 @@ Hence transitioning from one state to another can be assigned a numerical value
     \includegraphics[scale = 0.5]{include/RLdiagram.png}
     \caption{A representation of the agent interacting with the environment.
         The environment sends a state and reward signal to the
-    learning agent which responds by taking an action and transition, to new stateand and so forth.}
+    learning agent which responds by taking an action and transition, to a new state and so forth.}
     \label{fig:agent_environment}
 \end{figure}
 %%%%
@@ -61,10 +61,10 @@ to solve a task satisfactory without any prior knowledge about the rules of the 
 The agent uses a combination of \textit{exploration} and \textit{exploitation}
 to gain the necessary experience.
 The goal of the learning agent is to learn a policy that maximises the total reward, but in order to do
-so it must \textit{explore} some of the options that seem suboptimal at first.
+so, it must \textit{explore} some of the options that seem suboptimal at first.
 Hence the immediate reward might be lower, but the action could lead to a higher total reward in the end.
-The learning agent shouldn't be exploring too much though, since it then wouldn't
-be using the previously gathered knowledge - in other words it needs to
+The learning agent shouldn't be exploring too much though since it then wouldn't
+be using the previously gathered knowledge - in other words, it needs to
 \textit{exploit} the fact that it “knows” the result of taking an action, when it has been in
 a similar situation before.
 Thus, there needs to be a balance between exploration and exploitation for the
