@@ -2,7 +2,7 @@
 \usepackage{mypackages}
 \begin{document}
 
-\subsection{Improving policies}
+\subsection{Improving Policies}
 \label{sec:improv}
 Now that we can update and maintain an estimator of the value function, we want
 to focus on improving the policy.
@@ -60,7 +60,7 @@ as shown below.
     \pi(a | s, \theta_t) = \frac{e^{h(s,a,\theta_t)}}{\sum\limits_{a} e^{h(s,a,\theta_t)}}
 \end{equation}
 
-\subsubsection{The Actor-Critic model}\label{sec:actor_critic}
+\subsubsection{The Actor-Critic Model}\label{sec:actor_critic}
 
 A problem with the performance measure from equation \ref{per_mes} is that
 the updates doesn't take rewards earned into account. 
@@ -106,7 +106,7 @@ influencing the policy accordingly.
 %An advantage of using Actor-Critic methods is that the split into a actor and critic, reduces the variance of the function approximation, because the update step size for the policy parameters is defined relative to estimated value from critic.\cite{actCrit}
 
 \newpage
-\subsubsection{Applying eligibility traces to the Actor-Critic method}\label{sec:actor_critic_el}
+\subsubsection{Applying Eligibility Traces to the Actor-Critic Method}\label{sec:actor_critic_el}
 
 To increase the stability of the Actor-Critic method, we can extend it to use eligibility traces
 for the weights of the policy and value estimators.

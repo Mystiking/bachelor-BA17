@@ -20,7 +20,7 @@ was not an option, due to the amount of real time it would require, for especial
 Therefore all of these experiments have only been allowed to run for 16 hours,
 due to the time and resource limitations of this project.
 
-\subsection{Playing CartPole - Actor-Critic with eligibility traces}
+\subsection{Playing CartPole - Actor-Critic with Eligibility Traces}
 
 For this experiment our implementation was allowed to perform at most 200.000 timesteps.
 The pace of learning depends on the experience obtained during exploration,
@@ -184,7 +184,7 @@ two and eight threads.
 However, it is curious that the speed-up is lower for sixteen threads, given the
 trend for the other thread settings.
 
-\subsubsection{Comparison between different amounts of threads}
+\subsubsection{Comparison Between Different Amounts of Threads}
 
 Figure \ref{fig:a3c_comp_steps} shows the average result obtained from running 200.000
 timesteps five times for each thread setting.
@@ -233,7 +233,7 @@ It is again notable that the variance of the scores is approximately
 the same for all thread settings, even though only the experiment using 16 threads
 could maintain a stable mean score of 200.
 
-\subsubsection{Comparison between A3C and Actor-Critic method using eligibility traces}
+\subsubsection{Comparison Between the A3C and Actor-Critic Method using Eligibility Traces}
 
 Figure \ref{fig:a3c_comp_eligibility} shows a comparison between the
 results of the A3C algorithm and the Actor-Critic method with eligibility
@@ -261,7 +261,7 @@ with eligibility traces was more restrained in regards to choice of
 learning rates, which might be the reason why the learning happens
 at a significantly lower pace.
 
-\subsection{Playing Atari games}
+\subsection{Playing Atari Games}
 
 In the CartPole experiment we allowed our implementation to run for 200.000 timesteps.
 However, due to the high amount of time required to
