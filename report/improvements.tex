@@ -10,12 +10,12 @@ As for the value estimator, we learn the policy as a parameterized function $\pi
 , which given an action $a$ and a state $s$ returns the probability
 of taking action $a$ in state $s$ using the weights $\theta_t$.
 The goal of the learning agent is to find the best policy, which is the one 
-that will maximize the expected return.
+that will maximise the expected return.
 To examine how well a policy is doing, we use a \textit{performance measure}, $\rho(\theta_t)$, to evaluate
 the policy based on the policy weights $\theta_t$.
-We want to maximize the performance measure, since the policy is then optimal with
+We want to maximise the performance measure since the policy is then optimal with
 respect to $\rho(\theta_t)$.
-As in section \ref{sec:td}
+As in section \ref{sec:td},
 we perform gradient ascent to find the optimal weights of the performance measure,
 and therefore, updating the policy weights is defined as
 \begin{equation}
@@ -49,7 +49,7 @@ of sampling the other actions zero, which means we would be dividing by zero
 in equation \ref{per_mes}.
 
 We can solve this problem by choosing our policy in a way that doesn't allow probabilities that are zero or one.
-In this project we will be using the \textit{softmax} function to achieve this,
+In this project, we will be using the \textit{softmax} function to achieve this,
 by using a numerical preference $h(s, a, \theta) \in \mathbb{R}$
 for each action available from the state $s$.
 The numerical preference can be constructed in many ways, and we have chosen to use
@@ -63,14 +63,14 @@ as shown below.
 \subsubsection{The Actor-Critic Model}\label{sec:actor_critic}
 
 A problem with the performance measure from equation \ref{per_mes} is that
-the updates doesn't take rewards earned into account. 
+the updates don't take rewards earned into account. 
 To avoid updating without taking the rewards into account, we can
 use the value function to evaluate the policy.
 Combining the parameterized value function, $\hat{v}(s, \mathbf{w}_t)$,
-and the parameterized policy, $\pi(a|s, \theta_t)$ is the basis of \textit{Actor-Critc} methods.
+and the parameterized policy, $\pi(a|s, \theta_t)$ is the basis of \textit{Actor-Critic} methods.
 In the agent-environment model, the agent interacted with the environment
 by performing actions and transitioning to new states.
-For Actor-Critic methods the agent-environment model is extended such that the agent,
+For Actor-Critic methods, the agent-environment model is extended such that the agent,
 or \textit{actor}, is still interacting with the environment, but
 instead of only receiving the reward and new state, it also receives
 a \textit{critique} of its performance - the TD-error.
@@ -78,13 +78,13 @@ a \textit{critique} of its performance - the TD-error.
 \begin{figure}[!h]
     \centering
     \includegraphics[scale = 0.5]{include/ActorCriticDiagram.png}
-    \caption{A representation of the Actor-Critic model.
+    \caption{A representation of the Actor-Critic Model.
         The environment sends a state and reward signal to both the actor and the critic.
         The critic computes the TD-error, which the actor uses as an evaluation of its performance
         and then picks a new action and so forth.}
     \label{fig:actor-critic}
 \end{figure}
-
+\newpage
 This means that after an action sampled from $\pi(a|s,\theta_t)$ is performed,
 the reward obtained for performing the action is used by the value estimator to
 compute the one-step TD-error from section \ref{sec:td}.
@@ -105,7 +105,6 @@ influencing the policy accordingly.
 
 %An advantage of using Actor-Critic methods is that the split into a actor and critic, reduces the variance of the function approximation, because the update step size for the policy parameters is defined relative to estimated value from critic.\cite{actCrit}
 
-\newpage
 \subsubsection{Applying Eligibility Traces to the Actor-Critic Method}\label{sec:actor_critic_el}
 
 To increase the stability of the Actor-Critic method, we can extend it to use eligibility traces
@@ -120,7 +119,7 @@ and
     \mathbf{e}^{\mathbf{w}} = \lambda \mathbf{e}^{\mathbf{w}} + \nabla_\mathbf{w} \hat{v}(s, \mathbf{w}_t)
 \end{equation}
 
-This has a stabilizing effect since it handles the problem of delayed reward.
+This has a stabilising effect since it handles the problem of delayed reward.
 For example in most Atari games performing an action doesn't immediately return a reward,
 which means that the wrong actions might be reinforced due to the illusion
 of those actions being responsible for the gained reward.
@@ -138,11 +137,11 @@ Equivalently the weights of the policy estimator can be updated in the same fash
 \end{equation}
 
 Now we have a way to solve a problem solely from experience.
-The Actor-Critic model, and Reinforcement Learning in general, is well suited
-to solve problems with domains that are difficult to describe, since
+The Actor-Critic Model, and Reinforcement Learning in general is well suited
+to solve problems with domains that are difficult to describe since
 they need no prior knowledge of the environment.
-Extending the Actor-Critic model to use eligiblity traces 
-increases the usability of the method, since the model is 
+Extending the Actor-Critic Model to use eligibility traces 
+increases the usability of the method since the model is 
 influenced less by poor decisions, which is especially helpful
 when the actor explores the effects of actions with a low probability.
 

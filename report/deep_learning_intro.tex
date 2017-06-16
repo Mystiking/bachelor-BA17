@@ -83,13 +83,12 @@ Here the weighted connection from the previous layer works as
 a numerical preference for each of the actions.
 The softmax function is a generalisation of the sigmoid function, $\frac{1}{1 + e^{-x}}$,
 which is shown below.
-\begin{figure}[!h]
+\begin{figure}[H]
     \centering
-    \includegraphics[width=15cm]{include/sigmoid.png}
+    \includegraphics[width=13cm]{include/sigmoid.png}
     \caption{Plot of the sigmoid function.}
     \label{fig:softmax}
 \end{figure}
-
 The value estimate should only be a single output, and therefore we have chosen to
 let the output of the neural network that approximates $v_\pi(s)$ be given
 as the sum of the output of the neurons in the second-to-last layer.
@@ -154,13 +153,12 @@ edges in an image by performing a finite centre differencing.
 For a $4 \times 4$ input image and a $3 \times 3$ kernel filter the convolution
 would be given by
 %%% 2d convolution
-\begin{figure}[!h]
+\begin{figure}[H]
     \centering
     \includegraphics[width=10cm]{include/conv_2.png}
     \caption{A 2D convolution on an image which produces a feature map.}
     \label{fig:conv}
 \end{figure}
-\newpage
 A problem with the convolution shown in figure \ref{fig:conv} is that
 pixels at the boundary of the image are lost.
 To deal with this issue we make use of zero padding.
