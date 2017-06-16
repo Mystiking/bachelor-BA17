@@ -370,8 +370,33 @@ Upon closer examination it seems that the experiment using 16 threads improves a
 in the end, but it is too small a change to conclude that the method learned to play the 
 game.
 However, with regards to the number of timesteps completed,
-the trend is the same as the one in the Breakout and Space Invaders experiments.
+the trend is the same as the one in the Breakout and Space Invaders
+experiments, and in table \ref{table:compare_timesteps} we see the number of timesteps performed
+for each of the 3 atari games, for all combination of thread setting,
+\begin{table}[H]
+\centering
+\begin{tabular}{ |p{3cm}||p{3cm}|p{3cm}|p{3cm}|  }
+ \hline
+ \multicolumn{4}{|c|}{List of performed timesteps per game per thread setting} \\
+ \hline
+      Game & Space invaders  & Breakout & Pong\\
+ \hline
+ 1 thread   & 1180992    & 1013501&   1767981\\
+ \hline
+ 2 thread&   1973523  & 1736310   & 2943234\\
+ \hline
+ 4 thread& 2832194 & 2552435&  3993197\\
+ \hline
+ 8 thread   & 3349505 & 3076753 &  4585687\\
+ \hline
+ 16 thread&   9504462  & 8047646 & 8751365\\
+ \hline
+\end{tabular}
+\label{table:compare_timesteps}
+\end{table}
 
+as we see at table \ref{table:compare_timesteps}, the more threads
+used for the experiments results in more timesteps performed in 16 hours.
 We have seen some varying results from the different experiments, with
 the most notable result being that the advantages of using multiple threads in the A3C method
 seems to only be present in the Atari experiments.
