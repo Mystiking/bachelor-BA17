@@ -4,6 +4,19 @@
 
 \section*{Abstract}
 
-//TODO
+In this paper we present the effects of asynchronous training in
+Deep Reinforcement Learning methods.
+An Actor-Critic method using eligibility traces has been implemented to solve the CartPole problem,
+and the Asynchronous Advantage
+Actor-Critic (A3C) algorithm,
+have been implemented to solve both the CartPole problem and to play Atari games.
+The results from the A3C method show it is possible to achieve a speed-up of 631,27\% in
+the number of performed actions for several Atari games,
+while maintaining the same stability in learning as a single-threaded approach.
+However, when the A3C algorithm was applied to the CartPole problem
+we only achieved a speed-up of 15,09\% in time spent training.
+The results indicated that the advantages of asynchronous learning are only present,
+when each thread can perform a meaningful amount of work between
+each asynchronous update.
 
 \end{document}
